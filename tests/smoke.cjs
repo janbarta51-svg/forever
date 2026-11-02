@@ -69,10 +69,10 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     check(slotMarkup.split("assets/roles/dps.svg").length-1===3,"Exactly three DPS role icons");
     check(slotMarkup.includes(">Tank</strong>") && slotMarkup.includes(">Healer</strong>"),"Tank and Healer role headers");
     check(slotMarkup.includes("selected-class class-colored"),"Centered class label elements");
-    const choicesFor=slot=>[...slotMarkup.matchAll(new RegExp("data-class-choice=\\\""+slot+"\\\" data-choice-class=\\\"([^\\\"]+)\\\"","g"))].map(m=>m[1]);
+    const choicesFor=slot=>[...slotMarkup.matchAll(new RegExp('data-class-choice="'+slot+'" data-choice-class="([^"]+)"','g'))].map(m=>m[1]);
     check(choicesFor(1).length===4 && ["Druid","Paladin","Priest","Shaman"].every(c=>choicesFor(1).includes(c)),"Healer selector limited to four eligible classes");
     check(choicesFor(2).length===9 && choicesFor(2).includes("Warlock"),"DPS selector offers all nine classes");
-    check(!slotMarkup.includes("data-class-choice=\\\"0\\\""),"Tank class cannot be changed");
+    check(!slotMarkup.includes('data-class-choice="0"'),"Tank class cannot be changed");
     const chooseClass=(slot,cls)=>elements["#groupSlots"].handlers.click({target:{closest:s=>s==="[data-class-choice]"?{dataset:{classChoice:String(slot),choiceClass:cls}}:null}});
     check(elements["#groupSlots"].innerHTML.includes("classicon_priest.jpg"),"Wowhead class icon rendered");
     check(elements["#groupSlots"].innerHTML.includes("#C69B6D"),"Warrior brown applied in group");
