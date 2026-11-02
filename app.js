@@ -50,9 +50,9 @@ function whLink(item,type) {
   const kind = type || item.tooltipType || "item";
   const href = verified ? "https://www.wowhead.com/forever/"+kind+"="+id : queryLink(item.name);
   const attr = verified ? ' data-wowhead="'+esc(kind+"="+id)+'"' : "";
-  const details = [item.effect,item.note].filter(Boolean).map(esc).join("<br>");
-  const requirement = item.level===null ? "Character level unverified" : Number.isFinite(item.level) ? "Available at level "+item.level : "";
-  return '<span class="tooltip-wrap '+(verified?"has-wh":"")+'"><a href="'+esc(href)+'"'+attr+' target="_blank" rel="noopener noreferrer">'+esc(item.name)+'</a><span class="local-tooltip" role="tooltip"><strong>'+esc(item.name)+'</strong>'+details+'<span class="tip-meta">'+esc(requirement)+' · '+esc(kind==="spell"?"Spell":"Item")+'</span></span></span>';
+  // Wowhead is the only tooltip provider; don't render a second local hover card.
+  // Links without a verified ID remain clickable searches but have no fake tooltip.
+  return '<span class="tooltip-wrap '+(verified?"has-wh":"")+'"><a href="'+esc(href)+'"'+attr+' target="_blank" rel="noopener noreferrer">'+esc(item.name)+'</a></span>';
 }
 function abilityLink(row,detail) {
   return whLink({name:row[0],effect:detail.effect,note:row[5],id:row[4],level:detail.level},"spell");
@@ -63,7 +63,7 @@ function refreshTooltips(){
       window.WH.Tooltips.refreshLinks();
       document.body.classList.add("wowhead-ready");
     }
-  } catch(error){console.warn("Using local tooltip fallback",error)}
+  } catch(error){console.warn("Wowhead tooltip refresh failed",error)}
 }
 function latest(items){return items.filter(x=>x.level!==null&&x.level<=state.level).sort((a,b)=>b.level-a.level)[0]||null}
 function setLevel(value) {
