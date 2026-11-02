@@ -875,3 +875,12 @@ window.CAMP_FEATURES=[
 ];
 window.CAMP_SOURCES=["https://worldofwarcraft.blizzard.com/en-gb/news/24301516","https://www.wowhead.com/forever/guide/camping-overview-unlock-rewards"];
 window.WARRIOR_GEAR_SOURCE="https://www.icy-veins.com/wow-forever/protection-warrior-leveling";
+
+/* Auction House search availability is deliberately explicit.
+ * Consumables, bandages, crafted weapon treatments, spikes, etc. are tradable.
+ * Only verified BoE weapons get the copy action; dungeon/quest rewards do not.
+ * Sources: ForeverDB item 2847 (Copper Shortsword), item 1951 (Blackwater Cutlass).
+ */
+window.WARRIOR_ITEMS.forEach(item => { item.purchasable = true; });
+const tradableWeapons = new Set(["Copper Shortsword", "Blackwater Cutlass"]);
+window.WARRIOR_WEAPONS.forEach(item => { item.purchasable = tradableWeapons.has(item.name); });
