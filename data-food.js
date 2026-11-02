@@ -69,14 +69,14 @@ Slimy Smoothie|SPR|+3 Spirit|100|||
 Mrrggl Smrrthle|SPR|+5 Spirit|125|||
 Calcified Smoothie|SPR|+10 Spirit|125|||
 Spicy Smoothie|SPR|+15 Spirit|200|||
-Westfall Stew|SPECIAL|+15 % movement speed ve Westfallu|75|5||
+Westfall Stew|SPECIAL|+15% movement speed while in Westfall|75|5||
 Loch Frenzy Delight|SPECIAL|+3 Fishing skill|100|||
 Fillet of Frenzy|SPECIAL|+5 Fishing skill|50|||
 Bristle Whisker Catfish|SPECIAL|+8 Fishing skill|100|||
 Rockscale Cod|SPECIAL|+12 Fishing skill|100|||
 Spinefin Halibut|SPECIAL|+18 Fishing skill|100|||
 Goldthorn Tea|SPECIAL|+15 Herbalism|100|||
-Dragonbreath Chili|SPECIAL|Šance vydechnout oheň při melee útocích|200|25||Vlastní bojový proc; nemusí sdílet Well Fed kategorii`.split("\n").filter(Boolean).map(line=>{
+Dragonbreath Chili|SPECIAL|Chance to breathe fire on melee hits|200|25||Unique combat proc; may not share the Well Fed food category`.split("\n").filter(Boolean).map(line=>{
   const [name,category,effect,skill,lvl,id,note]=line.split("|");
   return {name,category,effect,skill:Number(skill),level:lvl?Number(lvl):null,id:id?Number(id):null,note:note||"",
   verified:!!lvl,source:"Wowhead Forever food overview; lvl: Mobalytics Protection Warrior (where available)"};
