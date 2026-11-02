@@ -8,18 +8,19 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 - **Auction House quick copy:** a tiny muted amber overlapping-pages icon appears beside purchasable/tradable items in Warrior cards, current-item highlights and the Food Buffs table. Clicking it copies only the exact item name for Auction House search. Quest rewards, spells and non-tradable dungeon gear have no copy icon. The icon is a clean vector reinterpretation of the provided reference rather than a watermarked bitmap.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
 - **Dungeon Group:** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
-- **WoW Chat Export:** plain-text copy by short line, plus an addon-compatible format for clickable local spell links.
+- **WoW Chat Export:** in-game Lua commands for real recipient-visible spell links (no addon), plain text, plus the optional addon token format.
 - **Campfire:** profession objects, level scaling and stacking conflicts.
 - **Useful Links + CMS:** a simple `links.json` editor for named bookmarks.
 
 ## WoW clickable spell links
 
-Directly pasting externally generated raw WoW hyperlinks into chat is **not reliable**. WoW may escape them, and the server may reject custom links. The website offers two safe formats:
+Directly pasting externally generated raw WoW hyperlinks into chat is **not reliable**. WoW may escape them, and the server may reject custom links. The website offers three formats:
 
-1. **Plain text:** everyone can read it. Copy one line at a time into party chat.
-2. **Addon links:** `[Spell Name]{spell:1234} (24)` — readable in chat without an addon, clickable **only for players who install** the optional `addon/ForeverBuffLinks/` companion addon and whose client resolves the spell ID.
+1. **In-game links (default):** copy one short `/run C_ChatInfo.SendChatMessage(...)` command at a time, paste into the game chat and press Enter. WoW calls `C_Spell.GetSpellLink(spellID)` locally, then sends a genuine link to Party, Say or Guild. Recipients do not need the addon. Each generated command is capped at 250 characters and projected chat output at 230 characters. If the client cannot resolve an ID, it sends the plain spell name. Use this outside active encounters: macro-driven chat is restricted in combat and may be rate-limited. Requires live testing in the Forever client.
+2. **Plain text:** everyone can read it. Copy one line at a time into party chat.
+3. **Addon links:** `[Spell Name]{spell:1234} (24)` — readable in chat without an addon, clickable **only for players who install** the optional `addon/ForeverBuffLinks/` companion addon and whose client resolves the spell ID.
 
-The addon does not send chat automatically and does not bypass server link restrictions. Ability IDs represent spell families / base ranks, not necessarily the currently available rank. Its operation still needs testing in the live Forever client; see the addon README.
+The in-game command option is not a guarantee: servers can reject links or restrict scripted messages. Try a single spell in Say or Party first. The addon does not send chat automatically and does not bypass server link restrictions. Ability IDs represent spell families / base ranks, not necessarily the currently available rank. Its operation still needs testing in the live Forever client; see the addon README.
 
 ## Installation and hosting
 
