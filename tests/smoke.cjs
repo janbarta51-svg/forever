@@ -141,6 +141,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     await elements["#copyAll"].handlers.click();
     lines=copied.split("\n").filter(Boolean);
     check(lines.some(x=>x.startsWith("Priest - Buffs: Power Word: Fortitude (Rank3)")),"Priest updates independently to Rank3 at level 24");
+    elements["#groupSlots"].handlers.change({target:{matches:s=>s==="[data-party-level]",dataset:{partyLevel:"1"},value:"12"}});
     elements["#mainLevel"].handlers.input({target:{value:"25"}});
     chooseClass(1,"Warlock");
     check(elements["#partyResults"].innerHTML.includes("Priest <small>Lv 12"),"Healer rejects Warlock");
