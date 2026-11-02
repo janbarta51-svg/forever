@@ -4,7 +4,7 @@ const path=require("node:path");
 const vm=require("node:vm");
 const root=path.resolve(__dirname,"..");
 const read=f=>fs.readFileSync(path.join(root,f),"utf8");
-const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-party.js","class-ui.js","links.json","assets/roles/tank.svg","assets/roles/healer.svg","assets/roles/dps.svg","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
+const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-party.js","class-ui.js","links.json","assets/roles/tank.svg","assets/roles/healer.svg","assets/roles/dps.svg","assets/icons/copy.svg","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
 let failures=0;
 function check(condition,message){console.log((condition?"PASS ":"FAIL ")+message);if(!condition)failures++}
 function finish(){console.log("\n"+(failures?"FAILED: "+failures:"ALL TESTS PASSED"));process.exitCode=failures?1:0}
@@ -23,6 +23,13 @@ check(w.CLASS_THEME.Priest.color==="#FFFFFF","Priest is white");
 for(const role of ["tank","healer","dps"])check(read("assets/roles/"+role+".svg").includes("data:image/png;base64,"),"Blizzard role icon embedded: "+role);
 check(w.FOODS.length>=70,"Food catalog contains at least 70 entries");
 check(w.WARRIOR_ITEMS.length>=50,"Warrior items contain at least 50 entries");
+check(w.WARRIOR_ITEMS.every(x=>x.purchasable===true),"All listed consumables are explicitly tradable");
+check(w.FOODS.every(x=>x.purchasable===true),"All listed cooked foods are marked as tradable");
+const copyWeapons=w.WARRIOR_WEAPONS.filter(x=>x.purchasable===true).map(x=>x.name);
+check(copyWeapons.length===2&&copyWeapons.includes("Copper Shortsword")&&copyWeapons.includes("Blackwater Cutlass"),"Only known BoE weapons have name-copy actions");
+check(w.WARRIOR_QUESTS.every(x=>!x.purchasable),"Class quests never get name-copy actions");
+check(read("forever.css").includes('.copy-item-glyph')&&read("forever.css").includes('mask:url("assets/icons/copy.svg")'),"Amber 1em copy glyph references local SVG");
+
 check(w.CAMP_FEATURES.length===12,"All 12 camp objects");
 check(Object.keys(w.GROUP_ABILITY_DATA).length===9,"All nine classes covered");
 check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every(n=>n>=1&&n<=30))),"All class unlock levels <= 30");
@@ -39,7 +46,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
   const elements={};
   for(const [,id] of markup.matchAll(/\bid="([^"]+)"/g)){
     elements["#"+id]={
-      value:"20",checked:false,innerHTML:"",textContent:"",handlers:{},
+      value:"20",checked:false,innerHTML:"",textContent:"",dataset:{},handlers:{},
       classList:{add(){},remove(){},toggle(){return true}},
       setAttribute(){},addEventListener(name,fn){this.handlers[name]=fn}
     };
@@ -63,6 +70,15 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
   Object.assign(sandbox,{document:doc,sessionStorage,location,navigator,fetch,console,URL});
   try{
     vm.runInNewContext(read("app.js"),sandbox,{filename:"app.js"});
+    const initialWarrior=elements["#warriorCategories"].innerHTML;
+    const initialFood=elements["#foodRows"].innerHTML;
+    check(initialWarrior.includes('data-copy-name="Rough Sharpening Stone"'),"Buyable stone has a copy icon");
+    check(initialWarrior.includes('data-copy-name="Copper Shortsword"'),"Crafted BoE weapon has a copy icon");
+    check(initialWarrior.includes('data-copy-name="Blackwater Cutlass"'),"BoE world-drop weapon has a copy icon");
+    check(!initialWarrior.includes('data-copy-name="Haggard'),"Class quest weapon has no copy icon");
+    check(!initialWarrior.includes('data-copy-name="Revenge"'),"Warrior spell has no copy icon");
+    check(initialFood.includes('data-copy-name="Goretusk Liver Pie"'),"Purchasable food has a copy icon");
+    check(!elements["#partyResults"].innerHTML.includes('data-copy-name='),"Party spell list has no item copy icons");
     const slotMarkup=elements["#groupSlots"].innerHTML;
     check(slotMarkup.includes("assets/roles/tank.svg"),"Transparent tank role icon");
     check(slotMarkup.includes("assets/roles/healer.svg"),"Transparent healer role icon");
@@ -103,6 +119,16 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     check(elements["#partyResults"].innerHTML.includes("Shaman <small>Lv 12"),"Healer accepts Shaman and keeps level");
     chooseClass(2,"Hunter");
     check(elements["#partyResults"].innerHTML.includes("Hunter <small>Lv 20"),"DPS class selection updates result");
+    const copyEvent=name=>({
+      target:{closest:selector=>selector==="[data-copy-name]"?{dataset:{copyName:name}}:null},
+      preventDefault(){},stopPropagation(){}
+    });
+    await elements["#warriorCategories"].handlers.click(copyEvent("Rough Sharpening Stone"));
+    check(copied==="Rough Sharpening Stone","Warrior copy icon writes only the item name");
+    check(elements["#itemCopyStatus"].textContent.includes("Rough Sharpening Stone"),"Warrior copy confirms success");
+    await elements["#foodRows"].handlers.click(copyEvent("Goretusk Liver Pie"));
+    check(copied==="Goretusk Liver Pie","Food copy icon writes only the food name");
+    check(elements["#itemCopyStatus"].textContent.includes("Goretusk Liver Pie"),"Food copy confirms success");
     elements["#mainLevel"].handlers.input({target:{value:"1"}});
     check(elements["#warriorCategories"].innerHTML.includes("Rough Sharpening Stone") && !elements["#warriorCategories"].innerHTML.includes("Solid Sharpening Stone"),"Level 1 item availability respected");
     elements["#mainLevel"].handlers.input({target:{value:"30"}});
