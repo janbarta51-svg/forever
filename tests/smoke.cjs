@@ -37,6 +37,14 @@ const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
 check(read("forever.css").includes(".role-class-trigger .selected-class"),"Centered class selector styling");
+
+const baseCSS=read("styles.css"), foreverCSS=read("forever.css");
+check(!/(^|\\})table\\{width:100%;border-collapse:collapse;min-width:700px\\}/.test(baseCSS),"No global 700px table rule inflates Wowhead tooltips");
+check(baseCSS.includes(".table-scroll > table{width:100%;border-collapse:collapse;min-width:700px}"),"Food Buffs table still has its 700px scrollable minimum");
+check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-scroll > table td"),"Food table headers and cells remain styled without affecting tooltips");
+check(foreverCSS.includes(".local-tooltip{") && foreverCSS.includes("width:max-content;") && foreverCSS.includes("min-width:0;"),"Local tooltip uses intrinsic content width");
+check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
+
 check(read("addon/ForeverBuffLinks/ForeverBuffLinks.toc").includes("## Interface: 16001"),"Addon targets Forever 1.60.1 beta");
 const saved=JSON.parse(read("links.json")).links;
 check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid");
