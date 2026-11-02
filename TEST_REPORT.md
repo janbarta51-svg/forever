@@ -78,3 +78,24 @@
 - A role icon may appear different in other game clients; assets originate from the Blizzard UI texture used by the game's dungeon role picker.
 
 Role texture source: https://github.com/yanivkalfa/LFG/blob/master/Icons/UI-LFG-ICON-ROLES.tga
+
+---
+
+## v1.3 — Auction House item-name copy icon (2026-11-02)
+
+### Delivered
+
+- Added `assets/icons/copy.svg`: a minimal, non-watermarked double-page icon based on the user's reference. It is recolored through CSS to a muted yellow-orange (`#d0a14c`) and sized approximately to the surrounding text.
+- Only items explicitly marked `purchasable: true` render the button. All current listed consumables and foods are tradable; verified BoE weapons **Copper Shortsword** and **Blackwater Cutlass** also qualify. Quest/class spells and unverified non-tradable dungeon/quest rewards do **not** receive a copy action.
+- Added the inline icon to Warrior item lists, current-item highlight cards and Food Buffs. Wowhead links and hover tooltips still work independently, and the button never opens the item page.
+- Clipboard action copies only the exact item name, using `navigator.clipboard.writeText` with a fallback, and displays a short accessible status message.
+- Item copy uses delegated click handlers, which remain functional when the level slider or Food Buffs filters rerender the lists.
+
+### Tests
+
+- JavaScript syntax parsed; all required new assets and selectors confirmed.
+- Automated smoke tests check tradeable item flags, lack of icons for quest spells and bound rewards, and exact clipboard text for **Rough Sharpening Stone** and **Goretusk Liver Pie**.
+- Existing tank/healer/DPS selector tests, class colors, level slider, buff/CC grouping and chat export remain covered.
+- Mocked DOM tests pass. Final real-browser rendering still requires checking on the deployed GitHub Pages website.
+
+Sources: https://foreverdb.net/item/2847 and https://foreverdb.net/item/1951
