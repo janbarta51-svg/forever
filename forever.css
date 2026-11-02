@@ -50,6 +50,9 @@
 .export-heading p{font-size:13px;color:#95a0ae;margin:0;max-width:660px}
 .export-actions{display:flex;flex-wrap:wrap;gap:8px}
 .export-actions button,.export-copy{cursor:pointer}
+.export-channel{display:flex;align-items:center;gap:6px;color:#9eaab7;font-size:12px}
+.export-channel select{background:#10141a;color:#f0f1f3;border:1px solid #45515e;border-radius:4px;padding:7px 6px}
+.export-actions button:disabled,.export-channel select:disabled{opacity:.5;cursor:not-allowed}
 .export-rows{display:grid;gap:8px}
 .export-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid #343e49;border-left:3px solid var(--class-color,#777);border-radius:3px;background:#10141a}
 .export-index{font-size:11px;color:#7d8895;text-align:center}
