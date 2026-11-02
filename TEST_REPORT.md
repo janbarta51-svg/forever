@@ -46,3 +46,35 @@
 - WoW chat hyperlink handling: https://warcraft.wiki.gg/wiki/Hyperlinks
 - Chat event filters: https://warcraft.wiki.gg/wiki/API_ChatFrame_AddMessageEventFilter
 - Forever addon interface version: https://warcraft.wiki.gg/wiki/Interface_version
+
+
+---
+
+## v1.2 — role-based party card update (2026-11-02)
+
+### Changes
+
+- Fixed Party Slot 1 to a **Warrior Tank**; the tank card header now displays Blizzard's shield role icon, title **Tank**, and subtitle **Warrior**.
+- Fixed Party Slot 2 to the **Healer** role with a strict allowed-class list: **Druid, Paladin, Priest, Shaman**. Healer class still retains an independently set player level.
+- Slots 3–5 are always **DPS 1 / DPS 2 / DPS 3**, each with all nine class options and their own player level.
+- Replaced native HTML selects with keyboard-accessible `<details>` selectors so every option can show a **Wowhead class icon** and the **correct class color**.
+- Centered the selected class name between a class icon and menu indicator; option labels also center their names.
+- Sourced original Blizzard `UI-LFG-ICON-ROLES` artwork from an existing WoW UI sprite and extracted three 67×67 transparent icons. The repository stores self-contained SVG wrappers with embedded transparent PNG pixel data at `assets/roles/tank.svg`, `healer.svg`, and `dps.svg`, without added background.
+- Added open-menu behavior (close on outside click, Escape key and switching selectors), responsive dropdown scrolling, and a 5-column desktop layout at widths of 900px and above.
+
+### Validation
+
+- JavaScript syntax check: passed.
+- Simulated DOM checks: tank class fixed, healer accepts only 4 classes, DPS options include all 9, rejected Warlock-as-healer selection, accepted Shaman-as-healer selection, DPS class switching, independent player levels and exported chat text: passed.
+- Role sprite preview: cropped shield, cross and sword were visually checked with transparency.
+- GitHub role asset files checked as self-contained SVG / PNG data; source and references are committed.
+- Regression test script `tests/smoke.cjs` extended with role icon paths, selectors, class colors and role restrictions.
+- Site is still English-only, and Buff/CC output structure and chat export logic are unchanged.
+
+### Limitations
+
+- The public GitHub Pages deployment status cannot be verified from this environment.
+- The browser's final responsive rendering and live Wowhead CDN loads have not been verified in a real deployed site.
+- A role icon may appear different in other game clients; assets originate from the Blizzard UI texture used by the game's dungeon role picker.
+
+Role texture source: https://github.com/yanivkalfa/LFG/blob/master/Icons/UI-LFG-ICON-ROLES.tga
