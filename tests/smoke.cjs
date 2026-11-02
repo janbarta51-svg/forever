@@ -4,7 +4,7 @@ const path=require("node:path");
 const vm=require("node:vm");
 const root=path.resolve(__dirname,"..");
 const read=f=>fs.readFileSync(path.join(root,f),"utf8");
-const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-party.js","class-ui.js","links.json","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
+const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-party.js","class-ui.js","links.json","assets/roles/tank.svg","assets/roles/healer.svg","assets/roles/dps.svg","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
 let failures=0;
 function check(condition,message){console.log((condition?"PASS ":"FAIL ")+message);if(!condition)failures++}
 function finish(){console.log("\n"+(failures?"FAILED: "+failures:"ALL TESTS PASSED"));process.exitCode=failures?1:0}
@@ -20,6 +20,7 @@ for(const [key,value] of Object.entries(w))sandbox[key]=value;
 check(Object.keys(w.CLASS_THEME).length===9,"Nine class themes");
 check(w.CLASS_THEME.Warrior.color==="#C69B6D","Warrior is brown");
 check(w.CLASS_THEME.Priest.color==="#FFFFFF","Priest is white");
+for(const role of ["tank","healer","dps"])check(read("assets/roles/"+role+".svg").includes("data:image/png;base64,"),"Blizzard role icon embedded: "+role);
 check(w.FOODS.length>=70,"Food catalog contains at least 70 entries");
 check(w.WARRIOR_ITEMS.length>=50,"Warrior items contain at least 50 entries");
 check(w.CAMP_FEATURES.length===12,"All 12 camp objects");
@@ -28,6 +29,7 @@ check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every(n
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
+check(read("forever.css").includes(".role-class-trigger .selected-class"),"Centered class selector styling");
 check(read("addon/ForeverBuffLinks/ForeverBuffLinks.toc").includes("## Interface: 16001"),"Addon targets Forever 1.60.1 beta");
 const saved=JSON.parse(read("links.json")).links;
 check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid");
@@ -50,6 +52,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
   const doc={
     querySelector:s=>elements[s]||null,
     querySelectorAll:s=>[".tab-view","[data-tab]"].includes(s)?tabs:[],
+    addEventListener(){},
     body:{classList:{add(){}}}
   };
   const sessionStorage={getItem(){return null},setItem(){}};
