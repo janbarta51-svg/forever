@@ -59,3 +59,7 @@ World of Warcraft names and art belong to Blizzard Entertainment. This project i
 - Clipboard access requires a secure context in most browsers. If the Clipboard API is unavailable, the website also attempts the standard textarea selection fallback and displays a short status message.
 
 Tradeability evidence: [Copper Shortsword](https://foreverdb.net/item/2847) and [Blackwater Cutlass](https://foreverdb.net/item/1951). Class-quest rewards generally bind to the recipient.
+
+## Compact hover tooltip sizing (v1.4)
+
+The original shared stylesheet applied a `min-width:700px` rule to **every** HTML table. Wowhead item tooltips also use internal tables, which forced even short descriptions to appear over 700 pixels wide. The wide-table styling is now scoped to `.table-scroll > table` so that only the Food Buffs table keeps its horizontal scroll. Local fallback tooltips use their natural content width, while exceptionally long Wowhead tooltips have a responsive 420px maximum. No item data, tooltip links or hover behavior were changed.
