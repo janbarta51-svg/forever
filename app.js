@@ -26,10 +26,12 @@ function renderWarrior(){
    ["HEALING POTION",heal?.name||"—",heal?.effect||""],
    ["STRENGTH FOOD",food?.name||"—",food?.effect+" · +5 % kill XP"||""]
  ].map(x=>'<div class="highlight panel"><small>'+esc(x[0])+'</small><strong>'+esc(x[1])+'</strong><p>'+esc(x[2])+'</p></div>').join("");
- const categories=[...categoryOrder,"Questy & milestone"];
+ const categories=[...categoryOrder,"1H weapon progression","Tank checklist","Questy & milestone"];
  $("#warriorCategories").innerHTML=categories.map(cat=>{
    const quests=cat==="Questy & milestone";
-   const list=(quests?WARRIOR_QUESTS:WARRIOR_ITEMS.filter(x=>x.category===cat))
+   const weapons=cat==="1H weapon progression";
+   const tips=cat==="Tank checklist";
+   const list=(quests?WARRIOR_QUESTS:weapons?WARRIOR_WEAPONS:tips?WARRIOR_TIPS:WARRIOR_ITEMS.filter(x=>x.category===cat))
      .filter(x=>x.level===null||x.level<=state.level).sort((a,b)=>(b.level||0)-(a.level||0));
    const rows=list.map(x=>{
      const tag=x.level===null?'<span class="small-flag uncertain">skill</span>':'<span class="level-badge">'+x.level+'</span>';
