@@ -99,3 +99,24 @@ Role texture source: https://github.com/yanivkalfa/LFG/blob/master/Icons/UI-LFG-
 - Mocked DOM tests pass. Final real-browser rendering still requires checking on the deployed GitHub Pages website.
 
 Sources: https://foreverdb.net/item/2847 and https://foreverdb.net/item/1951
+
+---
+
+## v1.4 — Content-sized item hover tooltips (2026-11-02)
+
+### Root cause
+
+The inherited `styles.css` applied `table{min-width:700px;width:100%}` and unscoped `th` / `td` styles globally. This inadvertently affected tables injected inside Wowhead item tooltips, expanding very short descriptions to ~700–750px.
+
+### Changes
+
+- Scoped the 700px minimum, table headers, cells and hover styling to `.table-scroll > table` (Food Buffs table) only.
+- Local fallback tooltips: `width:max-content`, `min-width:0`, responsive maximum of 390px.
+- Wowhead tooltips: natural width preserved, responsive maximum 420px. Their internal tables no longer inherit the Food Buffs table layout.
+- No JavaScript or item data changes.
+
+### Verification
+
+- Existing regression suite: **103 passed, 0 failed** in a simulated browser runtime.
+- Chromium CSS layout check using a representative Wowhead-style item tooltip: short tooltip ~247px, long tooltip capped at 420px; Food Buffs sample table retained 700px scrollable content width inside a 500px viewport.
+- Real externally served Wowhead script and production deployment are not directly controlled; final confirmation on the deployed site remains a browser check.
