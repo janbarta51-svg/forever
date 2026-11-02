@@ -4,6 +4,12 @@ const $ = s => document.querySelector(s);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const clamp = v => Math.max(1,Math.min(30,Math.round(Number(v)||1)));
 const classOrder = ["Warrior","Paladin","Priest","Druid","Shaman","Mage","Warlock","Hunter","Rogue"];
+const healerClasses = ["Druid","Paladin","Priest","Shaman"];
+const roleLabels = ["Tank","Healer","DPS 1","DPS 2","DPS 3"];
+const roleForSlot = index => index===0 ? "tank" : index===1 ? "healer" : "dps";
+const allowedClasses = index => index===1 ? healerClasses : index===0 ? ["Warrior"] : classOrder;
+const roleIcon = role => '<img class="party-role-icon" src="assets/roles/'+role+'.svg" width="38" height="38" alt="" loading="lazy">';
+
 const categoryOrder = ["Weapon buff","Elixirs","Scrolls","Potions","Armor / Shield","Engineering","First Aid"];
 const startLevel = clamp(sessionStorage.getItem("forever-level")||20);
 const state = {
@@ -94,14 +100,36 @@ function renderFood(){
   refreshTooltips();
 }
 function renderGroupSlots(){
-  $("#groupSlots").innerHTML=state.party.map((member,i)=>{
-    const cl=member.className,locked=i===0;
-    const options=classOrder.map(c=>'<option value="'+c+'"'+(cl===c?" selected":"")+'>'+c+'</option>').join("");
+  $("#groupSlots").innerHTML=state.party.map((member,index)=>{
+    const cl=member.className, locked=index===0;
+    const role=roleForSlot(index),roleLabel=roleLabels[index];
+    const header='<div class="role-label role-heading">'+roleIcon(role)+
+      '<div class="role-heading-copy"><strong class="role-heading-title">'+esc(roleLabel)+'</strong>'+
+      '<small class="class-colored">'+esc(cl)+'</small></div></div>';
+    const selection=classIcon(cl,"role-picker-class-icon")+
+      '<span class="selected-class class-colored">'+esc(cl)+'</span>'+
+      '<span class="picker-arrow" aria-hidden="true">'+(locked?'◆':'⌄')+'</span>';
     const picker=locked?
-      '<div class="group-class-picker fixed" '+themeStyle(cl)+'>'+classIcon(cl)+'<span class="class-name">'+esc(cl)+'</span><span class="picker-caret">🛡</span></div>':
-      '<div class="group-class-picker" '+themeStyle(cl)+'>'+classIcon(cl)+'<select class="group-select" data-slot="'+i+'" aria-label="Class for party member '+(i+1)+'">'+options+'</select></div>';
-    return '<div class="member-slot class-slot" '+themeStyle(cl)+'><div class="role-label">'+classIcon(cl,"role-icon-class")+'<div><strong class="class-colored">'+(locked?"Tank":esc(cl))+'</strong><small>'+(locked?"Your Human Warrior":"Party member "+(i+1))+'</small></div></div><div class="member-controls">'+picker+
-    '<label class="level-control" for="partyLevel'+i+'"><span>Level</span><input id="partyLevel'+i+'" class="member-level" data-party-level="'+i+'" type="number" min="1" max="30" value="'+member.level+'" '+(locked?'title="Synced with Warrior level slider"':'')+'></label></div></div>';
+      '<div class="role-class-selector fixed" aria-label="Fixed class: Warrior">'+
+      '<div class="role-class-trigger role-class-static">'+selection+'</div></div>':
+      '<details class="role-class-selector" data-slot-selector="'+index+'">'+
+      '<summary class="role-class-trigger" aria-label="Choose '+esc(roleLabel)+' class">'+selection+'</summary>'+
+      '<div class="role-class-menu" role="listbox" aria-label="'+esc(roleLabel)+' classes">'+
+      allowedClasses(index).map(candidate=>{
+        const chosen=cl===candidate;
+        return '<button type="button" role="option" aria-selected="'+chosen+'" '+
+          'class="role-class-option'+(chosen?' active':'')+'" '+
+          'data-class-choice="'+index+'" data-choice-class="'+candidate+'" '+themeStyle(candidate)+'>'+
+          classIcon(candidate,"role-option-class-icon")+
+          '<span class="option-class-name">'+esc(candidate)+'</span>'+
+          '<span class="option-check" aria-hidden="true">'+(chosen?'✓':'')+'</span></button>';
+      }).join("")+'</div></details>';
+    return '<div class="member-slot class-slot role-slot role-slot-'+role+'" '+themeStyle(cl)+'>'+
+      header+'<div class="member-controls">'+picker+
+      '<label class="level-control" for="partyLevel'+index+'"><span>Level</span>'+
+      '<input id="partyLevel'+index+'" class="member-level" data-party-level="'+index+
+      '" type="number" min="1" max="30" value="'+member.level+'" '+
+      (locked?'title="Synced with Warrior level slider"':'')+'></label></div></div>';
   }).join("");
 }
 function resolveAbility(ability,level){
@@ -132,7 +160,7 @@ function renderGroup(){
     }).join("");
     return '<article class="panel member-result" '+themeStyle(cl)+'><div class="member-result-header">'+classIcon(cl)+'<div><h2 class="class-colored">'+esc(cl)+' <small>Lv '+member.level+'</small></h2><span>Party slot '+(index+1)+(index===0?" · Tank":"")+'</span></div></div><div class="group-columns">'+columns+'</div></article>';
   }).join("");
-  $("#partyResults").innerHTML='<div class="matrix-summary"><strong>'+buffCount+' buffs · '+ccCount+' crowd-control abilities</strong><span>Each member level level and highest available rank</span></div><div class="party-class-results">'+markup+'</div>'+
+  $("#partyResults").innerHTML='<div class="matrix-summary"><strong>'+buffCount+' buffs · '+ccCount+' crowd-control abilities</strong><span>Each member level and highest available rank</span></div><div class="party-class-results">'+markup+'</div>'+
   '<div class="notice party-note"><strong>Important:</strong> Paladin auras are mutually exclusive; a Shaman can have only one totem of each element; pet and talent abilities are conditional. Do not apply Salvation to your tank. Some buff categories do not stack.</div>';
   renderExport();
   refreshTooltips();
@@ -210,18 +238,26 @@ $("#foodCategory").addEventListener("change",event=>{state.foodCategory=event.ta
 $("#foodSearch").addEventListener("input",event=>{state.foodSearch=event.target.value.toLowerCase().trim();renderFood()});
 $("#foodShowUnverified").checked=true;
 $("#foodShowUnverified").addEventListener("change",event=>{state.showUnknown=event.target.checked;renderFood()});
+$("#groupSlots").addEventListener("click",event=>{
+  const option=event.target.closest("[data-class-choice]");
+  if(!option)return;
+  const index=Number(option.dataset.classChoice);
+  const candidate=option.dataset.choiceClass;
+  if(index<1||index>4||!allowedClasses(index).includes(candidate))return;
+  state.party[index].className=candidate;
+  renderGroupSlots();
+  renderGroup();
+});
 $("#groupSlots").addEventListener("change",event=>{
   const e=event.target;
-  if(e.matches("[data-slot]")){
-    const index=Number(e.dataset.slot);
-    if(index>0&&index<5&&GROUP_ABILITY_DATA[e.value]){
-      state.party[index].className=e.value;
-      renderGroupSlots();renderGroup();
-    }
-  }else if(e.matches("[data-party-level]")){
-    const index=Number(e.dataset.partyLevel),value=clamp(e.value);
-    if(index===0){setLevel(value)}else{state.party[index].level=value;e.value=value;renderGroup()}
-  }
+  if(!e.matches("[data-party-level]"))return;
+  const index=Number(e.dataset.partyLevel),value=clamp(e.value);
+  if(index===0){setLevel(value)}
+  else if(index>=1&&index<=4){state.party[index].level=value;e.value=value;renderGroup()}
+});
+document.addEventListener("click",event=>{
+  if(event.target.closest(".role-class-selector"))return;
+  document.querySelectorAll(".role-class-selector[open]").forEach(el=>el.open=false);
 });
 $("#refreshGroup").addEventListener("click",renderGroup);
 $("#exportPlain").addEventListener("click",()=>{state.exportMode="plain";renderExport()});
