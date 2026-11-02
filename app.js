@@ -184,9 +184,19 @@ function renderGroup(){
 }
 
 const CHAT_LIMIT=235;
+// Battle Shout Forever ranks 1-3: 6673, 5242, 6192.
+function spellRankId(ability){
+  const id=Number(ability.a[4]);
+  if(id===6673&&ability.a[0]==="Battle Shout"){
+    const ranks=[6673,5242,6192];
+    const index=ability.a[2].indexOf(ability.level);
+    if(index>=0&&ranks[index])return ranks[index];
+  }
+  return id;
+}
 function abilityText(ability,addonMode) {
   const name=ability.a[0],rankLevel=ability.level;
-  const spellId=Number(ability.a[4]);
+  const spellId=spellRankId(ability);
   const hyperlinkCode=addonMode&&Number.isInteger(spellId)&&spellId>0?'['+name+']{spell:'+spellId+'}':name;
   return hyperlinkCode+' ('+rankLevel+')'+(ability.a[6]?"*":"");
 }
@@ -198,13 +208,13 @@ function exportLines(){
     [["buff","Buffs"],["cc","CC"]].forEach(([type,label])=>{
       const names=entries.filter(x=>x.a[1]===type).map(x=>abilityText(x,addonMode));
       if(!names.length)return;
-      let prefix=member.className+" (Lv "+member.level+") - "+label+": ";
+      let prefix=member.className+" - "+label+": ";
       let buffer=prefix;
       names.forEach(name=>{
         const next=buffer===prefix?name:", "+name;
         if(buffer.length+next.length>CHAT_LIMIT && buffer!==prefix){
           lines.push({text:buffer,member:index,className:member.className});
-          prefix=member.className+" (Lv "+member.level+") - "+label+" (cont.): ";
+          prefix=member.className+" - "+label+" (cont.): ";
           buffer=prefix+name;
         }else buffer+=next;
       });
@@ -216,16 +226,20 @@ function exportLines(){
 // The game, not the browser, constructs real links. Commands are short enough
 // to paste into a single WoW chat input; they send to the chosen chat channel.
 function makeGameLine(member,label,abilities,continuation){
-  const prefix=member.className+" (Lv "+member.level+") - "+label+(continuation?" (cont.)":"")+": ";
+  const prefix=member.className+" - "+label+(continuation?" (cont.)":"")+": ";
   let expr=JSON.stringify(prefix),preview=prefix,estimated=prefix.length;
   abilities.forEach((ability,index)=>{
-    const name=ability.a[0],id=Number(ability.a[4]);
+    const name=ability.a[0],id=spellRankId(ability);
     const separator=index?", ":"";
     const suffix=" ("+ability.level+")"+(ability.a[6]?"*":"");
     if(index)expr+=".."+JSON.stringify(separator);
     if(Number.isInteger(id)&&id>0){
-      expr+="..(C_Spell.GetSpellLink("+id+")or"+JSON.stringify(name)+")";
-      estimated+=name.length+65;
+      // \124 is interpreted by Lua as a pipe; pasting raw | is unreliable.
+      const pipe=String.fromCharCode(92)+"124";
+      const escapedName=JSON.stringify(name).slice(1,-1);
+      const fallback='"'+pipe+'cff71d5ff'+pipe+'Hspell:'+id+':0'+pipe+'h['+escapedName+']'+pipe+'h'+pipe+'r"';
+      expr+="..(C_Spell.GetSpellLink("+id+")or"+fallback+")";
+      estimated+=name.length+60;
     }else{
       expr+=".."+JSON.stringify(name);
       estimated+=name.length;
