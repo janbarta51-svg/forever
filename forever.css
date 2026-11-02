@@ -60,3 +60,99 @@
 #copyStatus{margin:10px 0 0;min-height:20px}
 @media(max-width:1050px){.party-slots{grid-template-columns:repeat(3,minmax(0,1fr))}.member-slot{border-bottom:1px solid #303640}.export-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:760px){.party-slots{grid-template-columns:1fr}.class-slot{padding:14px 18px}.group-columns{grid-template-columns:1fr}.group-type + .group-type{border-left:0;border-top:1px solid #333b45}.export-heading h2{font-size:23px}.export-row{grid-template-columns:22px minmax(0,1fr) auto}.chat-export-panel{padding:14px}.group-ability-line{gap:5px}.party-submit{padding:15px}}
+
+
+/* v1.2: actual Blizzard transparent role icons and centered class selector. */
+.role-slot{position:relative;overflow:visible;isolation:auto}
+.role-slot:has(.role-class-selector[open]){z-index:90}
+.role-slot .role-heading{
+  display:flex;
+  align-items:center;
+  min-height:45px;
+  gap:10px;
+  margin:0 0 11px;
+}
+.role-slot .party-role-icon{
+  width:42px;height:42px;flex:0 0 42px;
+  display:block;object-fit:contain;border:none;background:none;
+  box-shadow:none;filter:drop-shadow(0 2px 6px #0008);
+}
+.role-heading-copy{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.role-heading-copy .role-heading-title{
+  color:#f4f5f7;font-size:16px;line-height:1.2;
+  font-weight:700;letter-spacing:.1px;
+}
+.role-heading-copy small{display:block;color:var(--class-color,#fff);font-size:11px;line-height:1.3}
+.role-slot .member-controls{display:block}
+.role-class-selector{position:relative;width:100%;margin:0}
+.role-class-trigger{
+  display:grid;grid-template-columns:28px minmax(0,1fr) 28px;
+  gap:8px;align-items:center;
+  min-height:42px;width:100%;
+  padding:5px 9px;box-sizing:border-box;
+  background:#11151b;border:1px solid color-mix(in srgb,var(--class-color,#667) 42%,#29323d);
+  border-radius:4px;color:var(--class-color,#fff);
+  cursor:pointer;list-style:none;user-select:none;
+  transition:border-color .12s ease,background .12s ease;
+}
+.role-class-trigger::-webkit-details-marker{display:none}
+.role-class-trigger::marker{content:""}
+.role-class-trigger:hover,
+.role-class-selector[open] .role-class-trigger{
+  border-color:var(--class-color,#b18b4b);
+  background:#1b222b;
+}
+.role-class-trigger:focus-visible,.role-class-option:focus-visible{
+  outline:2px solid #e7bb67;outline-offset:2px;
+}
+.role-class-trigger .party-class-icon{width:27px;height:27px}
+.role-class-trigger .selected-class{
+  display:block;min-width:0;text-align:center;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  font-weight:700;font-size:14px;color:var(--class-color,#fff);
+}
+.role-class-trigger .picker-arrow{
+  text-align:center;display:block;color:var(--class-color,#c1cad2);
+  font-size:16px;line-height:1;
+}
+.role-class-selector[open] .picker-arrow{transform:rotate(180deg)}
+.role-class-selector.fixed .role-class-trigger{
+  cursor:default;opacity:1;background:#14171d;
+}
+.role-class-selector.fixed .role-class-trigger:hover{
+  border-color:color-mix(in srgb,var(--class-color,#667) 42%,#29323d);
+}
+.role-class-menu{
+  display:grid;gap:2px;position:absolute;z-index:110;
+  top:calc(100% + 4px);left:0;right:0;
+  max-height:315px;overflow-y:auto;overscroll-behavior:contain;
+  border:1px solid #46505e;background:#0c1016;
+  border-radius:5px;padding:5px;
+  box-shadow:0 15px 40px #000e,0 1px 4px #0009;
+}
+.role-class-option{
+  display:grid;grid-template-columns:26px minmax(0,1fr) 26px;
+  gap:8px;align-items:center;
+  width:100%;min-height:37px;
+  border:1px solid transparent;border-radius:3px;
+  padding:4px 7px;background:transparent;
+  color:var(--class-color,#fff);cursor:pointer;
+  text-align:left;font:inherit;
+}
+.role-class-option:hover,.role-class-option:focus-visible{
+  background:color-mix(in srgb,var(--class-color,#fff) 13%,#111923);
+  border-color:color-mix(in srgb,var(--class-color,#fff) 33%,#26313e);
+}
+.role-class-option.active{background:color-mix(in srgb,var(--class-color,#fff) 9%,#151a20)}
+.role-class-option .party-class-icon{width:25px;height:25px}
+.role-class-option .option-class-name{
+  text-align:center;font-weight:700;font-size:13px;
+  color:var(--class-color,#fff);
+}
+.role-class-option .option-check{text-align:center;color:var(--class-color,#fff);font-size:14px}
+.role-slot .level-control{margin:12px 0 0}
+.role-slot .member-level{width:78px;max-width:48%;font-size:13px}
+@media(max-width:760px){
+  .role-slot .role-heading{min-height:45px}
+  .role-class-menu{max-height:235px}
+}
