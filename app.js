@@ -28,6 +28,22 @@ const classIcon = (cl,extra="") => '<img class="party-class-icon '+extra+'" src=
 const themeStyle = cl => 'style="--class-color:'+classTheme(cl).color+'"';
 const queryLink = name => "https://www.wowhead.com/forever/search?q="+encodeURIComponent(name);
 
+// Only items explicitly tagged as tradable get an Auction House name-copy button.
+// The button is a sibling of the Wowhead link, never inside it, so copying cannot navigate.
+function copyItemButton(item) {
+  if(!item || item.purchasable !== true)return "";
+  const name=esc(item.name);
+  return '<button type="button" class="copy-item-name" data-copy-name="'+name+'" '+
+    'title="Copy item name" aria-label="Copy '+name+' to clipboard">'+
+    '<span class="copy-item-glyph" aria-hidden="true"></span></button>';
+}
+function itemLink(item,type) {
+  const link=whLink(item,type);
+  return item && item.purchasable===true
+    ? '<span class="buyable-item-name">'+link+copyItemButton(item)+'</span>'
+    : link;
+}
+
 function whLink(item,type) {
   const id = Number(item.id);
   const verified = Number.isInteger(id) && id > 0;
@@ -69,10 +85,11 @@ function renderWarrior(){
   const heal=latest(WARRIOR_ITEMS.filter(x=>/Healing Potion/.test(x.name)));
   const food=latest(FOODS.filter(x=>x.category==="STR"));
   $("#warriorHighlights").innerHTML=[
-    ["BEST SHARPENING STONE",stone?.name||"—",stone?.effect||"No upgrade yet"],
-    ["HEALING POTION",heal?.name||"—",heal?.effect||"Not yet available"],
-    ["STRENGTH FOOD",food?.name||"—",food?food.effect+" · +5% kill XP":"Not yet available"]
-  ].map(([label,title,detail])=>'<div class="highlight panel"><small>'+esc(label)+'</small><strong>'+esc(title)+'</strong><p>'+esc(detail)+'</p></div>').join("");
+    ["BEST SHARPENING STONE",stone,stone?.effect||"No upgrade yet"],
+    ["HEALING POTION",heal,heal?.effect||"Not yet available"],
+    ["STRENGTH FOOD",food,food?food.effect+" · +5% kill XP":"Not yet available"]
+  ].map(([label,item,detail])=>'<div class="highlight panel"><small>'+esc(label)+'</small><strong>'+
+    (item?itemLink(item,"item"):"—")+'</strong><p>'+esc(detail)+'</p></div>').join("");
   const categories=[...categoryOrder,"1H Weapon Progression","Tank Checklist","Class Quests & Milestones"];
   $("#warriorCategories").innerHTML=categories.map(cat=>{
     const quests=cat==="Class Quests & Milestones";
@@ -82,7 +99,7 @@ function renderWarrior(){
       .filter(x=>x.level===null||x.level<=state.level).sort((a,b)=>(b.level||0)-(a.level||0));
     const rows=list.map(x=>{
       const tag=x.level===null?'<span class="small-flag uncertain">Skill</span>':'<span class="level-badge">'+x.level+'</span>';
-      const name=whLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
+      const name=itemLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
       return '<div class="entry"><span>'+tag+'</span><div><span class="entry-title">'+name+'</span><div class="entry-desc">'+esc(x.effect)+'</div>'+(x.note?'<div class="flag-note">'+esc(x.note)+'</div>':"")+'</div>'+(x.flag?'<span class="small-flag">'+esc(x.flag)+'</span>':"")+'</div>';
     }).join("");
     const subtitle=quests?"Class quests and spell unlocks":weapons?"Recommended dungeon stages, not exact equip levels":tips?"Threat and tanking reminders":list.length+" available / conditional items";
@@ -96,7 +113,7 @@ function renderFood(){
     ((x.level!==null&&x.level<=state.level)||(x.level===null&&state.showUnknown)))
     .sort((a,b)=>(a.level??999)-(b.level??999)||a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
   $("#foodCount").textContent="Showing "+items.length+" of "+FOODS.length+" recipes. A '?' means the minimum character level is not verified (Cooking skill is tracked separately).";
-  $("#foodRows").innerHTML=items.map(x=>'<tr><td><span class="level-badge">'+esc(x.level??"?")+'</span></td><td>'+whLink(x,"item")+'</td><td>'+esc(x.effect)+'</td><td>'+esc(x.skill)+'</td><td class="'+(x.verified?"status-verified":"status-estimated")+'">'+(x.verified?"Verified level":"Level unverified")+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">No food matches these filters.</td></tr>';
+  $("#foodRows").innerHTML=items.map(x=>'<tr><td><span class="level-badge">'+esc(x.level??"?")+'</span></td><td>'+itemLink(x,"item")+'</td><td>'+esc(x.effect)+'</td><td>'+esc(x.skill)+'</td><td class="'+(x.verified?"status-verified":"status-estimated")+'">'+(x.verified?"Verified level":"Level unverified")+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">No food matches these filters.</td></tr>';
   refreshTooltips();
 }
 function renderGroupSlots(){
@@ -275,6 +292,24 @@ $("#groupSlots").addEventListener("keydown",event=>{
   active.querySelector("summary.role-class-trigger")?.focus();
   event.preventDefault();
 });
+// Event delegation survives slider, food filtering and dynamic card refreshes.
+let copyNameTimer=null;
+async function handleItemCopy(event) {
+  const button=event.target.closest("[data-copy-name]");
+  if(!button)return;
+  event.preventDefault();
+  event.stopPropagation();
+  const name=button.dataset.copyName;
+  const success=await copyText(name);
+  const status=$("#itemCopyStatus");
+  status.textContent=success?"Copied: "+name:"Copy failed. Please select the item name manually.";
+  status.dataset.state=success?"success":"error";
+  if(copyNameTimer!==null && typeof clearTimeout==="function")clearTimeout(copyNameTimer);
+  if(typeof setTimeout==="function")copyNameTimer=setTimeout(()=>{status.textContent="";},1800);
+}
+for(const root of ["#warriorHighlights","#warriorCategories","#foodRows"]){
+  $(root).addEventListener("click",handleItemCopy);
+}
 $("#refreshGroup").addEventListener("click",renderGroup);
 $("#exportPlain").addEventListener("click",()=>{state.exportMode="plain";renderExport()});
 $("#exportAddon").addEventListener("click",()=>{state.exportMode="addon";renderExport()});
