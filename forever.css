@@ -220,3 +220,13 @@
 #wowhead-tooltip td{
   overflow-wrap:break-word;
 }
+
+/* Legacy tooltip safety guard (v1.5.1).
+   Older cached app.js versions inserted a second local tooltip on focus/hover.
+   Never render that card, even if a stale script reaches the page. */
+.local-tooltip,
+.tooltip-wrap .local-tooltip{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
