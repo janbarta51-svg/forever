@@ -42,7 +42,7 @@ const baseCSS=read("styles.css"), foreverCSS=read("forever.css");
 check(!/(^|\\})table\\{width:100%;border-collapse:collapse;min-width:700px\\}/.test(baseCSS),"No global 700px table rule inflates Wowhead tooltips");
 check(baseCSS.includes(".table-scroll > table{width:100%;border-collapse:collapse;min-width:700px}"),"Food Buffs table still has its 700px scrollable minimum");
 check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-scroll > table td"),"Food table headers and cells remain styled without affecting tooltips");
-check(!foreverCSS.includes(".local-tooltip") && !read("app.js").includes('class="local-tooltip"'),"Duplicate local hover cards completely removed");
+check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
 check(markup.includes('src="app.js?v=20261102-tooltip-fix"'),"Latest app.js uses explicit cache-busting version");
