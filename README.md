@@ -8,25 +8,30 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 - **Auction House quick copy:** a tiny muted amber overlapping-pages icon appears beside purchasable/tradable items in Warrior cards, current-item highlights and the Food Buffs table. Clicking it copies only the exact item name for Auction House search. Quest rewards, spells and non-tradable dungeon gear have no copy icon. The icon is a clean vector reinterpretation of the provided reference rather than a watermarked bitmap.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
 - **Dungeon Group:** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
-- **WoW Chat Export:** in-game Lua commands for real recipient-visible spell links (no addon), plain text, plus the optional addon token format.
+- **WoW Chat Export:** class-labeled plain text with the highest available Rank per member level, one line per class/category and a Copy all button. Individual row copy is available for standard game chat.
 - **Campfire:** profession objects, level scaling and stacking conflicts.
 - **Useful Links + CMS:** a simple `links.json` editor for named bookmarks.
 
-## WoW clickable spell links
+## WoW chat export and spell ranks
 
-Directly pasting externally generated raw WoW hyperlinks into chat is **not reliable**. WoW may escape them, and the server may reject custom links. The website offers three formats:
+Clickable spell links pasted from a website were not confirmed in the live WoW Forever client. The public export therefore deliberately uses plain text and does not claim to make spells clickable.
 
-1. **In-game links (default):** copy one short `/run C_ChatInfo.SendChatMessage(...)` command at a time, paste into the game chat and press Enter. WoW first calls `C_Spell.GetSpellLink(spellID)` locally, then tries a Lua-escaped `\124cff71d5ff\124Hspell:...` link if the API returns nil. Battle Shout uses verified rank IDs (6673, 5242 and 6192). The command sends the result to Party, Say or Guild. Recipients do not need the addon. Each generated command is capped at 250 characters and projected chat output at 230 characters. The server may still strip or reject a constructed hyperlink. Character levels are intentionally omitted from all exported chat lines; required spell unlock levels remain in parentheses. Use this outside active encounters: macro-driven chat is restricted in combat and may be rate-limited. Requires live testing in the Forever client.
-2. **Plain text:** everyone can read it. Copy one line at a time into party chat.
-3. **Addon links:** `[Spell Name]{spell:1234} (24)` — readable in chat without an addon, clickable **only for players who install** the optional `addon/ForeverBuffLinks/` companion addon and whose client resolves the spell ID.
+Example:
+```
+Warrior - Buffs: Battle Shout (Rank2)
+Priest - Buffs: Power Word: Fortitude (Rank2)
+Rogue - CC: Gouge (Rank1), Sap (Rank1)
+```
 
-The in-game command option is not a guarantee: servers can reject links or restrict scripted messages. Try a single spell in Say or Party first. The addon does not send chat automatically and does not bypass server link restrictions. Ability IDs represent spell families / base ranks, not necessarily the currently available rank. Its operation still needs testing in the live Forever client; see the addon README.
+The rank derives from the member's **own** selected level and the spell's ordered rank unlock levels in `data-party.js`. Rank1 is the first available rank; when a spell has no learned rank yet, it is omitted. The character level is never included in the copied chat line. Conditional abilities keep an asterisk to indicate an additional talent, pet, class quest, or similar requirement. Each exported message is capped at 235 characters; longer lists become class-labeled continuation lines. Characters with no available Buffs/CC receive their own readable line.
+
+**Copy all** joins every exported line with a newline. Normal WoW chat strips pasted newlines and has a roughly 255-character message limit, so the **Copy** button per line is the reliable no-addon workflow for posting to Party. Addons such as Paste and PasteNG can handle multiline content in supported WoW versions, but their WoW Forever compatibility is not verified. The optional `addon/ForeverBuffLinks/` files remain in the repository for experimental use; the public export does not require them.
 
 ## Installation and hosting
 
 The website is plain HTML/CSS/JS without a build step. Host the repository with GitHub Pages (workflow at `.github/workflows/pages.yml`). No database needed.
 
-To use the optional addon, copy `addon/ForeverBuffLinks/` into the Forever client's `Interface/AddOns/` directory and restart. The beta 1.60.1 TOC interface number is `16001`, subject to updates.
+For experimental use of the optional addon, copy `addon/ForeverBuffLinks/` into the Forever client's `Interface/AddOns/` directory and restart. The beta 1.60.1 TOC interface number is `16001`, subject to updates.
 
 ## Useful Links CMS
 
