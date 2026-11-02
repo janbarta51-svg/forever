@@ -63,3 +63,7 @@ Tradeability evidence: [Copper Shortsword](https://foreverdb.net/item/2847) and 
 ## Compact hover tooltip sizing (v1.4)
 
 The original shared stylesheet applied a `min-width:700px` rule to **every** HTML table. Wowhead item tooltips also use internal tables, which forced even short descriptions to appear over 700 pixels wide. The wide-table styling is now scoped to `.table-scroll > table` so that only the Food Buffs table keeps its horizontal scroll. Exceptionally long Wowhead tooltips have a responsive 420px maximum. **Only native Wowhead hover cards are rendered** for items and spells with validated tooltip IDs; no extra local tooltip is shown.
+
+## v1.5.1 — Old browser-cached tooltip protection
+
+The current JavaScript already renders **only** Wowhead hover tooltips, but browser/hosting caches can keep an older `app.js` that still injects a custom `.local-tooltip` card on item hover or click/focus. A CSS safeguard in `forever.css` now permanently hides that legacy element (`display:none !important`) without touching native Wowhead popups. The home page references `app.js`, `forever.css`, and `styles.css` with a version query (`v=20261102-tooltip-fix`), ensuring fresh assets load after the updated HTML is served. This does not affect the name-copy buttons, class icons or chat export.
