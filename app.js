@@ -239,6 +239,14 @@ $("#foodSearch").addEventListener("input",event=>{state.foodSearch=event.target.
 $("#foodShowUnverified").checked=true;
 $("#foodShowUnverified").addEventListener("change",event=>{state.showUnknown=event.target.checked;renderFood()});
 $("#groupSlots").addEventListener("click",event=>{
+  const summary=event.target.closest("summary.role-class-trigger");
+  if(summary){
+    const active=summary.closest(".role-class-selector");
+    document.querySelectorAll(".role-class-selector[open]").forEach(el=>{
+      if(el!==active)el.open=false;
+    });
+    return;
+  }
   const option=event.target.closest("[data-class-choice]");
   if(!option)return;
   const index=Number(option.dataset.classChoice);
@@ -258,6 +266,14 @@ $("#groupSlots").addEventListener("change",event=>{
 document.addEventListener("click",event=>{
   if(event.target.closest(".role-class-selector"))return;
   document.querySelectorAll(".role-class-selector[open]").forEach(el=>el.open=false);
+});
+$("#groupSlots").addEventListener("keydown",event=>{
+  if(event.key!=="Escape")return;
+  const active=event.target.closest(".role-class-selector[open]");
+  if(!active)return;
+  active.open=false;
+  active.querySelector("summary.role-class-trigger")?.focus();
+  event.preventDefault();
 });
 $("#refreshGroup").addEventListener("click",renderGroup);
 $("#exportPlain").addEventListener("click",()=>{state.exportMode="plain";renderExport()});
