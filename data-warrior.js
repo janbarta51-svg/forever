@@ -66,6 +66,8 @@ window.WARRIOR_QUESTS=[
 {level:14,name:"Revenge",kind:"spell",effect:"Reaktivní threat attack",note:"Nauč se rank u trainera"},
 {level:16,name:"Shield Block",kind:"spell",effect:"Spolehlivější aktivace Revenge",note:"Zásadní milník Prot Warriora",id:2565},
 {level:20,name:"Fire Hardened Mail",kind:"quest",effect:"Class quest chain; štít Furen's Favor",note:"Ne všechny části jsou snadné na levelu 20"},
+{level:20,name:"Victory Rush",kind:"spell",effect:"Po killu léčí 10 % maximum HP",note:"30s cooldown, časové okno po killu"},
+{level:23,name:"Last Stand",kind:"spell",effect:"Nouzové zvýšení HP",note:"Talent Protection – od lvl 23 při doporučeném buildu"},
 {level:30,name:"The Affray",kind:"quest",effect:"Odemkne Berserker Stance",note:"Fray Island; class quest"}
 ];
 window.CAMP_FEATURES=[
