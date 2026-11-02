@@ -79,5 +79,5 @@ Goldthorn Tea|SPECIAL|+15 Herbalism|100|||
 Dragonbreath Chili|SPECIAL|Chance to breathe fire on melee hits|200|25||Unique combat proc; may not share the Well Fed food category`.split("\n").filter(Boolean).map(line=>{
   const [name,category,effect,skill,lvl,id,note]=line.split("|");
   return {name,category,effect,skill:Number(skill),level:lvl?Number(lvl):null,id:id?Number(id):null,note:note||"",
-  verified:!!lvl,source:"Wowhead Forever food overview; lvl: Mobalytics Protection Warrior (where available)"};
+  purchasable:true,verified:!!lvl,source:"Wowhead Forever food overview; lvl: Mobalytics Protection Warrior (where available)"};
 });
