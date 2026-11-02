@@ -201,3 +201,31 @@
 }
 .copy-name-status[data-state="error"]{border-color:#ae655b;color:#ffb5a4}
 .copy-name-status:empty{display:none}
+
+
+/* v1.4 - compact content-sized tooltips.
+   The 700px min-width for guide tables is now scoped in styles.css, so it
+   cannot inflate the internal tables Wowhead inserts on item hover. */
+.local-tooltip{
+  width:max-content;
+  min-width:0;
+  max-width:min(390px, calc(100vw - 28px));
+  overflow-wrap:break-word;
+}
+
+/* Preserve Wowhead's own natural width, but cap exceptionally long item text.
+   Do not set a fixed width: a short tooltip should stay short. */
+.wowhead-tooltip,
+#wowhead-tooltip{
+  max-width:min(420px, calc(100vw - 24px)) !important;
+}
+.wowhead-tooltip table,
+#wowhead-tooltip table{
+  width:auto;
+  min-width:0;
+  max-width:100%;
+}
+.wowhead-tooltip td,
+#wowhead-tooltip td{
+  overflow-wrap:break-word;
+}
