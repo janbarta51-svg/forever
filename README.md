@@ -5,6 +5,7 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 ## Features
 
 - **Warrior:** level slider, consumable upgrades, class quests, one-handed weapon suggestions and tanking checklist.
+- **Auction House quick copy:** a tiny muted amber overlapping-pages icon appears beside purchasable/tradable items in Warrior cards, current-item highlights and the Food Buffs table. Clicking it copies only the exact item name for Auction House search. Quest rewards, spells and non-tradable dungeon gear have no copy icon. The icon is a clean vector reinterpretation of the provided reference rather than a watermarked bitmap.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
 - **Dungeon Group:** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
 - **WoW Chat Export:** plain-text copy by short line, plus an addon-compatible format for clickable local spell links.
@@ -49,3 +50,12 @@ World of Warcraft names and art belong to Blizzard Entertainment. This project i
 ## Role icon assets
 
 `assets/roles/tank.svg`, `healer.svg` and `dps.svg` are self-contained assets containing transparent crops of Blizzard's original `UI-LFG-ICON-ROLES` texture. No solid image background is added. These images are used only as role indicators in the Dungeon Group layout.
+
+## Purchaseability and copy icon
+
+- `assets/icons/copy.svg` is a clean, transparent overlapping-pages symbol. `forever.css` tints it amber and sizes it to about one character high.
+- The UI renders the copy icon **only if** `purchasable === true` in the item data. It is deliberately absent for spells and quest rewards.
+- Consumables and cooked foods in the current catalog are treated as tradable; among weapon progression items, only **Copper Shortsword** and **Blackwater Cutlass** are specifically flagged because they are confirmed Bind on Equip.
+- Clipboard access requires a secure context in most browsers. If the Clipboard API is unavailable, the website also attempts the standard textarea selection fallback and displays a short status message.
+
+Tradeability evidence: [Copper Shortsword](https://foreverdb.net/item/2847) and [Blackwater Cutlass](https://foreverdb.net/item/1951). Class-quest rewards generally bind to the recipient.
