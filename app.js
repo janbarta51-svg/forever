@@ -10,7 +10,7 @@ function whLink(o,type){const id=Number(o.id);const known=Number.isInteger(id)&&
   const href=known?("https://www.wowhead.com/forever/"+(type||o.tooltipType||"item")+"="+id):q(o.name);
   const extra=known?' data-wowhead="'+esc((type||o.tooltipType||"item")+"="+id)+'"':'';
   const desc=[o.effect,o.note].filter(Boolean).map(esc).join("<br>");
-  return '<span class="tooltip-wrap '+(known?"has-wh":"")+'"><a href="'+esc(href)+'"'+extra+' target="_blank" rel="noopener noreferrer">'+esc(o.name)+'</a><span class="local-tooltip" role="tooltip"><strong>'+esc(o.name)+'</strong>'+desc+'<span class="tip-meta">'+(o.level===null?"Požadovaný level neověřen":o.level!==undefined?"Od levelu "+esc(o.level):"")+" · '+esc(type==="spell"?"Spell":"Item")+'</span></span></span>';
+  return '<span class="tooltip-wrap '+(known?"has-wh":"")+'"><a href="'+esc(href)+'"'+extra+' target="_blank" rel="noopener noreferrer">'+esc(o.name)+'</a><span class="local-tooltip" role="tooltip"><strong>'+esc(o.name)+'</strong>'+desc+'<span class="tip-meta">'+(o.level===null?"Požadovaný level neověřen":o.level!==undefined?"Od levelu "+esc(o.level):"")+' · '+esc(type==="spell"?"Spell":"Item")+'</span></span></span>';
 }
 function abilityLink(a){return whLink({name:a[0],effect:a[3][0],note:a[5],id:a[4]}, "spell")}
 function refreshTips(){try{if(window.WH&&WH.Tooltips&&typeof WH.Tooltips.refreshLinks==="function"){WH.Tooltips.refreshLinks();document.body.classList.add("wowhead-ready")}}catch(e){console.warn("Tooltip fallback active",e)}}
