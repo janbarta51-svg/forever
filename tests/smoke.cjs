@@ -44,6 +44,10 @@ check(baseCSS.includes(".table-scroll > table{width:100%;border-collapse:collaps
 check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-scroll > table td"),"Food table headers and cells remain styled without affecting tooltips");
 check(!foreverCSS.includes(".local-tooltip") && !read("app.js").includes('class="local-tooltip"'),"Duplicate local hover cards completely removed");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
+check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
+check(markup.includes('src="app.js?v=20261102-tooltip-fix"'),"Latest app.js uses explicit cache-busting version");
+check(markup.includes('href="forever.css?v=20261102-tooltip-fix"'),"Latest tooltip CSS uses explicit cache-busting version");
+check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
 
 check(read("addon/ForeverBuffLinks/ForeverBuffLinks.toc").includes("## Interface: 16001"),"Addon targets Forever 1.60.1 beta");
