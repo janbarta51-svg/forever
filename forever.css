@@ -160,3 +160,44 @@
 
 /* Keep all five party roles on a single row on normal desktop widths. */
 @media(min-width:900px){.party-slots{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+
+/* v1.3 — subtle Auction House item-name copy action.
+   A mask uses a clean overlapping-pages silhouette; CSS supplies the gold tint.
+   The icon stays approximately the height of one lowercase character. */
+.buyable-item-name{display:inline}
+.copy-item-name{
+  appearance:none;-webkit-appearance:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:1em;height:1em;padding:0;margin:0 0 0 .3em;
+  vertical-align:-.08em;border:0;border-radius:2px;
+  background:transparent;color:#d0a14c;
+  font:inherit;line-height:1;cursor:pointer;
+  transition:color .14s ease,background .14s ease;
+}
+.copy-item-glyph{
+  width:.84em;height:.84em;display:block;flex:0 0 auto;
+  background:currentColor;
+  -webkit-mask:url("assets/icons/copy.svg") center / contain no-repeat;
+  mask:url("assets/icons/copy.svg") center / contain no-repeat;
+}
+.copy-item-name:hover{
+  color:#ffd078;
+  background:rgba(226,166,75,.10);
+}
+.copy-item-name:focus-visible{
+  outline:2px solid #f2be65;outline-offset:2px;
+}
+.copy-item-name:active{color:#fff0bf;transform:translateY(1px)}
+.copy-name-status{
+  position:fixed;bottom:20px;right:20px;z-index:160;
+  max-width:min(340px,calc(100vw - 40px));
+  padding:9px 14px;border-radius:5px;
+  border:1px solid #96713a;
+  color:#f7d395;background:#1d1a14;
+  box-shadow:0 6px 25px #0008;
+  font-size:12px;line-height:1.4;
+  pointer-events:none;
+}
+.copy-name-status[data-state="error"]{border-color:#ae655b;color:#ffb5a4}
+.copy-name-status:empty{display:none}
