@@ -83,3 +83,28 @@ window.CAMP_FEATURES=[
 {name:"Basic Campfire Kit",profession:"Cooking",skill:1,effect:"Oheň a 3 místa na další camp objekty",conflict:"",good:false}
 ];
 window.CAMP_SOURCES=["https://worldofwarcraft.blizzard.com/en-gb/news/24301516","https://www.wowhead.com/forever/guide/camping-overview-unlock-rewards"];
+
+
+window.WARRIOR_WEAPONS=[
+ {level:1,name:"Copper Shortsword",effect:"Blacksmithing craft; výchozí 1H alternativa",note:"Level je orientační začátek progression, ne oficiální equip requirement."},
+ {level:10,name:"Haggard's Axe",effect:"Human class quest Dead-tooth Jack (Elwynn)",note:"Quest reward po level 10; 1H Axe"},
+ {level:13,name:"Durgen's Crescent Axe",effect:"Hall of Thanes – Durgen Dirgehammer",note:"Orientační dungeon etapa (nikoliv minimální equip level)."},
+ {level:17,name:"Buzz Saw",effect:"Deadmines – Sneed's Shredder",note:"Orientační dungeon etapa; ověř drop."},
+ {level:17,name:"Cookie's Tenderizer",effect:"Deadmines – Cookie",note:"Orientační dungeon etapa; alternativa ke zbrani."},
+ {level:18,name:"Blackwater Cutlass",effect:"Deadmines – Defias Pirates",note:"Orientační dungeon etapa; random drop."},
+ {level:23,name:"Darkwater Talwar",effect:"Blackfathom Deeps – Lady Sarevess",note:"Orientační dungeon etapa; porovnej weapon DPS."},
+ {level:24,name:"Hamhock's Cleaver",effect:"The Stockade – Hamhock (Alliance)",note:"Orientační dungeon etapa."},
+ {level:29,name:"Pronged Reaver",effect:"Razorfen Kraul – Charlga Razorflank",note:"Orientační dungeon etapa; může být náročnější do 30."},
+ {level:29,name:"Thornspike",effect:"Razorfen Kraul – Aggem Thorncurse",note:"Orientační dungeon etapa; může být náročnější do 30."}
+];
+window.WARRIOR_TIPS=[
+ {level:1,name:"Battle Shout",effect:"Udržuj aktivní party AP buff; nové ranky na 1 / 12 / 22."},
+ {level:10,name:"Defensive Stance",effect:"Udělej class quest hned; tankuj s 1H + shield, zejména od lvl 14."},
+ {level:14,name:"Tab-target Revenge",effect:"Používej Revenge na moby s nízkým threatem, ne jen na původní cíl."},
+ {level:16,name:"Shield Block + Revenge",effect:"Bloky podporují Revenge i příjem rage; šetři rage na další pull."},
+ {level:20,name:"Victory Rush",effect:"Po killu využij heal; nauč se správné chain pully."},
+ {level:22,name:"Aggro management",effect:"Nenakládej další rage do cíle, který už bezpečně umírá – podpoř další cíle."},
+ {level:25,name:"Vanguard (talent)",effect:"Dle buildu můžeš Charge z Defensive Stance; nejde o automatický skill."},
+ {level:30,name:"Berserker Stance",effect:"Class quest The Affray; přidej Intercept a novou utility."}
+];
+window.WARRIOR_GEAR_SOURCE="https://www.icy-veins.com/wow-forever/protection-warrior-leveling";
