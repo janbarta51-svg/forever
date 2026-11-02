@@ -6,7 +6,7 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 
 - **Warrior:** level slider, consumable upgrades, class quests, one-handed weapon suggestions and tanking checklist.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
-- **Dungeon Group:** Warrior tank plus four individually configurable party members (each has an independent level from 1–30), with exact class colors and Wowhead CDN class icons. Each class has its own Buffs and Crowd Control cards; the highest unlocked rank is calculated from that member's level.
+- **Dungeon Group:** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
 - **WoW Chat Export:** plain-text copy by short line, plus an addon-compatible format for clickable local spell links.
 - **Campfire:** profession objects, level scaling and stacking conflicts.
 - **Useful Links + CMS:** a simple `links.json` editor for named bookmarks.
@@ -38,9 +38,14 @@ Run `node tests/smoke.cjs` (no external dependencies). The website deploy workfl
 
 - Class colors: https://warcraft.wiki.gg/wiki/Class_colors
 - Class icon catalog: https://www.wowhead.com/classic/icons/name:class
+- Transparent Blizzard role icon atlas (tank, healer, DPS): https://github.com/yanivkalfa/LFG/blob/master/Icons/UI-LFG-ICON-ROLES.tga
 - Wowhead Forever: https://www.wowhead.com/forever/
 - Icy Veins Forever: https://www.icy-veins.com/wow-forever/
 - WoW Hyperlink format: https://warcraft.wiki.gg/wiki/Hyperlinks
 - WoW ChatFrame event filter: https://warcraft.wiki.gg/wiki/API_ChatFrame_AddMessageEventFilter
 
 World of Warcraft names and art belong to Blizzard Entertainment. This project is an unofficial player-made guide. Game data can change with patches.
+
+## Role icon assets
+
+`assets/roles/tank.svg`, `healer.svg` and `dps.svg` are self-contained assets containing transparent crops of Blizzard's original `UI-LFG-ICON-ROLES` texture. No solid image background is added. These images are used only as role indicators in the Dungeon Group layout.
