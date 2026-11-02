@@ -120,3 +120,21 @@ The inherited `styles.css` applied `table{min-width:700px;width:100%}` and unsco
 - Existing regression suite: **103 passed, 0 failed** in a simulated browser runtime.
 - Chromium CSS layout check using a representative Wowhead-style item tooltip: short tooltip ~247px, long tooltip capped at 420px; Food Buffs sample table retained 700px scrollable content width inside a 500px viewport.
 - Real externally served Wowhead script and production deployment are not directly controlled; final confirmation on the deployed site remains a browser check.
+
+---
+
+## v1.5 — Remove duplicate custom item hover cards (2026-11-02)
+
+### Problem and resolution
+
+The screenshot of Scroll of Protection showed two popups: an original Wowhead tooltip above, and a second dark-gold local fallback tooltip beneath. The local card was independently rendered by `whLink()` even when Wowhead was available; the old JS's `wowhead-ready` flag did not always suppress it.
+
+- Removed `local-tooltip` HTML generation from `app.js` for **all** item and spell links.
+- Removed the unused local-tooltip CSS from `forever.css`.
+- Kept `data-wowhead` attributes, external Wowhead tooltip script, existing width limit and all item/spell link destinations.
+- Links with no verified Wowhead item/spell ID remain clickable searches but will not display a fabricated local tooltip on hover.
+- The tiny copy-name icons and Dungeon Group features remain unchanged.
+
+### Verification
+
+**106/106 checks passed**, including new checks that the Warrior, Food Buffs and Dungeon Group rendered HTML has no duplicate hover cards and retains original Wowhead item/spell data attributes. Real CDN rendering on the public website should still be checked in the browser.
