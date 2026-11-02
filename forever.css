@@ -122,6 +122,7 @@
 .role-class-selector.fixed .role-class-trigger:hover{
   border-color:color-mix(in srgb,var(--class-color,#667) 42%,#29323d);
 }
+.role-class-selector:not([open]) .role-class-menu{display:none}
 .role-class-menu{
   display:grid;gap:2px;position:absolute;z-index:110;
   top:calc(100% + 4px);left:0;right:0;
