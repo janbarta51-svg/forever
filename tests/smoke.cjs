@@ -72,6 +72,11 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     const choicesFor=slot=>[...slotMarkup.matchAll(new RegExp('data-class-choice="'+slot+'" data-choice-class="([^"]+)"','g'))].map(m=>m[1]);
     check(choicesFor(1).length===4 && ["Druid","Paladin","Priest","Shaman"].every(c=>choicesFor(1).includes(c)),"Healer selector limited to four eligible classes");
     check(choicesFor(2).length===9 && choicesFor(2).includes("Warlock"),"DPS selector offers all nine classes");
+    check(slotMarkup.includes('data-choice-class="Shaman" style="--class-color:#0070DD"'),"Class picker displays Shaman color");
+    check(slotMarkup.includes('data-choice-class="Paladin" style="--class-color:#F48CBA"'),"Class picker displays Paladin color");
+    check(slotMarkup.includes("classicon_shaman.jpg"),"Class choices include Wowhead icons");
+    check(read("forever.css").includes('.role-class-selector:not([open]) .role-class-menu{display:none}'),"Closed class dropdown remains hidden");
+    check(read("forever.css").includes("@media(min-width:900px)"),"Five desktop party roles stay in one row");
     check(!slotMarkup.includes('data-class-choice="0"'),"Tank class cannot be changed");
     const chooseClass=(slot,cls)=>elements["#groupSlots"].handlers.click({target:{closest:s=>s==="[data-class-choice]"?{dataset:{classChoice:String(slot),choiceClass:cls}}:null}});
     check(elements["#groupSlots"].innerHTML.includes("classicon_priest.jpg"),"Wowhead class icon rendered");
