@@ -42,7 +42,8 @@ const baseCSS=read("styles.css"), foreverCSS=read("forever.css");
 check(!/(^|\\})table\\{width:100%;border-collapse:collapse;min-width:700px\\}/.test(baseCSS),"No global 700px table rule inflates Wowhead tooltips");
 check(baseCSS.includes(".table-scroll > table{width:100%;border-collapse:collapse;min-width:700px}"),"Food Buffs table still has its 700px scrollable minimum");
 check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-scroll > table td"),"Food table headers and cells remain styled without affecting tooltips");
-check(foreverCSS.includes(".local-tooltip{") && foreverCSS.includes("width:max-content;") && foreverCSS.includes("min-width:0;"),"Local tooltip uses intrinsic content width");
+check(!foreverCSS.includes(".local-tooltip") && !read("app.js").includes('class="local-tooltip"'),"Duplicate local hover cards completely removed");
+check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
 
 check(read("addon/ForeverBuffLinks/ForeverBuffLinks.toc").includes("## Interface: 16001"),"Addon targets Forever 1.60.1 beta");
@@ -103,6 +104,9 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     check(read("forever.css").includes("@media(min-width:900px)"),"Five desktop party roles stay in one row");
     check(!slotMarkup.includes('data-class-choice="0"'),"Tank class cannot be changed");
     const chooseClass=(slot,cls)=>elements["#groupSlots"].handlers.click({target:{closest:s=>s==="[data-class-choice]"?{dataset:{classChoice:String(slot),choiceClass:cls}}:null}});
+    const wowheadMarkup=elements["#warriorCategories"].innerHTML+" "+elements["#foodRows"].innerHTML+" "+elements["#partyResults"].innerHTML;
+    check(!wowheadMarkup.includes("local-tooltip") && !wowheadMarkup.includes('role="tooltip"'),"All item and spell lists render only one tooltip provider");
+    check(wowheadMarkup.includes('data-wowhead="item=') && wowheadMarkup.includes('data-wowhead="spell='),"Native item and spell Wowhead tooltip IDs remain in the DOM");
     check(elements["#groupSlots"].innerHTML.includes("classicon_priest.jpg"),"Wowhead class icon rendered");
     check(elements["#groupSlots"].innerHTML.includes("#C69B6D"),"Warrior brown applied in group");
     check(elements["#groupSlots"].innerHTML.includes("#FFFFFF"),"Priest white applied in group");
