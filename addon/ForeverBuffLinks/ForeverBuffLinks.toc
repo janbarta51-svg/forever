@@ -1,0 +1,7 @@
+## Interface: 16001
+## Title: Forever Buff Links
+## Notes: Converts Forever Field Guide spell tokens into clickable local chat hyperlinks.
+## Author: Forever Field Guide
+## Version: 0.1.0
+## SavedVariables:
+ForeverBuffLinks.lua
