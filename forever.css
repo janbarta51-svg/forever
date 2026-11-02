@@ -157,3 +157,6 @@
   .role-slot .role-heading{min-height:45px}
   .role-class-menu{max-height:235px}
 }
+
+/* Keep all five party roles on a single row on normal desktop widths. */
+@media(min-width:900px){.party-slots{grid-template-columns:repeat(5,minmax(0,1fr))}}
