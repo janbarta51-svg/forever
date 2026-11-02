@@ -138,3 +138,13 @@ The screenshot of Scroll of Protection showed two popups: an original Wowhead to
 ### Verification
 
 **106/106 checks passed**, including new checks that the Warrior, Food Buffs and Dungeon Group rendered HTML has no duplicate hover cards and retains original Wowhead item/spell data attributes. Real CDN rendering on the public website should still be checked in the browser.
+
+---
+
+## v1.5.1 — Fix lingering local tooltip caused by cached assets (2026-11-02)
+
+- Confirmed that current source `app.js` already has **no local tooltip markup**, so the screenshot represents a cached or out-of-date runtime script.
+- Added a CSS kill-switch that hides any legacy `.local-tooltip` even if an obsolete script generates it after clicking a link.
+- Versioned `styles.css`, `forever.css` and `app.js` asset URLs in `index.html` to prevent browser reuse of older code once the new HTML is loaded.
+- Kept the external Wowhead script, `data-wowhead` attributes, existing compact tooltip styles, and all unrelated features.
+- Tests: **110 passed, 0 failed** in a simulated DOM + source regression suite, including four new caching/legacy-card assertions. The live public host is not independently verified here.
