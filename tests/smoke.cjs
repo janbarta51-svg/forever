@@ -63,6 +63,17 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
   Object.assign(sandbox,{document:doc,sessionStorage,location,navigator,fetch,console,URL});
   try{
     vm.runInNewContext(read("app.js"),sandbox,{filename:"app.js"});
+    const slotMarkup=elements["#groupSlots"].innerHTML;
+    check(slotMarkup.includes("assets/roles/tank.svg"),"Transparent tank role icon");
+    check(slotMarkup.includes("assets/roles/healer.svg"),"Transparent healer role icon");
+    check(slotMarkup.split("assets/roles/dps.svg").length-1===3,"Exactly three DPS role icons");
+    check(slotMarkup.includes(">Tank</strong>") && slotMarkup.includes(">Healer</strong>"),"Tank and Healer role headers");
+    check(slotMarkup.includes("selected-class class-colored"),"Centered class label elements");
+    const choicesFor=slot=>[...slotMarkup.matchAll(new RegExp("data-class-choice=\\\""+slot+"\\\" data-choice-class=\\\"([^\\\"]+)\\\"","g"))].map(m=>m[1]);
+    check(choicesFor(1).length===4 && ["Druid","Paladin","Priest","Shaman"].every(c=>choicesFor(1).includes(c)),"Healer selector limited to four eligible classes");
+    check(choicesFor(2).length===9 && choicesFor(2).includes("Warlock"),"DPS selector offers all nine classes");
+    check(!slotMarkup.includes("data-class-choice=\\\"0\\\""),"Tank class cannot be changed");
+    const chooseClass=(slot,cls)=>elements["#groupSlots"].handlers.click({target:{closest:s=>s==="[data-class-choice]"?{dataset:{classChoice:String(slot),choiceClass:cls}}:null}});
     check(elements["#groupSlots"].innerHTML.includes("classicon_priest.jpg"),"Wowhead class icon rendered");
     check(elements["#groupSlots"].innerHTML.includes("#C69B6D"),"Warrior brown applied in group");
     check(elements["#groupSlots"].innerHTML.includes("#FFFFFF"),"Priest white applied in group");
@@ -81,8 +92,12 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     const lines=copied.split("\n").filter(Boolean);
     check(lines.length>=5 && lines.every(x=>x.length<=235),"Every copied WoW chat line <=235 characters");
     check(lines.some(x=>x.startsWith("Warrior (Lv 25)")) && lines.some(x=>x.startsWith("Priest (Lv 12)")),"Copied text reflects per-member levels");
-    elements["#groupSlots"].handlers.change({target:{matches:s=>s==="[data-slot]",dataset:{slot:"2"},value:"Hunter"}});
-    check(elements["#partyResults"].innerHTML.includes("Hunter <small>Lv 20"),"Class selection updates result");
+    chooseClass(1,"Warlock");
+    check(elements["#partyResults"].innerHTML.includes("Priest <small>Lv 12"),"Healer rejects Warlock");
+    chooseClass(1,"Shaman");
+    check(elements["#partyResults"].innerHTML.includes("Shaman <small>Lv 12"),"Healer accepts Shaman and keeps level");
+    chooseClass(2,"Hunter");
+    check(elements["#partyResults"].innerHTML.includes("Hunter <small>Lv 20"),"DPS class selection updates result");
     elements["#mainLevel"].handlers.input({target:{value:"1"}});
     check(elements["#warriorCategories"].innerHTML.includes("Rough Sharpening Stone") && !elements["#warriorCategories"].innerHTML.includes("Solid Sharpening Stone"),"Level 1 item availability respected");
     elements["#mainLevel"].handlers.input({target:{value:"30"}});
