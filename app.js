@@ -33,10 +33,10 @@ function renderWarrior(){
      .filter(x=>x.level===null||x.level<=state.level).sort((a,b)=>(b.level||0)-(a.level||0));
    const rows=list.map(x=>{
      const tag=x.level===null?'<span class="small-flag uncertain">skill</span>':'<span class="level-badge">'+x.level+'</span>';
-     const name=whLink(x,quests?(x.kind==="spell"?"spell":"quest"):"item");
+     const name=whLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
      return '<div class="entry"><span>'+tag+'</span><div><span class="entry-title">'+name+'</span><div class="entry-desc">'+esc(x.effect)+'</div>'+(x.note?'<div class="flag-note">'+esc(x.note)+'</div>':"")+'</div>'+(x.flag?'<span class="small-flag">'+esc(x.flag)+'</span>':"")+'</div>';
    }).join("");
-   return '<article class="mini-panel panel"><h2>'+esc(cat)+'<span class="subtitle">'+(quests?"Questy a odemčení klíčových skillů":list.length+" dostupných / podmíněných předmětů")+'</span></h2><div class="entry-list">'+(rows||'<div class="empty-state">Žádná dostupná položka.</div>')+'</div></article>'
+   return '<article class="mini-panel panel"><h2>'+esc(cat)+'<span class="subtitle">'+(quests?"Questy a odemčení klíčových skillů":weapons?"Doporučené dungeon etapy; ne equip lvl":tips?"Poznatky z tank guide a videa":list.length+" dostupných / podmíněných předmětů")+'</span></h2><div class="entry-list">'+(rows||'<div class="empty-state">Žádná dostupná položka.</div>')+'</div></article>'
  }).join("");
  refreshTips();
 }
