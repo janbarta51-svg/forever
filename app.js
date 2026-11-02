@@ -1,104 +1,244 @@
-(()=>{"use strict";
-const $=s=>document.querySelector(s);
-const clamp=n=>Math.max(1,Math.min(30,Math.round(Number(n)||1)));
-const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const state={level:clamp(sessionStorage.getItem("forever-level")||20),tab:"warrior",party:["Warrior","Priest","Druid","Paladin","Mage"],foodCategory:"all",foodSearch:"",showUnknown:true};
-const classOrder=["Warrior","Priest","Druid","Paladin","Mage","Shaman","Warlock","Hunter","Rogue"];
-const categoryOrder=["Weapon buff","Elixíry","Scrolly","Potiony","Armor / Shield","Engineering","First Aid"];
-const q=(name)=>"https://www.wowhead.com/forever/search?q="+encodeURIComponent(name);
-function whLink(o,type){const id=Number(o.id);const known=Number.isInteger(id)&&id>0;
-  const href=known?("https://www.wowhead.com/forever/"+(type||o.tooltipType||"item")+"="+id):q(o.name);
-  const extra=known?' data-wowhead="'+esc((type||o.tooltipType||"item")+"="+id)+'"':'';
-  const desc=[o.effect,o.note].filter(Boolean).map(esc).join("<br>");
-  return '<span class="tooltip-wrap '+(known?"has-wh":"")+'"><a href="'+esc(href)+'"'+extra+' target="_blank" rel="noopener noreferrer">'+esc(o.name)+'</a><span class="local-tooltip" role="tooltip"><strong>'+esc(o.name)+'</strong>'+desc+'<span class="tip-meta">'+(o.level===null?"Požadovaný level neověřen":o.level!==undefined?"Od levelu "+esc(o.level):"")+' · '+esc(type==="spell"?"Spell":"Item")+'</span></span></span>';
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const clamp = v => Math.max(1,Math.min(30,Math.round(Number(v)||1)));
+const classOrder = ["Warrior","Paladin","Priest","Druid","Shaman","Mage","Warlock","Hunter","Rogue"];
+const categoryOrder = ["Weapon buff","Elixirs","Scrolls","Potions","Armor / Shield","Engineering","First Aid"];
+const startLevel = clamp(sessionStorage.getItem("forever-level")||20);
+const state = {
+  level:startLevel,
+  party:[
+    {className:"Warrior",level:startLevel},
+    {className:"Priest",level:startLevel},
+    {className:"Druid",level:startLevel},
+    {className:"Paladin",level:startLevel},
+    {className:"Mage",level:startLevel}
+  ],
+  foodCategory:"all", foodSearch:"", showUnknown:true, exportMode:"plain", tab:"warrior"
+};
+const classTheme = cl => CLASS_THEME[cl] || {color:"#ffffff",icon:"classicon_warrior"};
+const classIcon = (cl,extra="") => '<img class="party-class-icon '+extra+'" src="'+esc(classIconUrl(cl))+'" alt="" loading="lazy" width="30" height="30">';
+const themeStyle = cl => 'style="--class-color:'+classTheme(cl).color+'"';
+const queryLink = name => "https://www.wowhead.com/forever/search?q="+encodeURIComponent(name);
+
+function whLink(item,type) {
+  const id = Number(item.id);
+  const verified = Number.isInteger(id) && id > 0;
+  const kind = type || item.tooltipType || "item";
+  const href = verified ? "https://www.wowhead.com/forever/"+kind+"="+id : queryLink(item.name);
+  const attr = verified ? ' data-wowhead="'+esc(kind+"="+id)+'"' : "";
+  const details = [item.effect,item.note].filter(Boolean).map(esc).join("<br>");
+  const requirement = item.level===null ? "Character level unverified" : Number.isFinite(item.level) ? "Available at level "+item.level : "";
+  return '<span class="tooltip-wrap '+(verified?"has-wh":"")+'"><a href="'+esc(href)+'"'+attr+' target="_blank" rel="noopener noreferrer">'+esc(item.name)+'</a><span class="local-tooltip" role="tooltip"><strong>'+esc(item.name)+'</strong>'+details+'<span class="tip-meta">'+esc(requirement)+' · '+esc(kind==="spell"?"Spell":"Item")+'</span></span></span>';
 }
-function abilityLink(a){return whLink({name:a[0],effect:a[3][0],note:a[5],id:a[4]}, "spell")}
-function refreshTips(){try{if(window.WH&&WH.Tooltips&&typeof WH.Tooltips.refreshLinks==="function"){WH.Tooltips.refreshLinks();document.body.classList.add("wowhead-ready")}}catch(e){console.warn("Tooltip fallback active",e)}}
-function latest(arr,part){return arr.filter(x=>x.level!==null&&x.level<=state.level&&(!part||x.category===part)).sort((a,b)=>b.level-a.level)[0]||null}
-function setLevel(v){state.level=clamp(v);$("#mainLevel").value=state.level;$("#levelNumber").value=state.level;$("#levelNum").textContent=state.level;sessionStorage.setItem("forever-level",String(state.level));renderAll()}
-function renderSummary(){const count=WARRIOR_ITEMS.filter(x=>x.level!==null&&x.level<=state.level).length;const foods=FOODS.filter(x=>x.level!==null&&x.level<=state.level).length;$("#levelSummary").innerHTML="<strong>"+count+"</strong> dostupných itemů · <strong>"+foods+"</strong> ověřených jídel"}
+function abilityLink(row,detail) {
+  return whLink({name:row[0],effect:detail.effect,note:row[5],id:row[4],level:detail.level},"spell");
+}
+function refreshTooltips(){
+  try {
+    if(window.WH && window.WH.Tooltips && typeof window.WH.Tooltips.refreshLinks==="function"){
+      window.WH.Tooltips.refreshLinks();
+      document.body.classList.add("wowhead-ready");
+    }
+  } catch(error){console.warn("Using local tooltip fallback",error)}
+}
+function latest(items){return items.filter(x=>x.level!==null&&x.level<=state.level).sort((a,b)=>b.level-a.level)[0]||null}
+function setLevel(value) {
+  state.level=clamp(value);
+  state.party[0].level=state.level;
+  $("#mainLevel").value=state.level;
+  $("#levelNumber").value=state.level;
+  $("#levelNum").textContent=state.level;
+  sessionStorage.setItem("forever-level",String(state.level));
+  renderSummary(); renderWarrior(); renderFood(); renderGroupSlots(); renderGroup();
+}
+function renderSummary(){
+  const count=WARRIOR_ITEMS.filter(x=>x.level!==null&&x.level<=state.level).length;
+  const food=FOODS.filter(x=>x.level!==null&&x.level<=state.level).length;
+  $("#levelSummary").innerHTML="<strong>"+count+"</strong> available items · <strong>"+food+"</strong> verified food choices";
+}
 function renderWarrior(){
- const stone=latest(WARRIOR_ITEMS.filter(x=>/Sharpening Stone/.test(x.name)));
- const heal=latest(WARRIOR_ITEMS.filter(x=>/Healing Potion/.test(x.name)));
- const food=FOODS.filter(x=>x.category==="STR"&&x.level!==null&&x.level<=state.level).sort((a,b)=>b.level-a.level)[0];
- $("#warriorHighlights").innerHTML=[
-   ["AKTUÁLNÍ SHARPENING STONE",stone?.name||"—",stone?.effect||"Zatím bez upgradu"],
-   ["HEALING POTION",heal?.name||"—",heal?.effect||""],
-   ["STRENGTH FOOD",food?.name||"—",food?.effect+" · +5 % kill XP"||""]
- ].map(x=>'<div class="highlight panel"><small>'+esc(x[0])+'</small><strong>'+esc(x[1])+'</strong><p>'+esc(x[2])+'</p></div>').join("");
- const categories=[...categoryOrder,"1H weapon progression","Tank checklist","Questy & milestone"];
- $("#warriorCategories").innerHTML=categories.map(cat=>{
-   const quests=cat==="Questy & milestone";
-   const weapons=cat==="1H weapon progression";
-   const tips=cat==="Tank checklist";
-   const list=(quests?WARRIOR_QUESTS:weapons?WARRIOR_WEAPONS:tips?WARRIOR_TIPS:WARRIOR_ITEMS.filter(x=>x.category===cat))
-     .filter(x=>x.level===null||x.level<=state.level).sort((a,b)=>(b.level||0)-(a.level||0));
-   const rows=list.map(x=>{
-     const tag=x.level===null?'<span class="small-flag uncertain">skill</span>':'<span class="level-badge">'+x.level+'</span>';
-     const name=whLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
-     return '<div class="entry"><span>'+tag+'</span><div><span class="entry-title">'+name+'</span><div class="entry-desc">'+esc(x.effect)+'</div>'+(x.note?'<div class="flag-note">'+esc(x.note)+'</div>':"")+'</div>'+(x.flag?'<span class="small-flag">'+esc(x.flag)+'</span>':"")+'</div>';
-   }).join("");
-   return '<article class="mini-panel panel"><h2>'+esc(cat)+'<span class="subtitle">'+(quests?"Questy a odemčení klíčových skillů":weapons?"Doporučené dungeon etapy; ne equip lvl":tips?"Poznatky z tank guide a videa":list.length+" dostupných / podmíněných předmětů")+'</span></h2><div class="entry-list">'+(rows||'<div class="empty-state">Žádná dostupná položka.</div>')+'</div></article>'
- }).join("");
- refreshTips();
+  const stone=latest(WARRIOR_ITEMS.filter(x=>/Sharpening Stone/.test(x.name)));
+  const heal=latest(WARRIOR_ITEMS.filter(x=>/Healing Potion/.test(x.name)));
+  const food=latest(FOODS.filter(x=>x.category==="STR"));
+  $("#warriorHighlights").innerHTML=[
+    ["BEST SHARPENING STONE",stone?.name||"—",stone?.effect||"No upgrade yet"],
+    ["HEALING POTION",heal?.name||"—",heal?.effect||"Not yet available"],
+    ["STRENGTH FOOD",food?.name||"—",food?food.effect+" · +5% kill XP":"Not yet available"]
+  ].map(([label,title,detail])=>'<div class="highlight panel"><small>'+esc(label)+'</small><strong>'+esc(title)+'</strong><p>'+esc(detail)+'</p></div>').join("");
+  const categories=[...categoryOrder,"1H Weapon Progression","Tank Checklist","Class Quests & Milestones"];
+  $("#warriorCategories").innerHTML=categories.map(cat=>{
+    const quests=cat==="Class Quests & Milestones";
+    const weapons=cat==="1H Weapon Progression";
+    const tips=cat==="Tank Checklist";
+    const list=(quests?WARRIOR_QUESTS:weapons?WARRIOR_WEAPONS:tips?WARRIOR_TIPS:WARRIOR_ITEMS.filter(x=>x.category===cat))
+      .filter(x=>x.level===null||x.level<=state.level).sort((a,b)=>(b.level||0)-(a.level||0));
+    const rows=list.map(x=>{
+      const tag=x.level===null?'<span class="small-flag uncertain">Skill</span>':'<span class="level-badge">'+x.level+'</span>';
+      const name=whLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
+      return '<div class="entry"><span>'+tag+'</span><div><span class="entry-title">'+name+'</span><div class="entry-desc">'+esc(x.effect)+'</div>'+(x.note?'<div class="flag-note">'+esc(x.note)+'</div>':"")+'</div>'+(x.flag?'<span class="small-flag">'+esc(x.flag)+'</span>':"")+'</div>';
+    }).join("");
+    const subtitle=quests?"Class quests and spell unlocks":weapons?"Recommended dungeon stages, not exact equip levels":tips?"Threat and tanking reminders":list.length+" available / conditional items";
+    return '<article class="mini-panel panel"><h2>'+esc(cat)+'<span class="subtitle">'+subtitle+'</span></h2><div class="entry-list">'+(rows||'<div class="empty-state">Nothing available at this level.</div>')+'</div></article>';
+  }).join("");
+  refreshTooltips();
 }
-function renderFoods(){
- const cat=state.foodCategory;const term=state.foodSearch.toLowerCase().trim();
- const items=FOODS.filter(f=>(cat==="all"||f.category===cat)&&(!term||f.name.toLowerCase().includes(term))&&
-   ((f.level!==null&&f.level<=state.level)||(f.level===null&&state.showUnknown)))
- .sort((a,b)=>(a.level===null?999:a.level)-(b.level===null?999:b.level)||a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
- $("#foodCount").textContent="Zobrazeno "+items.length+" z "+FOODS.length+" receptů. ? = minimum levelu není potvrzené pro Forever (Cooking skill je ověřen samostatně).";
- $("#foodRows").innerHTML=items.map(f=>'<tr><td><span class="level-badge">'+(f.level??"?")+'</span></td><td>'+whLink(f,"item")+'</td><td>'+esc(f.effect)+'</td><td>'+esc(f.skill)+'</td><td class="'+(f.verified?"status-verified":"status-estimated")+'">'+(f.verified?"Ověřený level":"Level ověřit")+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">Zde zatím žádné položky.</td></tr>';
- refreshTips();
+function renderFood(){
+  const items=FOODS.filter(x=>(state.foodCategory==="all"||x.category===state.foodCategory) &&
+    (!state.foodSearch||x.name.toLowerCase().includes(state.foodSearch)) &&
+    ((x.level!==null&&x.level<=state.level)||(x.level===null&&state.showUnknown)))
+    .sort((a,b)=>(a.level??999)-(b.level??999)||a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
+  $("#foodCount").textContent="Showing "+items.length+" of "+FOODS.length+" recipes. A '?' means the minimum character level is not verified (Cooking skill is tracked separately).";
+  $("#foodRows").innerHTML=items.map(x=>'<tr><td><span class="level-badge">'+esc(x.level??"?")+'</span></td><td>'+whLink(x,"item")+'</td><td>'+esc(x.effect)+'</td><td>'+esc(x.skill)+'</td><td class="'+(x.verified?"status-verified":"status-estimated")+'">'+(x.verified?"Verified level":"Level unverified")+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">No food matches these filters.</td></tr>';
+  refreshTooltips();
 }
 function renderGroupSlots(){
- $("#groupSlots").innerHTML=state.party.map((cl,i)=>{
-   const locked=i===0;const opts=classOrder.map(c=>'<option value="'+c+'"'+(c===cl?" selected":"")+'>'+c+'</option>').join("");
-   return '<div class="member-slot"><div class="role-label"><span class="role-icon">'+esc(CLASS_ICONS[cl])+'</span><div><strong>'+(locked?"Tank":"Member "+(i+1))+'</strong><small>'+(locked?"Tvůj Human Warrior":"Class ve skupině")+'</small></div></div>'+(
-   locked?'<div class="class-picker-button">Warrior <span class="picker-caret">🛡</span></div>':
-   '<select class="group-select" data-slot="'+i+'" aria-label="Class hráče '+(i+1)+'">'+opts+'</select>'
-   )+'</div>'
- }).join("");
+  $("#groupSlots").innerHTML=state.party.map((member,i)=>{
+    const cl=member.className,locked=i===0;
+    const options=classOrder.map(c=>'<option value="'+c+'"'+(cl===c?" selected":"")+'>'+c+'</option>').join("");
+    const picker=locked?
+      '<div class="group-class-picker fixed" '+themeStyle(cl)+'>'+classIcon(cl)+'<span class="class-name">'+esc(cl)+'</span><span class="picker-caret">🛡</span></div>':
+      '<div class="group-class-picker" '+themeStyle(cl)+'>'+classIcon(cl)+'<select class="group-select" data-slot="'+i+'" aria-label="Class for party member '+(i+1)+'">'+options+'</select></div>';
+    return '<div class="member-slot class-slot" '+themeStyle(cl)+'><div class="role-label">'+classIcon(cl,"role-icon-class")+'<div><strong class="class-colored">'+(locked?"Tank":esc(cl))+'</strong><small>'+(locked?"Your Human Warrior":"Party member "+(i+1))+'</small></div></div><div class="member-controls">'+picker+
+    '<label class="level-control" for="partyLevel'+i+'"><span>Level</span><input id="partyLevel'+i+'" class="member-level" data-party-level="'+i+'" type="number" min="1" max="30" value="'+member.level+'" '+(locked?'title="Synced with Warrior level slider"':'')+'></label></div></div>';
+  }).join("");
 }
-function resolvedAbility(a,level){const ranks=a[2].filter(n=>n<=level);if(!ranks.length)return null;
- const idx=ranks.length-1;return {a,rank:idx+1,level:ranks[idx],effect:a[3][idx]||a[3][0]||""}}
+function resolveAbility(ability,level){
+  const ranks=ability[2].filter(x=>x<=level);
+  if(!ranks.length)return null;
+  const rankIndex=ranks.length-1;
+  return {a:ability,rank:rankIndex+1,level:ranks[rankIndex],effect:ability[3][rankIndex]||ability[3][0]||""};
+}
+function memberAbilities(member){
+  return (GROUP_ABILITY_DATA[member.className]||[]).map(a=>resolveAbility(a,member.level)).filter(Boolean);
+}
 function renderGroup(){
- $("#groupSummary").textContent="Buffy a crowd control pro lvl "+state.level;
- const entries=state.party.flatMap((cl,i)=>(GROUP_ABILITY_DATA[cl]||[]).map(a=>{
-   const r=resolvedAbility(a,state.level);return r?{...r,cl,index:i}:null}).filter(Boolean));
- const totals={buff:entries.filter(x=>x.a[1]==="buff").length,cc:entries.filter(x=>x.a[1]==="cc").length};
- const tag=(x)=>x.a[6]?'<span class="small-flag">'+esc(x.a[6])+'</span>':"";
- const cats=[["buff","Buffy","Dostupné skupinové buffy a aury"],["cc","Crowd control","Stuny, roots, feary, interrupcy"]];
- $("#partyResults").innerHTML='<div class="matrix-summary"><strong>'+totals.buff+' buffů · '+totals.cc+' CC</strong><span>Pouze dvě požadované kategorie, rank vždy odpovídá lvl '+state.level+'</span></div>'+
- cats.map(([type,title,desc])=>'<article class="mini-panel panel" style="margin-top:16px"><h2>'+title+'<span class="subtitle">'+desc+'</span></h2><div class="entry-list">'+
- (entries.filter(x=>x.a[1]===type).map(x=>'<div class="entry"><span class="level-badge">'+x.level+'</span><div><span class="entry-title">'+esc(CLASS_ICONS[x.cl])+' '+esc(x.cl)+' · '+abilityLink(x.a)+' <span class="rank">R'+x.rank+'</span></span><div class="entry-desc">'+esc(x.effect)+'</div><div class="flag-note">'+esc(x.a[5])+'</div></div>'+tag(x)+'</div>').join("")||'<div class="empty-state">Zatím není dostupná žádná schopnost tohoto typu.</div>')+'</div></article>').join("")+
- '<div class="notice party-note"><strong>Pozor na konflikty:</strong> jedna Paladin Aura současně; standardní Blessing se od stejného Paladina přepisují; Shaman má jen jeden aktivní totem od každého elementu; Warlock a Hunter buffy mohou vyžadovat peta a talentové ability nejsou automatické.</div>';
- refreshTips();
+  const summary=state.party.map(x=>x.className+" "+x.level).join(" · ");
+  $("#groupSummary").textContent=summary;
+  const all=state.party.map(memberAbilities);
+  const buffCount=all.reduce((n,entries)=>n+entries.filter(x=>x.a[1]==="buff").length,0);
+  const ccCount=all.reduce((n,entries)=>n+entries.filter(x=>x.a[1]==="cc").length,0);
+  const markup=state.party.map((member,index)=>{
+    const cl=member.className,abilities=all[index];
+    const types=[["buff","Buffs"],["cc","Crowd Control"]];
+    const columns=types.map(([type,title])=>{
+      const list=abilities.filter(x=>x.a[1]===type);
+      const entries=list.map(x=>{
+        const requirement=x.a[6]?'<span class="small-flag requirement-flag">'+esc(x.a[6])+'</span>':"";
+        return '<div class="group-ability"><div class="group-ability-line">'+abilityLink(x.a,x)+' <span class="rank">Rank '+x.rank+'</span><span class="level-badge" title="Level the current rank becomes available">Lv '+x.level+'</span>'+requirement+'</div><p class="group-effect">'+esc(x.effect)+'</p><p class="group-note">'+esc(x.a[5])+'</p></div>';
+      }).join("");
+      return '<div class="group-type"><h3><span class="cat-dot '+type+'"></span>'+title+' <span class="muted">('+list.length+')</span></h3>'+(entries||'<p class="empty-state">None available yet.</p>')+'</div>';
+    }).join("");
+    return '<article class="panel member-result" '+themeStyle(cl)+'><div class="member-result-header">'+classIcon(cl)+'<div><h2 class="class-colored">'+esc(cl)+' <small>Lv '+member.level+'</small></h2><span>Party slot '+(index+1)+(index===0?" · Tank":"")+'</span></div></div><div class="group-columns">'+columns+'</div></article>';
+  }).join("");
+  $("#partyResults").innerHTML='<div class="matrix-summary"><strong>'+buffCount+' buffs · '+ccCount+' crowd-control abilities</strong><span>Each player's own level and highest available rank</span></div><div class="party-class-results">'+markup+'</div>'+
+  '<div class="notice party-note"><strong>Important:</strong> Paladin auras are mutually exclusive; a Shaman can have only one totem of each element; pet and talent abilities are conditional. Do not apply Salvation to your tank. Some buff categories do not stack.</div>';
+  renderExport();
+  refreshTooltips();
+}
+
+const CHAT_LIMIT=235;
+function abilityText(ability,addonMode) {
+  const name=ability.a[0],rankLevel=ability.level;
+  const spellId=Number(ability.a[4]);
+  const hyperlinkCode=addonMode&&Number.isInteger(spellId)&&spellId>0?'['+name+']{spell:'+spellId+'}':name;
+  return hyperlinkCode+' ('+rankLevel+')'+(ability.a[6]?"*":"");
+}
+function exportLines(){
+  const addonMode=state.exportMode==="addon",lines=[];
+  state.party.forEach((member,index)=>{
+    const entries=memberAbilities(member);
+    [["buff","Buffs"],["cc","CC"]].forEach(([type,label])=>{
+      const names=entries.filter(x=>x.a[1]===type).map(x=>abilityText(x,addonMode));
+      if(!names.length)return;
+      let prefix=member.className+" (Lv "+member.level+") - "+label+": ";
+      let buffer=prefix;
+      names.forEach(name=>{
+        const next=buffer===prefix?name:", "+name;
+        if(buffer.length+next.length>CHAT_LIMIT && buffer!==prefix){
+          lines.push({text:buffer,member:index,className:member.className});
+          prefix=member.className+" (Lv "+member.level+") - "+label+" (cont.): ";
+          buffer=prefix+name;
+        }else buffer+=next;
+      });
+      lines.push({text:buffer,member:index,className:member.className});
+    });
+  });
+  return lines;
+}
+async function copyText(text){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    try{await navigator.clipboard.writeText(text);return true}catch(error){console.warn("Clipboard API fallback",error)}
+  }
+  try{
+    const area=document.createElement("textarea");area.value=text;area.setAttribute("readonly","");area.style.position="fixed";area.style.left="-9999px";document.body.appendChild(area);area.select();
+    const ok=document.execCommand("copy");area.remove();return Boolean(ok);
+  }catch(error){return false}
+}
+function renderExport(){
+  $("#exportPlain").classList.toggle("primary",state.exportMode==="plain");
+  $("#exportAddon").classList.toggle("primary",state.exportMode==="addon");
+  const lines=exportLines();
+  $("#exportRows").innerHTML=lines.map((line,index)=>'<div class="export-row" '+themeStyle(line.className)+'><span class="export-index">'+(index+1)+'</span><div class="export-text">'+esc(line.text)+'</div><button class="button export-copy" type="button" data-copy-line="'+index+'" aria-label="Copy chat line '+(index+1)+'">Copy</button></div>').join("");
 }
 function renderCamp(){
- $("#campCards").innerHTML=CAMP_FEATURES.map(c=>'<article class="mini-panel panel"><h2>'+esc(c.profession)+(c.good?' <span class="small-flag">Tank ✓</span>':'')+'<span class="subtitle">'+esc(c.name)+' · profession skill '+c.skill+'</span></h2><div class="entry-list"><strong class="stat-good">'+esc(c.effect)+'</strong><div class="camp-note">'+(c.conflict?'Nekombinuje se s: <strong>'+esc(c.conflict)+'</strong>':'Neudán class buff konflikt')+'</div></div></article>').join("")
+  $("#campCards").innerHTML=CAMP_FEATURES.map(x=>'<article class="mini-panel panel"><h2>'+esc(x.profession)+(x.good?' <span class="small-flag">Tank ★</span>':'')+'<span class="subtitle">'+esc(x.name)+' · Profession skill '+x.skill+'</span></h2><div class="entry-list"><strong class="stat-good">'+esc(x.effect)+'</strong><div class="camp-note">'+(x.conflict?'Does not stack with: <strong>'+esc(x.conflict)+'</strong>':'No known overlapping class buff')+'</div></div></article>').join("");
 }
-let linkCache=[];
-function validURL(url){try{const a=new URL(url);return ["https:","http:"].includes(a.protocol)}catch{return false}}
-async function renderLinks(){try{const r=await fetch("links.json",{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const payload=await r.json();linkCache=Array.isArray(payload.links)?payload.links:[]}catch(e){linkCache=[{title:"Wowhead Forever",url:"https://www.wowhead.com/forever/"},{title:"Icy Veins Forever",url:"https://www.icy-veins.com/wow-forever/"}];}
- $("#linksCards").innerHTML=linkCache.filter(x=>x.title&&validURL(x.url)).map(x=>'<a class="panel link-card" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer"><strong>↗ '+esc(x.title)+'</strong><span>'+esc(x.url)+'</span></a>').join("");
+let links=[];
+function validURL(v){try{return ["http:","https:"].includes(new URL(v).protocol)}catch{return false}}
+async function renderLinks(){
+  try{
+    const response=await fetch("links.json",{cache:"no-store"});
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    const data=await response.json();links=Array.isArray(data.links)?data.links:[];
+  }catch(error){links=[{title:"Wowhead Forever",url:"https://www.wowhead.com/forever/"},{title:"Icy Veins Forever",url:"https://www.icy-veins.com/wow-forever/"}]}
+  $("#linksCards").innerHTML=links.filter(x=>x.title&&validURL(x.url)).map(x=>'<a class="panel link-card" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer"><strong>↗ '+esc(x.title)+'</strong><span>'+esc(x.url)+'</span></a>').join("");
 }
-function selectTab(tab){tab=["warrior","food","group","camp","links"].includes(tab)?tab:"warrior";state.tab=tab;
- document.querySelectorAll(".tab-view").forEach(el=>el.hidden=el.id!=="view-"+tab);
- document.querySelectorAll("[data-tab]").forEach(el=>{el.classList.toggle("active",el.dataset.tab===tab);el.setAttribute("aria-current",el.dataset.tab===tab?"page":"false")});
- $(".nav").classList.remove("open");$(".nav-toggle").setAttribute("aria-expanded","false");
- if(tab==="links")renderLinks();refreshTips();
+function selectTab(tab){
+  const selected=["warrior","food","group","camp","links"].includes(tab)?tab:"warrior";
+  state.tab=selected;
+  document.querySelectorAll(".tab-view").forEach(el=>el.hidden=el.id!=="view-"+selected);
+  document.querySelectorAll("[data-tab]").forEach(el=>{el.classList.toggle("active",el.dataset.tab===selected);el.setAttribute("aria-current",el.dataset.tab===selected?"page":"false")});
+  $(".nav").classList.remove("open");$(".nav-toggle").setAttribute("aria-expanded","false");
+  if(selected==="links")renderLinks();
+  refreshTooltips();
 }
-function renderAll(){renderSummary();renderWarrior();renderFoods();renderGroup();renderCamp()}
-$("#mainLevel").addEventListener("input",e=>setLevel(e.target.value));
-$("#levelNumber").addEventListener("change",e=>setLevel(e.target.value));
-$("#foodCategory").addEventListener("change",e=>{state.foodCategory=e.target.value;renderFoods()});
-$("#foodSearch").addEventListener("input",e=>{state.foodSearch=e.target.value;renderFoods()});
-$("#foodShowUnverified").checked=true;$("#foodShowUnverified").addEventListener("change",e=>{state.showUnknown=e.target.checked;renderFoods()});
-$("#groupSlots").addEventListener("change",e=>{const i=Number(e.target.dataset.slot);if(i>=1&&i<=4&&GROUP_ABILITY_DATA[e.target.value]){state.party[i]=e.target.value;renderGroupSlots();renderGroup()}});
+$("#mainLevel").addEventListener("input",event=>setLevel(event.target.value));
+$("#levelNumber").addEventListener("change",event=>setLevel(event.target.value));
+$("#foodCategory").addEventListener("change",event=>{state.foodCategory=event.target.value;renderFood()});
+$("#foodSearch").addEventListener("input",event=>{state.foodSearch=event.target.value.toLowerCase().trim();renderFood()});
+$("#foodShowUnverified").checked=true;
+$("#foodShowUnverified").addEventListener("change",event=>{state.showUnknown=event.target.checked;renderFood()});
+$("#groupSlots").addEventListener("change",event=>{
+  const e=event.target;
+  if(e.matches("[data-slot]")){
+    const index=Number(e.dataset.slot);
+    if(index>0&&index<5&&GROUP_ABILITY_DATA[e.value]){
+      state.party[index].className=e.value;
+      renderGroupSlots();renderGroup();
+    }
+  }else if(e.matches("[data-party-level]")){
+    const index=Number(e.dataset.partyLevel),value=clamp(e.value);
+    if(index===0){setLevel(value)}else{state.party[index].level=value;e.value=value;renderGroup()}
+  }
+});
 $("#refreshGroup").addEventListener("click",renderGroup);
-$(".nav-toggle").addEventListener("click",()=>{const nav=$(".nav");const open=nav.classList.toggle("open");$(".nav-toggle").setAttribute("aria-expanded",String(open))});
+$("#exportPlain").addEventListener("click",()=>{state.exportMode="plain";renderExport()});
+$("#exportAddon").addEventListener("click",()=>{state.exportMode="addon";renderExport()});
+$("#exportRows").addEventListener("click",async event=>{
+  const b=event.target.closest("[data-copy-line]");if(!b)return;
+  const index=Number(b.dataset.copyLine),line=exportLines()[index];
+  if(!line)return;const ok=await copyText(line.text);
+  $("#copyStatus").textContent=ok?"Copied line "+(index+1)+" — paste it into WoW chat.":"Automatic copy unavailable; select the text and copy it manually.";
+});
+$("#copyAll").addEventListener("click",async()=>{
+  const text=exportLines().map(x=>x.text).join("\n");
+  const ok=await copyText(text);
+  $("#copyStatus").textContent=ok?"Copied all "+exportLines().length+" lines. WoW chat usually accepts one line at a time.":"Automatic copy unavailable; use the individual Copy buttons.";
+});
+$(".nav-toggle").addEventListener("click",()=>{const nav=$(".nav");const expanded=nav.classList.toggle("open");$(".nav-toggle").setAttribute("aria-expanded",String(expanded))});
 window.addEventListener("hashchange",()=>selectTab(location.hash.replace("#","")));
-document.querySelectorAll("[data-tab]").forEach(a=>a.addEventListener("click",()=>selectTab(a.dataset.tab)));
-renderGroupSlots();setLevel(state.level);selectTab(location.hash.replace("#","")||"warrior");
+document.querySelectorAll("[data-tab]").forEach(node=>node.addEventListener("click",()=>selectTab(node.dataset.tab)));
+renderCamp();setLevel(startLevel);selectTab(location.hash.replace("#","")||"warrior");
 })();
