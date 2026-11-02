@@ -45,7 +45,7 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261102-game-links"'),"Latest app.js uses explicit cache-busting version");
+check(markup.includes('src="app.js?v=20261102-rank-links"'),"Latest app.js uses explicit cache-busting version");
 check(markup.includes('href="forever.css?v=20261102-game-links"'),"Latest tooltip CSS uses explicit cache-busting version");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
@@ -121,14 +121,18 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     check(elements["#partyResults"].innerHTML.includes("Priest <small>Lv 12"),"Priest level independent");
     elements["#mainLevel"].handlers.input({target:{value:"25"}});
     check(elements["#groupSlots"].innerHTML.includes('id="partyLevel1"') && elements["#groupSlots"].innerHTML.includes('id="partyLevel1" class="member-level" data-party-level="1" type="number" min="1" max="30" value="12"'),"Warrior slider preserves teammate level");
+    elements["#mainLevel"].handlers.input({target:{value:"16"}});
     check(elements["#exportRows"].innerHTML.includes("Copy command"),"Default export offers in-game WoW commands");
     await elements["#exportRows"].handlers.click({target:{closest:s=>s==="[data-copy-line]"?{dataset:{copyLine:"0"}}:null}});
-    check(copied.startsWith("/run C_ChatInfo.SendChatMessage(")&&copied.includes("C_Spell.GetSpellLink(6673)")&&copied.includes('"PARTY"'),"Game export copies native spell links to Party");
+    check(copied.startsWith("/run C_ChatInfo.SendChatMessage(")&&copied.includes("C_Spell.GetSpellLink(5242)")&&copied.includes('"PARTY"'),"Game export copies native spell links to Party");
+    check(copied.includes("\\124cff71d5ff")&&copied.includes("Hspell:5242:0"),"Fallback uses escaped in-game hyperlink for Battle Shout rank 2");
+    check(copied.includes("Warrior - Buffs:")&&!copied.includes("Lv 16"),"No character level in chat export");
     check(copied.length<=250,"Game command fits a single 255-character input");
     elements["#exportChannel"].handlers.change({target:{value:"SAY"}});
     await elements["#exportRows"].handlers.click({target:{closest:s=>s==="[data-copy-line]"?{dataset:{copyLine:"0"}}:null}});
     check(copied.endsWith('"SAY")'),"Chat channel selector changes WoW command destination");
     check(elements["#copyAll"].disabled===true,"Copy all is disabled for in-game commands");
+    elements["#mainLevel"].handlers.input({target:{value:"25"}});
     elements["#exportAddon"].handlers.click();
     check(elements["#exportRows"].innerHTML.includes("{spell:1243}"),"Addon-ready spell token export");
     elements["#exportPlain"].handlers.click();
@@ -136,7 +140,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     await elements["#copyAll"].handlers.click();
     const lines=copied.split("\n").filter(Boolean);
     check(lines.length>=5 && lines.every(x=>x.length<=235),"Every copied WoW chat line <=235 characters");
-    check(lines.some(x=>x.startsWith("Warrior (Lv 25)")) && lines.some(x=>x.startsWith("Priest (Lv 12)")),"Copied text reflects per-member levels");
+    check(lines.some(x=>x.startsWith("Warrior - Buffs:")) && lines.some(x=>x.startsWith("Priest - Buffs:")) && lines.every(x=>!x.includes("(Lv ")),"Copied chat omits character levels");
     chooseClass(1,"Warlock");
     check(elements["#partyResults"].innerHTML.includes("Priest <small>Lv 12"),"Healer rejects Warlock");
     chooseClass(1,"Shaman");
