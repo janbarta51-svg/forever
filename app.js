@@ -21,7 +21,7 @@ const state = {
     {className:"Paladin",level:startLevel},
     {className:"Mage",level:startLevel}
   ],
-  foodCategory:"all", foodSearch:"", showUnknown:true, exportMode:"game", exportChannel:"PARTY", tab:"warrior"
+  foodCategory:"all", foodSearch:"", showUnknown:true, tab:"warrior"
 };
 const classTheme = cl => CLASS_THEME[cl] || {color:"#ffffff",icon:"classicon_warrior"};
 const classIcon = (cl,extra="") => '<img class="party-class-icon '+extra+'" src="'+esc(classIconUrl(cl))+'" alt="" loading="lazy" width="30" height="30">';
@@ -184,29 +184,21 @@ function renderGroup(){
 }
 
 const CHAT_LIMIT=235;
-// Battle Shout Forever ranks 1-3: 6673, 5242, 6192.
-function spellRankId(ability){
-  const id=Number(ability.a[4]);
-  if(id===6673&&ability.a[0]==="Battle Shout"){
-    const ranks=[6673,5242,6192];
-    const index=ability.a[2].indexOf(ability.level);
-    if(index>=0&&ranks[index])return ranks[index];
-  }
-  return id;
-}
-function abilityText(ability,addonMode) {
-  const name=ability.a[0],rankLevel=ability.level;
-  const spellId=spellRankId(ability);
-  const hyperlinkCode=addonMode&&Number.isInteger(spellId)&&spellId>0?'['+name+']{spell:'+spellId+'}':name;
-  return hyperlinkCode+' ('+rankLevel+')'+(ability.a[6]?"*":"");
+function abilityText(ability){
+  // resolveAbility() chooses the highest available rank for this member's
+  // individual level. The index is the rank, not the unlock level itself.
+  return ability.a[0]+" (Rank"+ability.rank+")"+(ability.a[6]?"*":"");
 }
 function exportLines(){
-  if(state.exportMode==="game")return gameExportLines();
-  const addonMode=state.exportMode==="addon",lines=[];
+  const lines=[];
   state.party.forEach((member,index)=>{
     const entries=memberAbilities(member);
+    if(!entries.length){
+      lines.push({text:member.className+" - No Buffs or CC available yet",member:index,className:member.className});
+      return;
+    }
     [["buff","Buffs"],["cc","CC"]].forEach(([type,label])=>{
-      const names=entries.filter(x=>x.a[1]===type).map(x=>abilityText(x,addonMode));
+      const names=entries.filter(x=>x.a[1]===type).map(abilityText);
       if(!names.length)return;
       let prefix=member.className+" - "+label+": ";
       let buffer=prefix;
@@ -223,57 +215,6 @@ function exportLines(){
   });
   return lines;
 }
-// The game, not the browser, constructs real links. Commands are short enough
-// to paste into a single WoW chat input; they send to the chosen chat channel.
-function makeGameLine(member,label,abilities,continuation){
-  const prefix=member.className+" - "+label+(continuation?" (cont.)":"")+": ";
-  let expr=JSON.stringify(prefix),preview=prefix,estimated=prefix.length;
-  abilities.forEach((ability,index)=>{
-    const name=ability.a[0],id=spellRankId(ability);
-    const separator=index?", ":"";
-    const suffix=" ("+ability.level+")"+(ability.a[6]?"*":"");
-    if(index)expr+=".."+JSON.stringify(separator);
-    if(Number.isInteger(id)&&id>0){
-      // \124 is interpreted by Lua as a pipe; pasting raw | is unreliable.
-      const pipe=String.fromCharCode(92)+"124";
-      const escapedName=JSON.stringify(name).slice(1,-1);
-      const fallback='"'+pipe+'cff71d5ff'+pipe+'Hspell:'+id+':0'+pipe+'h['+escapedName+']'+pipe+'h'+pipe+'r"';
-      expr+="..(C_Spell.GetSpellLink("+id+")or"+fallback+")";
-      estimated+=name.length+60;
-    }else{
-      expr+=".."+JSON.stringify(name);
-      estimated+=name.length;
-    }
-    expr+=".."+JSON.stringify(suffix);
-    preview+=separator+name+suffix;
-    estimated+=separator.length+suffix.length;
-  });
-  const text="/run C_ChatInfo.SendChatMessage("+expr+","+JSON.stringify(state.exportChannel)+")";
-  return {text,preview,estimated};
-}
-function gameExportLines(){
-  const lines=[];
-  state.party.forEach((member,index)=>{
-    const entries=memberAbilities(member);
-    [["buff","Buffs"],["cc","CC"]].forEach(([type,label])=>{
-      const spells=entries.filter(x=>x.a[1]===type);
-      let chunk=[];
-      const flush=()=>{
-        if(!chunk.length)return;
-        const result=makeGameLine(member,label,chunk,lines.some(x=>x.member===index&&x.label===label));
-        lines.push({...result,member:index,className:member.className,label});
-        chunk=[];
-      };
-      for(const spell of spells){
-        const next=makeGameLine(member,label,[...chunk,spell],lines.some(x=>x.member===index&&x.label===label));
-        if(chunk.length&&(next.text.length>250||next.estimated>230))flush();
-        chunk.push(spell);
-      }
-      flush();
-    });
-  });
-  return lines;
-}
 async function copyText(text){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     try{await navigator.clipboard.writeText(text);return true}catch(error){console.warn("Clipboard API fallback",error)}
@@ -284,15 +225,12 @@ async function copyText(text){
   }catch(error){return false}
 }
 function renderExport(){
-  const gameMode=state.exportMode==="game";
-  $("#exportPlain").classList.toggle("primary",state.exportMode==="plain");
-  $("#exportAddon").classList.toggle("primary",state.exportMode==="addon");
-  $("#exportGame").classList.toggle("primary",gameMode);
-  $("#exportChannel").disabled=!gameMode;
-  $("#copyAll").disabled=gameMode;
-  $("#copyAll").title=gameMode?"Copy each game command separately (one chat input each).":"";
   const lines=exportLines();
-  $("#exportRows").innerHTML=lines.map((line,index)=>'<div class="export-row" '+themeStyle(line.className)+'><span class="export-index">'+(index+1)+'</span><div class="export-text">'+esc(line.preview||line.text)+'</div><button class="button export-copy" type="button" data-copy-line="'+index+'" aria-label="'+(gameMode?"Copy WoW chat command ":"Copy chat line ")+(index+1)+'">'+(gameMode?"Copy command":"Copy")+'</button></div>').join("");
+  $("#exportRows").innerHTML=lines.map((line,index)=>
+    '<div class="export-row" '+themeStyle(line.className)+'><span class="export-index">'+(index+1)+'</span>'+
+    '<div class="export-text">'+esc(line.text)+'</div>'+
+    '<button class="button export-copy" type="button" data-copy-line="'+index+'" aria-label="Copy chat line '+(index+1)+'">Copy</button></div>'
+  ).join("");
 }
 function renderCamp(){
   $("#campCards").innerHTML=CAMP_FEATURES.map(x=>'<article class="mini-panel panel"><h2>'+esc(x.profession)+(x.good?' <span class="small-flag">Tank ★</span>':'')+'<span class="subtitle">'+esc(x.name)+' · Profession skill '+x.skill+'</span></h2><div class="entry-list"><strong class="stat-good">'+esc(x.effect)+'</strong><div class="camp-note">'+(x.conflict?'Does not stack with: <strong>'+esc(x.conflict)+'</strong>':'No known overlapping class buff')+'</div></div></article>').join("");
@@ -378,21 +316,16 @@ for(const root of ["#warriorHighlights","#warriorCategories","#foodRows"]){
   $(root).addEventListener("click",handleItemCopy);
 }
 $("#refreshGroup").addEventListener("click",renderGroup);
-$("#exportPlain").addEventListener("click",()=>{state.exportMode="plain";renderExport()});
-$("#exportAddon").addEventListener("click",()=>{state.exportMode="addon";renderExport()});
-$("#exportGame").addEventListener("click",()=>{state.exportMode="game";renderExport()});
-$("#exportChannel").addEventListener("change",event=>{state.exportChannel=event.target.value;renderExport()});
 $("#exportRows").addEventListener("click",async event=>{
   const b=event.target.closest("[data-copy-line]");if(!b)return;
   const index=Number(b.dataset.copyLine),line=exportLines()[index];
   if(!line)return;const ok=await copyText(line.text);
-  $("#copyStatus").textContent=ok?(state.exportMode==="game"?"Copied WoW command. Paste into the game chat and press Enter to send clickable spell links to "+state.exportChannel+".":"Copied line "+(index+1)+" — paste it into WoW chat."):"Automatic copy unavailable; select the text and copy it manually.";
+  $("#copyStatus").textContent=ok?"Copied line "+(index+1)+" — paste it into WoW chat.":"Automatic copy unavailable; select the text and copy it manually.";
 });
 $("#copyAll").addEventListener("click",async()=>{
-  if(state.exportMode==="game")return;
   const text=exportLines().map(x=>x.text).join("\n");
   const ok=await copyText(text);
-  $("#copyStatus").textContent=ok?"Copied all "+exportLines().length+" lines. WoW chat usually accepts one line at a time.":"Automatic copy unavailable; use the individual Copy buttons.";
+  $("#copyStatus").textContent=ok?"Copied all "+exportLines().length+" lines. Standard WoW chat cannot paste these as separate messages at once; use individual Copy buttons in-game.":"Automatic copy unavailable; use the individual Copy buttons.";
 });
 $(".nav-toggle").addEventListener("click",()=>{const nav=$(".nav");const expanded=nav.classList.toggle("open");$(".nav-toggle").setAttribute("aria-expanded",String(expanded))});
 window.addEventListener("hashchange",()=>selectTab(location.hash.replace("#","")));
