@@ -50,16 +50,12 @@
 .export-heading p{font-size:13px;color:#95a0ae;margin:0;max-width:660px}
 .export-actions{display:flex;flex-wrap:wrap;gap:8px}
 .export-actions button,.export-copy{cursor:pointer}
-.export-channel{display:flex;align-items:center;gap:6px;color:#9eaab7;font-size:12px}
-.export-channel select{background:#10141a;color:#f0f1f3;border:1px solid #45515e;border-radius:4px;padding:7px 6px}
-.export-actions button:disabled,.export-channel select:disabled{opacity:.5;cursor:not-allowed}
 .export-rows{display:grid;gap:8px}
 .export-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid #343e49;border-left:3px solid var(--class-color,#777);border-radius:3px;background:#10141a}
 .export-index{font-size:11px;color:#7d8895;text-align:center}
 .export-text{font-size:13px;line-height:1.5;color:#dae0e7;overflow-wrap:anywhere;white-space:pre-wrap;user-select:text}
 .export-copy{padding:6px 11px;font-size:12px}
 .chat-warning{background:#30271863;color:#c7bca9;border-left:3px solid #bc8b39;padding:12px 14px;font-size:12px;margin-top:16px;line-height:1.6}
-.chat-warning a{font-weight:700}
 #copyStatus{margin:10px 0 0;min-height:20px}
 @media(max-width:1050px){.party-slots{grid-template-columns:repeat(3,minmax(0,1fr))}.member-slot{border-bottom:1px solid #303640}.export-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:760px){.party-slots{grid-template-columns:1fr}.class-slot{padding:14px 18px}.group-columns{grid-template-columns:1fr}.group-type + .group-type{border-left:0;border-top:1px solid #333b45}.export-heading h2{font-size:23px}.export-row{grid-template-columns:22px minmax(0,1fr) auto}.chat-export-panel{padding:14px}.group-ability-line{gap:5px}.party-submit{padding:15px}}
@@ -233,3 +229,8 @@
   visibility:hidden !important;
   pointer-events:none !important;
 }
+
+/* CMS back navigation remains visible on mobile; unlike the main menu it has no toggle. */
+.cms-back-link{margin-left:auto;padding:9px 12px;color:#d6b77c;text-decoration:none;white-space:nowrap;font-size:13px}
+.cms-back-link:hover{color:#fff;text-decoration:none}
+@media(max-width:480px){.cms-back-link{font-size:12px;padding:8px 4px}.cms-form .page-head h1{font-size:29px}}
