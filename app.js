@@ -11,7 +11,7 @@ const allowedClasses = index => index===1 ? healerClasses : index===0 ? ["Warrio
 const roleIcon = role => '<img class="party-role-icon" src="assets/roles/'+role+'.svg" width="38" height="38" alt="" loading="lazy">';
 
 const categoryOrder = ["Weapon buff","Elixirs","Scrolls","Potions","Armor / Shield","Engineering","First Aid"];
-const startLevel = clamp(sessionStorage.getItem("forever-level")||20);
+const startLevel = clamp((() => { try { return sessionStorage.getItem("forever-level"); } catch { return null; } })() || 20);
 const state = {
   level:startLevel,
   party:[
@@ -72,7 +72,7 @@ function setLevel(value) {
   $("#mainLevel").value=state.level;
   $("#levelNumber").value=state.level;
   $("#levelNum").textContent=state.level;
-  sessionStorage.setItem("forever-level",String(state.level));
+  try { sessionStorage.setItem("forever-level",String(state.level)); } catch { /* Storage may be unavailable. */ }
   renderSummary(); renderWarrior(); renderFood(); renderGroupSlots(); renderGroup();
 }
 function renderSummary(){
@@ -236,14 +236,34 @@ function renderCamp(){
   $("#campCards").innerHTML=CAMP_FEATURES.map(x=>'<article class="mini-panel panel"><h2>'+esc(x.profession)+(x.good?' <span class="small-flag">Tank ★</span>':'')+'<span class="subtitle">'+esc(x.name)+' · Profession skill '+x.skill+'</span></h2><div class="entry-list"><strong class="stat-good">'+esc(x.effect)+'</strong><div class="camp-note">'+(x.conflict?'Does not stack with: <strong>'+esc(x.conflict)+'</strong>':'No known overlapping class buff')+'</div></div></article>').join("");
 }
 let links=[];
-function validURL(v){try{return ["http:","https:"].includes(new URL(v).protocol)}catch{return false}}
+let linksLoadId=0;
+function validURL(value){
+  try { return ["http:","https:"].includes(new URL(value).protocol); } catch { return false; }
+}
 async function renderLinks(){
+  const id=++linksLoadId;
+  const status=$("#linksStatus");
+  status.hidden=true;
   try{
     const response=await fetch("links.json",{cache:"no-store"});
     if(!response.ok)throw new Error("HTTP "+response.status);
-    const data=await response.json();links=Array.isArray(data.links)?data.links:[];
-  }catch(error){links=[{title:"Wowhead Forever",url:"https://www.wowhead.com/forever/"},{title:"Icy Veins Forever",url:"https://www.icy-veins.com/wow-forever/"}]}
-  $("#linksCards").innerHTML=links.filter(x=>x.title&&validURL(x.url)).map(x=>'<a class="panel link-card" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer"><strong>↗ '+esc(x.title)+'</strong><span>'+esc(x.url)+'</span></a>').join("");
+    const data=await response.json();
+    if(!Array.isArray(data.links))throw new Error("Invalid links.json format");
+    if(id!==linksLoadId)return;
+    links=data.links.filter(item=>item&&typeof item.title==="string"&&typeof item.url==="string");
+  }catch(error){
+    if(id!==linksLoadId)return;
+    links=[{title:"Wowhead Forever",url:"https://www.wowhead.com/forever/"},{title:"Icy Veins Forever",url:"https://www.icy-veins.com/wow-forever/"}];
+    status.textContent="Saved links could not be loaded. Showing fallback guides instead.";
+    status.hidden=false;
+    console.warn("Could not load links.json",error);
+  }
+  const visible=links.filter(item=>item.title.trim()&&validURL(item.url));
+  $("#linksCards").innerHTML=visible.map(item=>'<a class="panel link-card" href="'+esc(item.url)+'" target="_blank" rel="noopener noreferrer"><strong>↗ '+esc(item.title)+'</strong><span>'+esc(item.url)+'</span></a>').join("");
+  if(!visible.length){
+    status.textContent="No saved links yet. Add them in the CMS.";
+    status.hidden=false;
+  }
 }
 function selectTab(tab){
   const selected=["warrior","food","group","camp","links"].includes(tab)?tab:"warrior";
