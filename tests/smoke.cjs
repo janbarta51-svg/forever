@@ -36,6 +36,11 @@ check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every(n
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
+check(markup.includes('id="linksStatus"'),"Links failure status is present");
+check(read("cms.html").includes('class="cms-back-link"'),"CMS back navigation works without the mobile menu toggle");
+check(read("cms.html").includes('src="cms.js?v=20261109-cms-audit"'),"Fresh CMS JavaScript is loaded");
+check(read("cms.js").includes('fetch(API + "?ref=main"'),"CMS reload fetches GitHub main, not stale Pages");
+check(read("cms.js").includes('snapshot(current.links) !== loadedSnapshot'),"CMS blocks overwriting changes made in GitHub");
 check(read("forever.css").includes(".role-class-trigger .selected-class"),"Centered class selector styling");
 
 const baseCSS=read("styles.css"), foreverCSS=read("forever.css");
@@ -45,8 +50,8 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261102-rank-export"'),"Latest app.js uses explicit cache-busting version");
-check(markup.includes('href="forever.css?v=20261102-game-links"'),"Latest tooltip CSS uses explicit cache-busting version");
+check(markup.includes('src="app.js?v=20261109-cms-audit"'),"Latest app.js uses explicit cache-busting version");
+check(markup.includes('href="forever.css?v=20261109-cms-audit"'),"Latest tooltip CSS uses explicit cache-busting version");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
 
