@@ -35,7 +35,7 @@ For experimental use of the optional addon, copy `addon/ForeverBuffLinks/` into 
 
 ## Useful Links CMS
 
-Open `cms.html`. To publish, enter a fine-grained GitHub token restricted to **this repository** with `Contents: read/write`; the token is used for the request and then cleared, not stored. Alternatively download `links.json` and commit the file manually.
+Open `cms.html` to edit `links.json`. The CMS initially loads the published file; **Reload from GitHub** retrieves the current `main` version using the GitHub API (and warns before discarding unsaved edits). To publish, enter a fine-grained GitHub token restricted to **this repository** with `Contents: read/write`; the token is cleared as the operation begins and is never stored. The editor checks that `main` has not changed since the data was loaded and refuses an unsafe overwrite. Alternatively download `links.json` and commit it manually. The public Useful Links tab reads `links.json` afresh each time it opens; GitHub Pages deployment may take a little time after publishing. The CMS back link is available on mobile.
 
 ## Development tests
 
