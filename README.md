@@ -29,6 +29,8 @@ The rank derives from the member's **own** selected level and the spell's ordere
 
 ## Installation and hosting
 
+The public site uses the custom GitHub Pages domain `https://forever.honzanacestach.cz/` (see `CNAME`).
+
 The website is plain HTML/CSS/JS without a build step. Host the repository with GitHub Pages (workflow at `.github/workflows/pages.yml`). No database needed.
 
 For experimental use of the optional addon, copy `addon/ForeverBuffLinks/` into the Forever client's `Interface/AddOns/` directory and restart. The beta 1.60.1 TOC interface number is `16001`, subject to updates.
@@ -39,7 +41,7 @@ Open `cms.html` to edit `links.json`. The CMS initially loads the published file
 
 ## Development tests
 
-Run `node tests/smoke.cjs` (no external dependencies). The website deploy workflow executes this check before publishing. For any changes to class data, verify the in-game spell rank and stacking behavior against the live Forever client.
+Run `node tests/smoke.cjs` and `node tests/cms.cjs` (no external dependencies). The GitHub Pages workflow executes both suites before publishing. For any changes to class data, verify the in-game spell rank and stacking behavior against the live Forever client.
 
 ## Sources
 
