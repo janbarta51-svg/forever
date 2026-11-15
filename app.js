@@ -13,7 +13,7 @@ const roleForSlot = index => index===0 ? "tank" : index===1 ? "healer" : "dps";
 const allowedClasses = index => index===1 ? healerClasses : index===0 ? ["Warrior"] : classOrder;
 const roleIcon = role => '<img class="party-role-icon" src="assets/roles/'+role+'.svg" width="38" height="38" alt="" loading="lazy">';
 
-const categoryOrder = ["Weapon buff","Elixirs","Scrolls","Potions","Armor / Shield","Engineering","First Aid"];
+const categoryOrder = ["Weapon buff","Elixirs","Flasks","Scrolls","Potions","Armor / Shield","Engineering","First Aid"];
 const startLevel = clamp((() => { try { return sessionStorage.getItem("forever-level"); } catch { return null; } })() || 20);
 const state = {
   level:startLevel,
