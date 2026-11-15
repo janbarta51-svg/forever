@@ -1,13 +1,13 @@
 # WoW Forever — Warrior Field Guide
 
-A responsive, **English-only** WoW Forever companion for a Human Protection Warrior from levels 1–30. The layout is based on the original `janbarta51-svg/wow.field.guide` design, including Wowhead mouseover tooltips.
+A responsive, **English-only** WoW Forever companion for a Human Protection Warrior with consumables through level 60. Dungeon Group spell ranks remain limited to 1–30. The layout is based on the original `janbarta51-svg/wow.field.guide` design, including Wowhead mouseover tooltips.
 
 ## Features
 
-- **Warrior:** level slider, consumable upgrades, class quests, one-handed weapon suggestions and tanking checklist.
+- **Warrior:** level 1–60 slider, consumable upgrades, profession-gated grenades, class quests, original 1–30 one-handed weapon suggestions and tanking checklist.
 - **Auction House quick copy:** a tiny muted amber overlapping-pages icon appears beside purchasable/tradable items in Warrior cards, current-item highlights and the Food Buffs table. Clicking it copies only the exact item name for Auction House search. Quest rewards, spells and non-tradable dungeon gear have no copy icon. The icon is a clean vector reinterpretation of the provided reference rather than a watermarked bitmap.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
-- **Dungeon Group:** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
+- **Dungeon Group (1–30 spell data):** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
 - **WoW Chat Export:** class-labeled plain text with the highest available Rank per member level, one line per class/category and a Copy all button. Individual row copy is available for standard game chat.
 - **Campfire:** profession objects, level scaling and stacking conflicts.
 - **Useful Links + CMS:** a simple `links.json` editor for named bookmarks.
@@ -26,6 +26,43 @@ Rogue - CC: Gouge (Rank1), Sap (Rank1)
 The rank derives from the member's **own** selected level and the spell's ordered rank unlock levels in `data-party.js`. Rank1 is the first available rank; when a spell has no learned rank yet, it is omitted. The character level is never included in the copied chat line. Conditional abilities keep an asterisk to indicate an additional talent, pet, class quest, or similar requirement. Each exported message is capped at 235 characters; longer lists become class-labeled continuation lines. Characters with no available Buffs/CC receive their own readable line.
 
 **Copy all** joins every exported line with a newline. Normal WoW chat strips pasted newlines and has a roughly 255-character message limit, so the **Copy** button per line is the reliable no-addon workflow for posting to Party. Addons such as Paste and PasteNG can handle multiline content in supported WoW versions, but their WoW Forever compatibility is not verified. The optional `addon/ForeverBuffLinks/` files remain in the repository for experimental use; the public export does not require them.
+
+## Level 31–60 consumables (research update, 15 Nov 2026)
+
+`data-60.js` adds the level 31–60 Warrior consumables catalog to the original
+`data-warrior.js`, including healing/rage/defensive/utility potions, Forever-specific
+potions, elixirs, scrolls, flasks, weightstones, sharpening stones, engineering
+grenades/bombs, armor pieces and tank consumables. The main character slider reaches
+60; Dungeon Group spell-rank tables, 1H weapon stages, and class quest/checklist
+guidance retain their explicitly labeled 1–30 scope rather than inventing later ranks.
+
+Character required level and Engineering skill **are not the same field**.
+For items whose sole hard gate is Engineering, the UI shows `Eng N`.
+The list begins displaying those items when the earliest profession rank can
+normally be trained (Expert at 20, Artisan at 35); that stage is not the item's
+own character-level requirement. Profession levels are never represented as
+official item required levels. Players need to level Engineering separately.
+
+Existing source: `data-warrior.js`. Added item data: `data-60.js`.
+Research cross-checked on 15 Nov 2026:
+
+- https://www.60.tools/items/consumables/potions
+- https://www.60.tools/items/consumables/elixirs
+- https://www.60.tools/items/consumables/explosives
+- https://www.60.tools/items/consumables/scrolls
+- https://www.wowhead.com/forever/item=12404
+- https://www.wowhead.com/forever/item=13442
+- https://www.wowhead.com/forever/item=13510
+- https://www.wowhead.com/forever/item=18262
+- https://www.wowhead.com/forever/item=250329
+- https://www.wowhead.com/forever/item=250953
+
+**Scope and verification:** this is a Warrior-relevant usable consumables
+collection, not every quest, test, mana-only or debug potion in the client.
+Some Forever-specific effects or item IDs are not independently verified and
+are explicitly marked as such. Such items use a Wowhead name search instead
+of a misleading fixed-ID tooltip. Ingredient availability, cooldown interactions,
+stacking and user profession skills are not guaranteed by the character slider.
 
 ## Installation and hosting
 
