@@ -4,25 +4,33 @@ const path=require("node:path");
 const vm=require("node:vm");
 const root=path.resolve(__dirname,"..");
 const read=f=>fs.readFileSync(path.join(root,f),"utf8");
-const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-party.js","class-ui.js","links.json","assets/roles/tank.svg","assets/roles/healer.svg","assets/roles/dps.svg","assets/icons/copy.svg","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
+const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-60.js","data-party.js","class-ui.js","links.json","assets/roles/tank.svg","assets/roles/healer.svg","assets/roles/dps.svg","assets/icons/copy.svg","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
 let failures=0;
 function check(condition,message){console.log((condition?"PASS ":"FAIL ")+message);if(!condition)failures++}
 function finish(){console.log("\n"+(failures?"FAILED: "+failures:"ALL TESTS PASSED"));process.exitCode=failures?1:0}
 for(const file of assets)check(fs.existsSync(path.join(root,file)),"Asset: "+file);
 for(const file of assets.filter(x=>x.endsWith(".js")))try{new vm.Script(read(file),{filename:file});check(true,"JavaScript syntax: "+file)}catch(e){check(false,file+": "+e.message)}
-for(const file of ["index.html","cms.html","app.js","cms.js","data-warrior.js","data-party.js","data-food.js","class-ui.js","README.md"]){
+for(const file of ["index.html","cms.html","app.js","cms.js","data-warrior.js","data-60.js","data-party.js","data-food.js","class-ui.js","README.md"]){
   check(!/[áčďéěíňóřšťúůýž]/i.test(read(file)),"English-only content: "+file);
 }
 const w={addEventListener(){}};
 const sandbox={window:w};
 for(const f of ["data-food.js","data-warrior.js","data-party.js","class-ui.js"])vm.runInNewContext(read(f),sandbox,{filename:f});
+sandbox.WARRIOR_ITEMS=w.WARRIOR_ITEMS;
+vm.runInNewContext(read("data-60.js"),sandbox,{filename:"data-60.js"});
 for(const [key,value] of Object.entries(w))sandbox[key]=value;
 check(Object.keys(w.CLASS_THEME).length===9,"Nine class themes");
 check(w.CLASS_THEME.Warrior.color==="#C69B6D","Warrior is brown");
 check(w.CLASS_THEME.Priest.color==="#FFFFFF","Priest is white");
 for(const role of ["tank","healer","dps"])check(read("assets/roles/"+role+".svg").includes("data:image/png;base64,"),"Blizzard role icon embedded: "+role);
 check(w.FOODS.length>=70,"Food catalog contains at least 70 entries");
-check(w.WARRIOR_ITEMS.length>=50,"Warrior items contain at least 50 entries");
+check(w.WARRIOR_ITEMS.length>=140,"Warrior items expanded with level 31-60 consumables");
+check(w.WARRIOR_ITEMS.every(x=>x.level===null||(x.level>=1&&x.level<=60)),"Consumable character levels within 1–60");
+check(new Set(w.WARRIOR_ITEMS.map(x=>x.name)).size===w.WARRIOR_ITEMS.length,"No duplicated consumable names");
+check(["Dense Sharpening Stone","Dense Weightstone","Elemental Sharpening Stone","Thorium Grenade","Goblin Sapper Charge","Mighty Rage Potion","Major Healing Potion","Flask of the Titans","Elixir of the Phalanx"].every(name=>w.WARRIOR_ITEMS.some(x=>x.name===name)),"Key post-30 consumables present");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Iron Grenade").professionSkill===175,"Iron Grenade gated by Engineering 175, not item level");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Dense Sharpening Stone").level===35,"Dense stone unlocks at level 35");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Mighty Rage Potion").level===46,"Mighty Rage unlocks at 46");
 check(w.WARRIOR_ITEMS.every(x=>x.purchasable===true),"All listed consumables are explicitly tradable");
 check(w.FOODS.every(x=>x.purchasable===true),"All listed cooked foods are marked as tradable");
 const copyWeapons=w.WARRIOR_WEAPONS.filter(x=>x.purchasable===true).map(x=>x.name);
@@ -36,6 +44,9 @@ check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every(n
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
+check(markup.includes('src="data-60.js?v=20261115-consumables"'),"Additional level 31-60 consumables loaded");
+check(markup.includes('id="mainLevel" min="1" max="60"'),"Warrior slider reaches level 60");
+check(markup.includes('id="levelNumber" min="1" max="60"'),"Exact level input reaches level 60");
 check(markup.includes('id="linksStatus"'),"Links failure status is present");
 check(read("cms.html").includes('class="cms-back-link"'),"CMS back navigation works without the mobile menu toggle");
 check(read("cms.html").includes('src="cms.js?v=20261109-cms-audit"'),"Fresh CMS JavaScript is loaded");
@@ -50,7 +61,7 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261109-cms-audit"'),"Latest app.js uses explicit cache-busting version");
+check(markup.includes('src="app.js?v=20261115-consumables"'),"Latest app.js uses explicit cache-busting version");
 check(markup.includes('href="forever.css?v=20261109-cms-audit"'),"Latest tooltip CSS uses explicit cache-busting version");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
@@ -167,7 +178,17 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     elements["#mainLevel"].handlers.input({target:{value:"1"}});
     check(elements["#warriorCategories"].innerHTML.includes("Rough Sharpening Stone") && !elements["#warriorCategories"].innerHTML.includes("Solid Sharpening Stone"),"Level 1 item availability respected");
     elements["#mainLevel"].handlers.input({target:{value:"30"}});
-    check(elements["#warriorCategories"].innerHTML.includes("Solid Sharpening Stone"),"Level 30 item availability respected");
+    check(elements["#warriorCategories"].innerHTML.includes("Solid Sharpening Stone")&&!elements["#warriorCategories"].innerHTML.includes("Dense Sharpening Stone"),"Level 30 item availability respected");
+    elements["#mainLevel"].handlers.input({target:{value:"35"}});
+    check(elements["#warriorCategories"].innerHTML.includes("Dense Sharpening Stone"),"Dense stone available at level 35");
+    check(elements["#warriorCategories"].innerHTML.includes("Thorium Grenade")&&elements["#warriorCategories"].innerHTML.includes("Eng 260"),"High engineering bombs show profession requirement");
+    check(elements["#warriorHighlights"].innerHTML.includes("ENGINEERING GRENADE"),"Grenade highlight is visible");
+    elements["#mainLevel"].handlers.input({target:{value:"46"}});
+    check(elements["#warriorCategories"].innerHTML.includes("Mighty Rage Potion"),"Mighty Rage unlocked at level 46");
+    elements["#mainLevel"].handlers.input({target:{value:"60"}});
+    check(elements["#levelNum"].textContent===60&&elements["#warriorCategories"].innerHTML.includes("Flask of the Titans"),"Level 60 cap and endgame flask work");
+    check(elements["#groupSlots"].innerHTML.includes('id="partyLevel0" class="member-level" data-party-level="0" type="number" min="1" max="30" value="30"'),"Party buff calculator remains transparently capped at 30");
+    check(!elements["#partyResults"].innerHTML.includes("Warrior <small>Lv 60"),"No unverified level 60 party spell ranks advertised");
   }catch(error){check(false,"Runtime UI smoke test: "+error.stack)}
   finish();
 })().catch(error=>{check(false,error.stack);finish()});
