@@ -2,7 +2,10 @@
 "use strict";
 const $ = s => document.querySelector(s);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
-const clamp = v => Math.max(1,Math.min(30,Math.round(Number(v)||1)));
+const MAX_LEVEL=60;
+const PARTY_RANK_CAP=30; // Buff/CC data has only been verified through level 30.
+const clamp = v => Math.max(1,Math.min(MAX_LEVEL,Math.round(Number(v)||1)));
+const clampParty = v => Math.min(PARTY_RANK_CAP,clamp(v));
 const classOrder = ["Warrior","Paladin","Priest","Druid","Shaman","Mage","Warlock","Hunter","Rogue"];
 const healerClasses = ["Druid","Paladin","Priest","Shaman"];
 const roleLabels = ["Tank","Healer","DPS 1","DPS 2","DPS 3"];
@@ -65,10 +68,11 @@ function refreshTooltips(){
     }
   } catch(error){console.warn("Wowhead tooltip refresh failed",error)}
 }
-function latest(items){return items.filter(x=>x.level!==null&&x.level<=state.level).sort((a,b)=>b.level-a.level)[0]||null}
+function available(item){return (item.level===null?(item.showFromLevel??1):item.level)<=state.level}
+function latest(items){return items.filter(available).sort((a,b)=>(b.level??b.showFromLevel??0)-(a.level??a.showFromLevel??0))[0]||null}
 function setLevel(value) {
   state.level=clamp(value);
-  state.party[0].level=state.level;
+  state.party[0].level=clampParty(state.level);
   $("#mainLevel").value=state.level;
   $("#levelNumber").value=state.level;
   $("#levelNum").textContent=state.level;
@@ -76,7 +80,7 @@ function setLevel(value) {
   renderSummary(); renderWarrior(); renderFood(); renderGroupSlots(); renderGroup();
 }
 function renderSummary(){
-  const count=WARRIOR_ITEMS.filter(x=>x.level!==null&&x.level<=state.level).length;
+  const count=WARRIOR_ITEMS.filter(available).length;
   const food=FOODS.filter(x=>x.level!==null&&x.level<=state.level).length;
   $("#levelSummary").innerHTML="<strong>"+count+"</strong> available items · <strong>"+food+"</strong> verified food choices";
 }
@@ -84,10 +88,13 @@ function renderWarrior(){
   const stone=latest(WARRIOR_ITEMS.filter(x=>/Sharpening Stone/.test(x.name)));
   const heal=latest(WARRIOR_ITEMS.filter(x=>/Healing Potion/.test(x.name)));
   const food=latest(FOODS.filter(x=>x.category==="STR"));
+  const recommendedGrenades=["Thorium Grenade","Mithril Frag Bomb","Iron Grenade","Big Bronze Bomb","Small Bronze Bomb"];
+  const grenade=recommendedGrenades.map(name=>WARRIOR_ITEMS.find(item=>item.name===name)).find(item=>item&&available(item));
   $("#warriorHighlights").innerHTML=[
     ["BEST SHARPENING STONE",stone,stone?.effect||"No upgrade yet"],
     ["HEALING POTION",heal,heal?.effect||"Not yet available"],
-    ["STRENGTH FOOD",food,food?food.effect+" · +5% kill XP":"Not yet available"]
+    ["STRENGTH FOOD",food,food?food.effect+" · +5% kill XP":"Not yet available"],
+    ["ENGINEERING GRENADE",grenade,grenade?grenade.effect+" · Eng "+grenade.professionSkill:"Not yet in the profession progression"]
   ].map(([label,item,detail])=>'<div class="highlight panel"><small>'+esc(label)+'</small><strong>'+
     (item?itemLink(item,"item"):"—")+'</strong><p>'+esc(detail)+'</p></div>').join("");
   const categories=[...categoryOrder,"1H Weapon Progression","Tank Checklist","Class Quests & Milestones"];
@@ -96,13 +103,13 @@ function renderWarrior(){
     const weapons=cat==="1H Weapon Progression";
     const tips=cat==="Tank Checklist";
     const list=(quests?WARRIOR_QUESTS:weapons?WARRIOR_WEAPONS:tips?WARRIOR_TIPS:WARRIOR_ITEMS.filter(x=>x.category===cat))
-      .filter(x=>x.level===null||x.level<=state.level).sort((a,b)=>(b.level||0)-(a.level||0));
+      .filter(available).sort((a,b)=>(b.level??b.showFromLevel??0)-(a.level??a.showFromLevel??0));
     const rows=list.map(x=>{
-      const tag=x.level===null?'<span class="small-flag uncertain">Skill</span>':'<span class="level-badge">'+x.level+'</span>';
+      const tag=x.professionSkill!=null?'<span class="level-badge" title="Requires Engineering skill '+x.professionSkill+'; this is NOT a character level">Eng '+x.professionSkill+'</span>':x.level===null?'<span class="small-flag uncertain">Skill</span>':'<span class="level-badge" title="Required character level">'+x.level+'</span>';
       const name=itemLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
       return '<div class="entry"><span>'+tag+'</span><div><span class="entry-title">'+name+'</span><div class="entry-desc">'+esc(x.effect)+'</div>'+(x.note?'<div class="flag-note">'+esc(x.note)+'</div>':"")+'</div>'+(x.flag?'<span class="small-flag">'+esc(x.flag)+'</span>':"")+'</div>';
     }).join("");
-    const subtitle=quests?"Class quests and spell unlocks":weapons?"Recommended dungeon stages, not exact equip levels":tips?"Threat and tanking reminders":list.length+" available / conditional items";
+    const subtitle=quests?"Class quests and spell unlocks (1–30 data)":weapons?"Weapon suggestions only verified through level 30":tips?"Tanking reminders (1–30 data)":list.length+" level-eligible / profession-gated items";
     return '<article class="mini-panel panel"><h2>'+esc(cat)+'<span class="subtitle">'+subtitle+'</span></h2><div class="entry-list">'+(rows||'<div class="empty-state">Nothing available at this level.</div>')+'</div></article>';
   }).join("");
   refreshTooltips();
@@ -178,7 +185,7 @@ function renderGroup(){
     return '<article class="panel member-result" '+themeStyle(cl)+'><div class="member-result-header">'+classIcon(cl)+'<div><h2 class="class-colored">'+esc(cl)+' <small>Lv '+member.level+'</small></h2><span>Party slot '+(index+1)+(index===0?" · Tank":"")+'</span></div></div><div class="group-columns">'+columns+'</div></article>';
   }).join("");
   $("#partyResults").innerHTML='<div class="matrix-summary"><strong>'+buffCount+' buffs · '+ccCount+' crowd-control abilities</strong><span>Each member level and highest available rank</span></div><div class="party-class-results">'+markup+'</div>'+
-  '<div class="notice party-note"><strong>Important:</strong> Paladin auras are mutually exclusive; a Shaman can have only one totem of each element; pet and talent abilities are conditional. Do not apply Salvation to your tank. Some buff categories do not stack.</div>';
+  '<div class="notice party-note"><strong>Scope:</strong> Dungeon Group buff/CC ranks are validated only through level 30, and the group calculator caps levels at 30 even when the main Warrior consumables selector is higher. <strong>Important:</strong> Paladin auras are mutually exclusive; a Shaman can have only one totem of each element; pet and talent abilities are conditional. Do not apply Salvation to your tank. Some buff categories do not stack.</div>';
   renderExport();
   refreshTooltips();
 }
@@ -301,7 +308,7 @@ $("#groupSlots").addEventListener("click",event=>{
 $("#groupSlots").addEventListener("change",event=>{
   const e=event.target;
   if(!e.matches("[data-party-level]"))return;
-  const index=Number(e.dataset.partyLevel),value=clamp(e.value);
+  const index=Number(e.dataset.partyLevel),value=clampParty(e.value);
   if(index===0){setLevel(value)}
   else if(index>=1&&index<=4){state.party[index].level=value;e.value=value;renderGroup()}
 });
