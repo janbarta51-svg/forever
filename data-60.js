@@ -97,6 +97,12 @@ const rows = [
   ["Armor / Shield",40,"Rugged Armor Kit",15564,"Adds +40 Armor to eligible armor pieces","Leatherworking-made permanent armor kit."],
   ["Armor / Shield",50,"Thorium Shield Spike",12645,"Returns damage when blocking","Requires Blacksmithing to apply; confirm current application rules."],
 
+  // Higher-tier bandages; minimum use skill and profession progress vary.
+  // These are not character-level requirements.
+  ["First Aid",null,"Runecloth Bandage",14529,"Heals 1,360 damage over 8 seconds","High-tier First Aid bandage; verify skill requirements before use."],
+  ["First Aid",null,"Heavy Runecloth Bandage",14530,"Heals 2,000 damage over 8 seconds","Requires First Aid 225 to use; crafting requires higher skill (290)."],
+  ["First Aid",null,"Powerful Anti-Venom",19440,"Cures higher-level poison effects","High-level First Aid utility; poison removal depends on the effect."],
+
   // New bombs which can be used with profession restrictions, not a character minimum.
   ["Engineering",null,"Small Bronze Bomb",4374,"Explosive AoE damage and brief disruption","Early engineering bomb.",{professionSkill:120}],
   ["Engineering",null,"Big Bronze Bomb",4380,"AoE damage and stun","Stronger bronze-tier bomb.",{professionSkill:140}],
