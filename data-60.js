@@ -169,6 +169,87 @@ for(const [name,skill] of Object.entries(knownSkills)){
   entry.note=(entry.note?entry.note+" ":"")+"Requires Engineering "+skill+
     "; earliest training bracket around character level "+entry.showFromLevel+" (not an item-level requirement).";
 }
+
+/* Two current armor-kit choices: a survivability line (+Stamina)
+ * and a damage line (+Attack Power). Effects are from Forever item tooltips.
+ * Exactly one shield spike is offered in this guide: Mithril Shield Spike. */
+const obsoleteArmor=new Set(["Iron Shield Spike","Thorium Shield Spike"]);
+for(let i=WARRIOR_ITEMS.length-1;i>=0;i--){
+  if(obsoleteArmor.has(WARRIOR_ITEMS[i].name))WARRIOR_ITEMS.splice(i,1);
+}
+const armorUpgrades=[
+  {
+    "name": "Light Armor Kit",
+    "level": 1,
+    "id": 2304,
+    "effect": "+1 Stamina and +8 Armor",
+    "note": "Stamina/Armor kit for chest, legs, hands or feet."
+  },
+  {
+    "name": "Medium Armor Kit",
+    "level": 5,
+    "id": 2313,
+    "effect": "+2 Stamina and +16 Armor",
+    "note": "Stamina/Armor kit; replaces Light Armor Kit."
+  },
+  {
+    "name": "Heavy Armor Kit",
+    "level": 20,
+    "id": 4265,
+    "effect": "+3 Stamina and +24 Armor",
+    "note": "Stamina/Armor kit; replaces Medium Armor Kit."
+  },
+  {
+    "name": "Thick Armor Kit",
+    "level": 30,
+    "id": 8173,
+    "effect": "+4 Stamina and +32 Armor",
+    "note": "Stamina/Armor kit; replaces Heavy Armor Kit."
+  },
+  {
+    "name": "Rugged Armor Kit",
+    "level": 40,
+    "id": 15564,
+    "effect": "+5 Stamina and +40 Armor",
+    "note": "Stamina/Armor kit; requires suitably leveled armor."
+  },
+  {
+    "name": "Forceful Medium Armor Kit",
+    "level": 15,
+    "id": 252437,
+    "effect": "+4 Attack Power and +16 Armor",
+    "note": "Forever Attack Power kit for chest, legs, hands or feet."
+  },
+  {
+    "name": "Forceful Heavy Armor Kit",
+    "level": 30,
+    "id": 252453,
+    "effect": "+6 Attack Power and +24 Armor",
+    "note": "Forever Attack Power kit; replaces Forceful Medium."
+  },
+  {
+    "name": "Forceful Thick Armor Kit",
+    "level": 40,
+    "id": 252463,
+    "effect": "+8 Attack Power and +32 Armor",
+    "note": "Forever Attack Power kit; replaces Forceful Heavy."
+  },
+  {
+    "name": "Forceful Rugged Armor Kit",
+    "level": 50,
+    "id": 252488,
+    "effect": "+10 Attack Power and +40 Armor",
+    "note": "Forever Attack Power kit; requires level 50 and suitably leveled armor."
+  }
+];
+for(const kit of armorUpgrades){
+  const existingKit=WARRIOR_ITEMS.find(item=>item.name===kit.name);
+  if(existingKit)Object.assign(existingKit,kit);
+  else WARRIOR_ITEMS.push({category:"Armor / Shield",gated:false,tooltipType:"item",purchasable:true,flag:"",...kit});
+}
+const spike=WARRIOR_ITEMS.find(item=>item.name==="Mithril Shield Spike");
+if(spike)spike.note="Blacksmithing-made shield spike. Application may require Blacksmithing; check in-game requirements.";
+
 WARRIOR_ITEMS.sort((a,b)=>(a.level??a.showFromLevel??0)-(b.level??b.showFromLevel??0)||a.name.localeCompare(b.name));
 window.WARRIOR_ITEMS=WARRIOR_ITEMS;
 // Explicit upgrade families: only interchangeable higher ranks share a family.
@@ -286,6 +367,8 @@ const UPGRADE_FAMILIES={
     "Scroll of Agility III",
     "Scroll of Agility IV"
   ],
+  "armor-stamina": ["Light Armor Kit","Medium Armor Kit","Heavy Armor Kit","Thick Armor Kit","Rugged Armor Kit"],
+  "armor-attack": ["Forceful Medium Armor Kit","Forceful Heavy Armor Kit","Forceful Thick Armor Kit","Forceful Rugged Armor Kit"],
   "scroll-protection": [
     "Scroll of Protection",
     "Scroll of Protection II",
