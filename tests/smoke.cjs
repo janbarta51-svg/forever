@@ -52,7 +52,7 @@ check(markup.includes('id="mainLevel" min="1" max="60"'),"Warrior slider reaches
 check(markup.includes('id="levelNumber" min="1" max="60"'),"Exact level input reaches level 60");
 check(markup.includes('id="linksStatus"'),"Links failure status is present");
 check(read("cms.html").includes('class="cms-back-link"'),"CMS back navigation works without the mobile menu toggle");
-check(read("cms.html").includes('src="cms.js?v=20261109-cms-audit"'),"Fresh CMS JavaScript is loaded");
+check(read("cms.html").includes('src="cms.js?v=20261116-http-safety"'),"Fresh CMS JavaScript is loaded");
 check(read("cms.js").includes('fetch(API + "?ref=main"'),"CMS reload fetches GitHub main, not stale Pages");
 check(read("cms.js").includes('snapshot(current.links) !== loadedSnapshot'),"CMS blocks overwriting changes made in GitHub");
 check(read("forever.css").includes(".role-class-trigger .selected-class"),"Centered class selector styling");
@@ -204,7 +204,8 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     const engineeringSection=()=>elements["#warriorCategories"].innerHTML.split("<h2>Engineering")[1]?.split("</article>")[0]||"";
     const engineering=engineeringSection();
     check(["Rough Dynamite","Coarse Dynamite","Heavy Dynamite","Solid Dynamite","Dense Dynamite"].every(name=>engineering.includes(">"+name+"</a>")),"Engineering lists the five standard dynamites");
-    check(!/(Grenade|Bomb|Sapper|Sheep|SAF-T|EZ-Thro)/i.test(engineering),"Engineering excludes grenades, bombs, and expensive variants");
+    const engineeringNames=[...engineering.matchAll(/<a\b[^>]*>([^<]+)<\/a>/g)].map(match=>match[1]);
+    check(engineeringNames.length===5&&engineeringNames.every(name=>name.endsWith(" Dynamite")),"Engineering excludes grenades, bombs, and expensive variants");
     check(elements["#warriorHighlights"].innerHTML.includes("LATEST DYNAMITE"),"Fourth highlight recommends dynamite, not grenades");
     elements["#mainLevel"].handlers.input({target:{value:"46"}});
     check(elements["#warriorCategories"].innerHTML.includes("Mighty Rage Potion"),"Mighty Rage unlocked at level 46");
