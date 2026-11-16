@@ -85,7 +85,7 @@
 .role-slot .member-controls{display:block}
 .role-class-selector{position:relative;width:100%;margin:0}
 .role-class-trigger{
-  display:grid;grid-template-columns:28px minmax(0,1fr) 28px;
+  display:grid;grid-template-columns:28px minmax(0,1fr);
   gap:8px;align-items:center;
   min-height:42px;width:100%;
   padding:5px 9px;box-sizing:border-box;
@@ -110,11 +110,6 @@
   overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
   font-weight:700;font-size:14px;color:var(--class-color,#fff);
 }
-.role-class-trigger .picker-arrow{
-  text-align:center;display:block;color:var(--class-color,#c1cad2);
-  font-size:16px;line-height:1;
-}
-.role-class-selector[open] .picker-arrow{transform:rotate(180deg)}
 .role-class-selector.fixed .role-class-trigger{
   cursor:default;opacity:1;background:#14171d;
 }
