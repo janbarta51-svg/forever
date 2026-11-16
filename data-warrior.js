@@ -671,66 +671,159 @@ window.WARRIOR_QUESTS=[
     "note": "Fray Island Warrior class quest."
   }
 ];
+/* Horde Tauren 1H + Shield progression: levels are recommended stages, not always exact equip requirements. */
 window.WARRIOR_WEAPONS=[
   {
     "level": 1,
-    "name": "Copper Shortsword",
-    "effect": "Blacksmithing recipe, early one-handed option",
-    "note": "Level marks a rough progression stage, not an official equip requirement."
+    "name": "Copper Axe",
+    "id": 2845,
+    "effect": "Crafted 1H axe (Blacksmithing); early Tauren weapon",
+    "note": "Early inexpensive crafted/auction option",
+    "purchasable": true
   },
   {
     "level": 10,
-    "name": "Haggard's Axe",
-    "effect": "Human class quest in Elwynn Forest",
-    "note": "One-handed Axe from an early Warrior quest."
+    "name": "Hatchet",
+    "id": 853,
+    "effect": "1H axe from weapons vendors",
+    "note": "Vendor fallback; replace when an actual damage upgrade drops",
+    "purchasable": true
   },
   {
-    "level": 13,
-    "name": "Durgen's Crescent Axe",
-    "effect": "Hall of Thanes – Durgen Dirgehammer",
-    "note": "Approximate dungeon stage, not an exact equip level."
+    "level": 19,
+    "name": "Wingblade",
+    "id": 6504,
+    "effect": "Wailing Caverns – Horde quest Leaders of the Fang",
+    "note": "Horde quest reward, excellent early one-hander",
+    "purchasable": false
   },
   {
-    "level": 17,
-    "name": "Buzz Saw",
-    "effect": "Deadmines – Sneed's Shredder",
-    "note": "Approximate dungeon stage; verify the actual drop."
-  },
-  {
-    "level": 17,
-    "name": "Cookie's Tenderizer",
-    "effect": "Deadmines – Cookie",
-    "note": "Approximate dungeon stage; alternative one-hander."
-  },
-  {
-    "level": 18,
-    "name": "Blackwater Cutlass",
-    "effect": "Deadmines – Defias Pirates",
-    "note": "Approximate dungeon stage; random drop."
-  },
-  {
-    "level": 23,
-    "name": "Darkwater Talwar",
-    "effect": "Blackfathom Deeps – Lady Sarevess",
-    "note": "Approximate dungeon stage; compare weapon DPS."
-  },
-  {
-    "level": 24,
-    "name": "Hamhock's Cleaver",
-    "effect": "The Stockade – Hamhock",
-    "note": "Approximate Alliance dungeon stage."
+    "level": 22,
+    "name": "Butcher's Cleaver",
+    "id": 1292,
+    "effect": "Shadowfang Keep – Razorclaw the Butcher",
+    "note": "Dungeon drop; useful mace for shield tanking",
+    "purchasable": false
   },
   {
     "level": 29,
     "name": "Pronged Reaver",
+    "id": 6692,
     "effect": "Razorfen Kraul – Charlga Razorflank",
-    "note": "Dungeon may be challenging below level 30."
+    "note": "Dungeon 1H axe; approximate acquisition level",
+    "purchasable": false
   },
   {
-    "level": 29,
-    "name": "Thornspike",
-    "effect": "Razorfen Kraul – Aggem Thorncurse",
-    "note": "Dungeon may be challenging below level 30."
+    "level": 30,
+    "name": "I'lalai Flayer",
+    "id": 279887,
+    "effect": "Horde quest – A Tale Spun Around the Fire, Stranglethorn Vale",
+    "note": "Forever Horde-only one-handed axe",
+    "purchasable": false
+  },
+  {
+    "level": 35,
+    "name": "Dreadfrost Saber",
+    "id": 274603,
+    "effect": "The Drowned City – Captain Dreadrise",
+    "note": "Forever dungeon sword; train 1H Swords before equipping",
+    "purchasable": false
+  },
+  {
+    "level": 38,
+    "name": "Sword of Omen",
+    "id": 6802,
+    "effect": "Scarlet Monastery – Horde-only quest Into The Scarlet Monastery",
+    "note": "Horde quest reward; train sword skill in Orgrimmar",
+    "purchasable": false
+  },
+  {
+    "level": 43,
+    "name": "The Hand of Antu'sul",
+    "id": 9639,
+    "effect": "Zul'Farrak – Antu'sul",
+    "note": "1H mace, defensive AoE-oriented alternative",
+    "purchasable": false
+  },
+  {
+    "level": 44,
+    "name": "Sang'thraze the Deflector",
+    "id": 9379,
+    "effect": "Zul'Farrak – Antu'sul",
+    "note": "One-handed sword; requires training swords",
+    "purchasable": false
+  },
+  {
+    "level": 45,
+    "name": "Thrash Blade",
+    "id": 17705,
+    "effect": "Maraudon – Corruption of Earth and Seed quest",
+    "note": "Excellent proc: chance for an additional attack",
+    "purchasable": false
+  },
+  {
+    "level": 47,
+    "name": "Linken's Sword of Mastery",
+    "id": 11902,
+    "effect": "Un'Goro Crater – Linken quest chain",
+    "note": "Alternative quest sword if Maraudon weapon is missed",
+    "purchasable": false
+  },
+  {
+    "level": 50,
+    "name": "Flurry Axe",
+    "id": 871,
+    "effect": "Rare BoE world drop",
+    "note": "Optional auction-house weapon; can be very expensive",
+    "purchasable": true
+  },
+  {
+    "level": 52,
+    "name": "Lord General's Sword",
+    "id": 11817,
+    "effect": "Blackrock Depths – General Angerforge",
+    "note": "Strong one-handed sword for tank/offense",
+    "purchasable": false
+  },
+  {
+    "level": 54,
+    "name": "Ironfoe",
+    "id": 11684,
+    "effect": "Blackrock Depths – Emperor Dagran Thaurissan",
+    "note": "Very rare mace drop; optional, not a planned guaranteed upgrade",
+    "purchasable": false
+  },
+  {
+    "level": 56,
+    "name": "Mirah's Song",
+    "id": 15806,
+    "effect": "Scholomance – Kirtonos quest chain",
+    "note": "Strong reliable quest reward near level 60",
+    "purchasable": false
+  },
+  {
+    "level": 58,
+    "name": "Mass of McGowan",
+    "id": 13006,
+    "effect": "Rare BoE world drop",
+    "note": "One-handed mace; optional expensive AH alternative",
+    "purchasable": true
+  },
+  {
+    "level": 58,
+    "name": "Dal'Rend's Sacred Charge",
+    "id": 12940,
+    "effect": "Upper Blackrock Spire – Warchief Rend Blackhand",
+    "note": "High-level one-handed sword alternative",
+    "purchasable": false
+  },
+  {
+    "level": 60,
+    "name": "Quel'Serrar",
+    "id": 18348,
+    "effect": "Onyxia / Foror's Compendium quest line",
+    "note": "Long-term tank sword goal, not an easy leveling weapon",
+    "purchasable": false
   }
 ];
 window.WARRIOR_TIPS=[
@@ -882,5 +975,5 @@ window.WARRIOR_GEAR_SOURCE="https://www.icy-veins.com/wow-forever/protection-war
  * Sources: ForeverDB item 2847 (Copper Shortsword), item 1951 (Blackwater Cutlass).
  */
 window.WARRIOR_ITEMS.forEach(item => { item.purchasable = true; });
-const tradableWeapons = new Set(["Copper Shortsword", "Blackwater Cutlass"]);
+const tradableWeapons = new Set(["Copper Axe","Hatchet","Flurry Axe","Mass of McGowan"]);
 window.WARRIOR_WEAPONS.forEach(item => { item.purchasable = tradableWeapons.has(item.name); });
