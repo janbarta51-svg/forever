@@ -64,6 +64,30 @@ are explicitly marked as such. Such items use a Wowhead name search instead
 of a misleading fixed-ID tooltip. Ingredient availability, cooldown interactions,
 stacking and user profession skills are not guaranteed by the character slider.
 
+## Tauren Horde 1H weapons and armor kit upgrade families (16 Nov 2026)
+
+The Warrior page now displays only Weapon Buff, Elixirs, Scrolls, Potions,
+Armor / Shield, Engineering and 1H Weapon Progression. Flasks, First Aid,
+Tank Checklist and Class Quests & Milestones are hidden, not deleted from
+source data. All weapon suggestions are Horde Tauren-accessible and run
+to level 60. The displayed level is a **suggested acquisition stage**,
+not necessarily an item's minimum equip level. One-handed sword skills
+must be trained separately by Tauren Warriors. Optional rare/expensive
+world drops are clearly marked.
+
+Armor kits are separated into best available Stamina + Armor and
+Attack Power + Armor families using the highest-rank-per-family algorithm.
+Only Mithril Shield Spike remains; Iron and Thorium spikes are removed
+from the armor list. Confirmed armor-kit IDs are used for links, as well
+as curated weapon IDs and a few verified food and consumable IDs.
+Items with no independently confirmed ID link to a WoW Forever name
+search with a visible lookup glyph rather than a nonfunctional tooltip.
+
+Food Buffs sorting uses the numeric leading bonus in each food effect
+when selecting one category, descending; All categories retains default
+sorting. A category such as SPECIAL may mix incomparable effects, so
+numeric order there is a convenience, not a claim of equivalent utility.
+
 ## Current-tier filters and dynamite-only Engineering (16 Nov 2026)
 
 The original item catalog remains intact. An explicit `UPGRADE_FAMILIES` map
