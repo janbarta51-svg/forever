@@ -104,7 +104,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     vm.runInNewContext(read("app.js"),sandbox,{filename:"app.js"});
     const initialWarrior=elements["#warriorCategories"].innerHTML;
     const initialFood=elements["#foodRows"].innerHTML;
-    check(initialWarrior.includes('data-copy-name="Rough Sharpening Stone"'),"Buyable stone has a copy icon");
+    check(initialWarrior.includes('data-copy-name="Heavy Sharpening Stone"')&&!initialWarrior.includes('data-copy-name="Rough Sharpening Stone"'),"Only latest available sharpening stone has a copy icon at level 20");
     check(initialWarrior.includes('data-copy-name="Copper Shortsword"'),"Crafted BoE weapon has a copy icon");
     check(initialWarrior.includes('data-copy-name="Blackwater Cutlass"'),"BoE world-drop weapon has a copy icon");
     check(!initialWarrior.includes('data-copy-name="Haggard'),"Class quest weapon has no copy icon");
