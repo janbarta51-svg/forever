@@ -247,6 +247,8 @@ for(const kit of armorUpgrades){
   if(existingKit)Object.assign(existingKit,kit);
   else WARRIOR_ITEMS.push({category:"Armor / Shield",gated:false,tooltipType:"item",purchasable:true,flag:"",...kit});
 }
+const fixedItemIds={"Elixir of Defense":8951,"Major Frenzy Potion":250943};
+for(const item of WARRIOR_ITEMS)if(fixedItemIds[item.name])item.id=fixedItemIds[item.name];
 const spike=WARRIOR_ITEMS.find(item=>item.name==="Mithril Shield Spike");
 if(spike)spike.note="Blacksmithing-made shield spike. Application may require Blacksmithing; check in-game requirements.";
 
