@@ -13,7 +13,7 @@ const roleForSlot = index => index===0 ? "tank" : index===1 ? "healer" : "dps";
 const allowedClasses = index => index===1 ? healerClasses : index===0 ? ["Warrior"] : classOrder;
 const roleIcon = role => '<img class="party-role-icon" src="assets/roles/'+role+'.svg" width="38" height="38" alt="" loading="lazy">';
 
-const categoryOrder = ["Weapon buff","Elixirs","Flasks","Scrolls","Potions","Armor / Shield","Engineering","First Aid"];
+const categoryOrder = ["Weapon buff","Elixirs","Scrolls","Potions","Armor / Shield","Engineering"];
 // Engineering deliberately lists only ordinary crafted dynamites. They remain
 // side by side because each requires a different Engineering skill and cost.
 const CHEAP_DYNAMITES = new Set(["Rough Dynamite","Coarse Dynamite","Heavy Dynamite","Solid Dynamite","Dense Dynamite"]);
@@ -56,9 +56,12 @@ function whLink(item,type) {
   const kind = type || item.tooltipType || "item";
   const href = verified ? "https://www.wowhead.com/forever/"+kind+"="+id : queryLink(item.name);
   const attr = verified ? ' data-wowhead="'+esc(kind+"="+id)+'"' : "";
-  // Wowhead is the only tooltip provider; don't render a second local hover card.
-  // Links without a verified ID remain clickable searches but have no fake tooltip.
-  return '<span class="tooltip-wrap '+(verified?"has-wh":"")+'"><a href="'+esc(href)+'"'+attr+' target="_blank" rel="noopener noreferrer">'+esc(item.name)+'</a></span>';
+  // Real IDs are linked to their WoW Forever item pages with native Wowhead tooltips.
+  // Unconfirmed IDs get a working search link with a distinct lookup symbol,
+  // never a fabricated item tooltip or misleading item ID.
+  return '<span class="tooltip-wrap '+(verified?"has-wh":"item-lookup")+'"><a href="'+esc(href)+'"'+attr+' target="_blank" rel="noopener noreferrer"'+
+    (verified?'':' title="Search WoW Forever by item name; direct item ID not confirmed"')+'>'+
+    esc(item.name)+(verified?'':' <span class="lookup-glyph" aria-hidden="true">⌕</span>')+'</a></span>';
 }
 function abilityLink(row,detail) {
   return whLink({name:row[0],effect:detail.effect,note:row[5],id:row[4],level:detail.level},"spell");
@@ -116,19 +119,17 @@ function renderWarrior(){
     ["LATEST DYNAMITE",dynamite,dynamite?dynamite.effect+" · Eng "+dynamite.professionSkill:"No dynamite available yet"]
   ].map(([label,item,detail])=>'<div class="highlight panel"><small>'+esc(label)+'</small><strong>'+
     (item?itemLink(item,"item"):"—")+'</strong><p>'+esc(detail)+'</p></div>').join("");
-  const categories=[...categoryOrder,"1H Weapon Progression","Tank Checklist","Class Quests & Milestones"];
+  const categories=[...categoryOrder,"1H Weapon Progression"];
   $("#warriorCategories").innerHTML=categories.map(cat=>{
-    const quests=cat==="Class Quests & Milestones";
     const weapons=cat==="1H Weapon Progression";
-    const tips=cat==="Tank Checklist";
-    const list=(quests?WARRIOR_QUESTS:weapons?WARRIOR_WEAPONS:tips?WARRIOR_TIPS:catalogItems(cat))
+    const list=(weapons?WARRIOR_WEAPONS:catalogItems(cat))
       .filter(available).sort((a,b)=>(b.level??b.showFromLevel??0)-(a.level??a.showFromLevel??0));
     const rows=list.map(x=>{
-      const tag=x.professionSkill!=null?'<span class="level-badge" title="Requires Engineering skill '+x.professionSkill+'; this is NOT a character level">Eng '+x.professionSkill+'</span>':x.level===null?'<span class="small-flag uncertain">Skill</span>':'<span class="level-badge" title="Required character level">'+x.level+'</span>';
-      const name=itemLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
+      const tag=x.professionSkill!=null?'<span class="level-badge" title="Requires Engineering skill '+x.professionSkill+'; this is NOT a character level">Eng '+x.professionSkill+'</span>':x.level===null?'<span class="small-flag uncertain">Skill</span>':'<span class="level-badge" title="'+(weapons?"Suggested progression level, not an equip restriction":"Required character level")+'">'+x.level+'</span>';
+      const name=itemLink(x,"item");
       return '<div class="entry"><span>'+tag+'</span><div><span class="entry-title">'+name+'</span><div class="entry-desc">'+esc(x.effect)+'</div>'+(x.note?'<div class="flag-note">'+esc(x.note)+'</div>':"")+'</div>'+(x.flag?'<span class="small-flag">'+esc(x.flag)+'</span>':"")+'</div>';
     }).join("");
-    const subtitle=quests?"Class quests and spell unlocks (1–30 data)":weapons?"Weapon suggestions only verified through level 30":tips?"Tanking reminders (1–30 data)":cat==="Engineering"?list.length+" crafted dynamite options by Engineering skill":list.length+" current upgrades / distinct effects";
+    const subtitle=weapons?"Horde Tauren 1H + shield, 1–60; levels are suggested stages":cat==="Engineering"?list.length+" crafted dynamite options by Engineering skill":list.length+" current upgrades / distinct effects";
     return '<article class="mini-panel panel"><h2>'+esc(cat)+'<span class="subtitle">'+subtitle+'</span></h2><div class="entry-list">'+(rows||'<div class="empty-state">Nothing available at this level.</div>')+'</div></article>';
   }).join("");
   refreshTooltips();
@@ -137,7 +138,13 @@ function renderFood(){
   const items=FOODS.filter(x=>(state.foodCategory==="all"||x.category===state.foodCategory) &&
     (!state.foodSearch||x.name.toLowerCase().includes(state.foodSearch)) &&
     ((x.level!==null&&x.level<=state.level)||(x.level===null&&state.showUnknown)))
-    .sort((a,b)=>(a.level??999)-(b.level??999)||a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
+    .sort((a,b)=>{
+      if(state.foodCategory!=="all"){
+        const bonus=item=>Number((item.effect.match(/[+-]\s*(\d+(?:\.\d+)?)/)||[])[1]||0);
+        return bonus(b)-bonus(a)||(b.skill??0)-(a.skill??0)||a.name.localeCompare(b.name);
+      }
+      return (a.level??999)-(b.level??999)||a.category.localeCompare(b.category)||a.name.localeCompare(b.name);
+    });
   $("#foodCount").textContent="Showing "+items.length+" of "+FOODS.length+" recipes. A '?' means the minimum character level is not verified (Cooking skill is tracked separately).";
   $("#foodRows").innerHTML=items.map(x=>'<tr><td><span class="level-badge">'+esc(x.level??"?")+'</span></td><td>'+itemLink(x,"item")+'</td><td>'+esc(x.effect)+'</td><td>'+esc(x.skill)+'</td><td class="'+(x.verified?"status-verified":"status-estimated")+'">'+(x.verified?"Verified level":"Level unverified")+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">No food matches these filters.</td></tr>';
   refreshTooltips();
