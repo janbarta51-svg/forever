@@ -392,13 +392,13 @@ window.GROUP_ABILITY_DATA={
       "cc",
       [
         24,
-        36,
+        38,
         52
       ],
       [
-        "Fears Undead",
-        "Fears Undead",
-        "Fears Undead"
+        "Fears an Undead enemy",
+        "Fears an Undead enemy",
+        "Fears an Undead enemy"
       ],
       2878,
       "Only works on Undead.",
@@ -2177,25 +2177,6 @@ window.GROUP_ABILITY_DATA={
       null
     ],
     [
-      "Counterattack",
-      "cc",
-      [
-        25,
-        30,
-        42,
-        54
-      ],
-      [
-        "Roots the enemy after a parry",
-        "Roots the enemy after a parry",
-        "Roots the enemy after a parry",
-        "Roots the enemy after a parry"
-      ],
-      19306,
-      "Survival talent.",
-      "talent"
-    ],
-    [
       "Tranquilizing Shot",
       "cc",
       [
@@ -2207,19 +2188,6 @@ window.GROUP_ABILITY_DATA={
       19801,
       "Specialized boss utility; learned through endgame content.",
       null
-    ],
-    [
-      "Strider Kick",
-      "cc",
-      [
-        30
-      ],
-      [
-        "Interrupt-oriented melee utility"
-      ],
-      0,
-      "Survival talent; check current in-game tooltip.",
-      "talent"
     ]
   ],
   "Rogue": [
