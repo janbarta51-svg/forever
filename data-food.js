@@ -94,3 +94,846 @@ const VERIFIED_FOOD_ITEM_IDS={
 window.FOODS.forEach(item=>{
   if(VERIFIED_FOOD_ITEM_IDS[item.name])item.id=VERIFIED_FOOD_ITEM_IDS[item.name];
 });
+
+// 2026-11-16 verified WoW Forever cooking catalogue.
+// Every entry below links to the exact FOOD ITEM, not its recipe scroll.
+// Based on live Wowhead Forever item pages and the Icy Veins Cooking guide.
+// Cook skill is not a character-level requirement; only measured item
+// requirements are recorded, and other level cells stay unverified ("?").
+// The original rows are updated in place; additional foods are appended.
+const FOOD_CATALOG=[
+  {
+    "name": "Brilliant Smallfish",
+    "category": "AP",
+    "effect": "+2 AP",
+    "skill": 1,
+    "id": 6290,
+    "level": null
+  },
+  {
+    "name": "Slitherskin Mackerel",
+    "category": "AP",
+    "effect": "+6 AP",
+    "skill": 50,
+    "id": 787,
+    "level": null
+  },
+  {
+    "name": "Longjaw Mud Snapper",
+    "category": "AP",
+    "effect": "+10 AP",
+    "skill": 50,
+    "id": 4592,
+    "level": null
+  },
+  {
+    "name": "Mithril Head Trout",
+    "category": "AP",
+    "effect": "+20 AP",
+    "skill": 175,
+    "id": 8364,
+    "level": null
+  },
+  {
+    "name": "Cooked Glossy Mightfish",
+    "category": "AP",
+    "effect": "+30 AP",
+    "skill": 225,
+    "id": 13927,
+    "level": 35
+  },
+  {
+    "name": "Poached Sunscale Salmon",
+    "category": "AP",
+    "effect": "+40 AP",
+    "skill": 250,
+    "id": 13932,
+    "level": 35
+  },
+  {
+    "name": "Mightfish Steak",
+    "category": "AP",
+    "effect": "+40 AP",
+    "skill": 275,
+    "id": 13934,
+    "level": 45
+  },
+  {
+    "name": "Rainbow Fin Albacore",
+    "category": "SPELL",
+    "effect": "+1 spell damage",
+    "skill": 50,
+    "id": 5095,
+    "level": null
+  },
+  {
+    "name": "Smoked Sagefish",
+    "category": "SPELL",
+    "effect": "+4 spell damage",
+    "skill": 80,
+    "id": 21072,
+    "level": null
+  },
+  {
+    "name": "Sagefish Delight",
+    "category": "SPELL",
+    "effect": "+7 spell damage",
+    "skill": 175,
+    "id": 21217,
+    "level": null
+  },
+  {
+    "name": "Briny Seafood Stew",
+    "category": "SPELL",
+    "effect": "+14 spell damage",
+    "skill": 200,
+    "id": 274971,
+    "level": 25
+  },
+  {
+    "name": "Nightfin Soup",
+    "category": "SPELL",
+    "effect": "+22 spell damage",
+    "skill": 250,
+    "id": 13931,
+    "level": null
+  },
+  {
+    "name": "Baked Salmon",
+    "category": "SPELL",
+    "effect": "+28 spell damage",
+    "skill": 275,
+    "id": 13935,
+    "level": 45
+  },
+  {
+    "name": "Lobster Stew",
+    "category": "SPELL",
+    "effect": "+28 spell damage",
+    "skill": 275,
+    "id": 13933,
+    "level": 45
+  },
+  {
+    "name": "Peace Tea",
+    "category": "HEAL",
+    "effect": "+2 healing power",
+    "skill": 25,
+    "id": 249865,
+    "level": null
+  },
+  {
+    "name": "Royal Tea",
+    "category": "HEAL",
+    "effect": "+7 healing power",
+    "skill": 100,
+    "id": 249866,
+    "level": null
+  },
+  {
+    "name": "Root Tea",
+    "category": "HEAL",
+    "effect": "+11 healing power",
+    "skill": 125,
+    "id": 249867,
+    "level": null
+  },
+  {
+    "name": "Triage Tea",
+    "category": "HEAL",
+    "effect": "+22 healing power",
+    "skill": 180,
+    "id": 249868,
+    "level": null
+  },
+  {
+    "name": "Sunny Tea",
+    "category": "HEAL",
+    "effect": "+33 healing power",
+    "skill": 200,
+    "id": 249869,
+    "level": 35
+  },
+  {
+    "name": "Sage's Tea",
+    "category": "HEAL",
+    "effect": "+44 healing power",
+    "skill": 250,
+    "id": 249870,
+    "level": null
+  },
+  {
+    "name": "Herb Baked Egg",
+    "category": "STA",
+    "effect": "+1 Stamina",
+    "skill": 1,
+    "id": 6888,
+    "level": 1
+  },
+  {
+    "name": "Kaldorei Spider Kabob",
+    "category": "STA",
+    "effect": "+1 Stamina",
+    "skill": 10,
+    "id": 5472,
+    "level": null
+  },
+  {
+    "name": "Skywall Souffle",
+    "category": "STA",
+    "effect": "+1 Stamina",
+    "skill": 25,
+    "id": 263509,
+    "level": null
+  },
+  {
+    "name": "Murloc Fin Soup",
+    "category": "STA",
+    "effect": "+1 Stamina",
+    "skill": 90,
+    "id": 3663,
+    "level": null
+  },
+  {
+    "name": "Breakfast Omelette",
+    "category": "STA",
+    "effect": "+3 Stamina",
+    "skill": 75,
+    "id": 250080,
+    "level": null
+  },
+  {
+    "name": "Crispy Lizard Tail",
+    "category": "STA",
+    "effect": "+3 Stamina",
+    "skill": 100,
+    "id": 5479,
+    "level": null
+  },
+  {
+    "name": "Carrion Surprise",
+    "category": "STA",
+    "effect": "+3 Stamina",
+    "skill": 175,
+    "id": 12213,
+    "level": 5
+  },
+  {
+    "name": "Curiously Tasty Omelet",
+    "category": "STA",
+    "effect": "+5 Stamina",
+    "skill": 130,
+    "id": 3665,
+    "level": null
+  },
+  {
+    "name": "Gooey Spider Cake",
+    "category": "STA",
+    "effect": "+5 Stamina",
+    "skill": 110,
+    "id": 3666,
+    "level": 15
+  },
+  {
+    "name": "Soothing Turtle Bisque",
+    "category": "STA",
+    "effect": "+5 Stamina",
+    "skill": 175,
+    "id": 3729,
+    "level": 15
+  },
+  {
+    "name": "Mystery Stew",
+    "category": "STA",
+    "effect": "+5 Stamina",
+    "skill": 175,
+    "id": 12214,
+    "level": null
+  },
+  {
+    "name": "Giant Scrambled Eggs",
+    "category": "STA",
+    "effect": "+10 Stamina",
+    "skill": 175,
+    "id": 250078,
+    "level": null
+  },
+  {
+    "name": "Giant Clam Scorcho",
+    "category": "STA",
+    "effect": "+10 Stamina",
+    "skill": 175,
+    "id": 6038,
+    "level": 25
+  },
+  {
+    "name": "Heavy Kodo Stew",
+    "category": "STA",
+    "effect": "+10 Stamina",
+    "skill": 200,
+    "id": 12215,
+    "level": 25
+  },
+  {
+    "name": "Monster Omelet",
+    "category": "STA",
+    "effect": "+15 Stamina",
+    "skill": 225,
+    "id": 12218,
+    "level": null
+  },
+  {
+    "name": "Spider Sausage",
+    "category": "STA",
+    "effect": "+15 Stamina",
+    "skill": 200,
+    "id": 17222,
+    "level": null
+  },
+  {
+    "name": "Savory Turtle Stew",
+    "category": "STA",
+    "effect": "+20 Stamina",
+    "skill": 275,
+    "id": 250068,
+    "level": 45
+  },
+  {
+    "name": "Dirge's Kickin' Chimaerok Chops",
+    "category": "STA",
+    "effect": "+25 Stamina",
+    "skill": 300,
+    "id": 21023,
+    "level": 45
+  },
+  {
+    "name": "Beer Basted Boar Ribs",
+    "category": "STR",
+    "effect": "+1 Strength",
+    "skill": 25,
+    "id": 2888,
+    "level": 1
+  },
+  {
+    "name": "Smoked Bear Meat",
+    "category": "STR",
+    "effect": "+1 Strength",
+    "skill": 40,
+    "id": 6890,
+    "level": null
+  },
+  {
+    "name": "Roasted Boar Meat",
+    "category": "STR",
+    "effect": "+1 Strength",
+    "skill": 50,
+    "id": 2681,
+    "level": null
+  },
+  {
+    "name": "Goretusk Liver Pie",
+    "category": "STR",
+    "effect": "+3 Strength",
+    "skill": 50,
+    "id": 724,
+    "level": 5
+  },
+  {
+    "name": "Blood Sausage",
+    "category": "STR",
+    "effect": "+3 Strength",
+    "skill": 60,
+    "id": 3220,
+    "level": null
+  },
+  {
+    "name": "Big Bear Steak",
+    "category": "STR",
+    "effect": "+3 Strength",
+    "skill": 110,
+    "id": 3726,
+    "level": 5
+  },
+  {
+    "name": "Dry Pork Ribs",
+    "category": "STR",
+    "effect": "+3 Strength",
+    "skill": 110,
+    "id": 2687,
+    "level": null
+  },
+  {
+    "name": "Succulent Pork Ribs",
+    "category": "STR",
+    "effect": "+5 Strength",
+    "skill": 110,
+    "id": 2685,
+    "level": 15
+  },
+  {
+    "name": "Lean Venison",
+    "category": "STR",
+    "effect": "+5 Strength",
+    "skill": 110,
+    "id": 5480,
+    "level": 15
+  },
+  {
+    "name": "Bear Brisket",
+    "category": "STR",
+    "effect": "+10 Strength",
+    "skill": 175,
+    "id": 250074,
+    "level": 25
+  },
+  {
+    "name": "Plain Ol' Paletusk",
+    "category": "STR",
+    "effect": "+10 Strength",
+    "skill": 185,
+    "id": 274976,
+    "level": 25
+  },
+  {
+    "name": "Savory Stag Sliders",
+    "category": "STR",
+    "effect": "+15 Strength",
+    "skill": 225,
+    "id": 250065,
+    "level": 35
+  },
+  {
+    "name": "Bear Bruscitti",
+    "category": "STR",
+    "effect": "+20 Strength",
+    "skill": 275,
+    "id": 250070,
+    "level": null
+  },
+  {
+    "name": "Steaming Stag Steak",
+    "category": "STR",
+    "effect": "+20 Strength",
+    "skill": 275,
+    "id": 250071,
+    "level": null
+  },
+  {
+    "name": "Smoked Desert Dumplings",
+    "category": "STR",
+    "effect": "+20 Strength",
+    "skill": 285,
+    "id": 20452,
+    "level": null
+  },
+  {
+    "name": "Spiced Wolf Meat",
+    "category": "AGI",
+    "effect": "+1 Agility",
+    "skill": 25,
+    "id": 2680,
+    "level": null
+  },
+  {
+    "name": "Coyote Steak",
+    "category": "AGI",
+    "effect": "+3 Agility",
+    "skill": 50,
+    "id": 2684,
+    "level": null
+  },
+  {
+    "name": "Crocolisk Steak",
+    "category": "AGI",
+    "effect": "+3 Agility",
+    "skill": 80,
+    "id": 3662,
+    "level": null
+  },
+  {
+    "name": "Seasoned Wolf Kabob",
+    "category": "AGI",
+    "effect": "+5 Agility",
+    "skill": 100,
+    "id": 1017,
+    "level": null
+  },
+  {
+    "name": "Hot Lion Chops",
+    "category": "AGI",
+    "effect": "+5 Agility",
+    "skill": 100,
+    "id": 3727,
+    "level": null
+  },
+  {
+    "name": "Crocolisk Gumbo",
+    "category": "AGI",
+    "effect": "+5 Agility",
+    "skill": 125,
+    "id": 3664,
+    "level": null
+  },
+  {
+    "name": "Lean Wolf Steak",
+    "category": "AGI",
+    "effect": "+5 Agility",
+    "skill": 125,
+    "id": 12209,
+    "level": null
+  },
+  {
+    "name": "Hot Wolf Ribs",
+    "category": "AGI",
+    "effect": "+10 Agility",
+    "skill": 175,
+    "id": 13851,
+    "level": null
+  },
+  {
+    "name": "Heavy Crocolisk Stew",
+    "category": "AGI",
+    "effect": "+10 Agility",
+    "skill": 150,
+    "id": 20074,
+    "level": null
+  },
+  {
+    "name": "Jungle Stew",
+    "category": "AGI",
+    "effect": "+15 Agility",
+    "skill": 125,
+    "id": 12212,
+    "level": null
+  },
+  {
+    "name": "Tender Wolf Steak",
+    "category": "AGI",
+    "effect": "+15 Agility",
+    "skill": 225,
+    "id": 18045,
+    "level": null
+  },
+  {
+    "name": "Swiftstrike Steak",
+    "category": "AGI",
+    "effect": "+20 Agility",
+    "skill": 275,
+    "id": 250072,
+    "level": 45
+  },
+  {
+    "name": "Flank au Poivre",
+    "category": "AGI",
+    "effect": "+20 Agility",
+    "skill": 275,
+    "id": 250069,
+    "level": null
+  },
+  {
+    "name": "Crispy Bat Wing",
+    "category": "INT",
+    "effect": "+1 Intellect",
+    "skill": 1,
+    "id": 12224,
+    "level": null
+  },
+  {
+    "name": "Tasty Raptor Bites",
+    "category": "INT",
+    "effect": "+1 Intellect",
+    "skill": 25,
+    "id": 250079,
+    "level": null
+  },
+  {
+    "name": "Pincer Bites",
+    "category": "INT",
+    "effect": "+1 Intellect",
+    "skill": 35,
+    "id": 263512,
+    "level": null
+  },
+  {
+    "name": "Strider Stew",
+    "category": "INT",
+    "effect": "+1 Intellect",
+    "skill": 50,
+    "id": 5477,
+    "level": null
+  },
+  {
+    "name": "Cooked Crab Claw",
+    "category": "INT",
+    "effect": "+1 Intellect",
+    "skill": 85,
+    "id": 2682,
+    "level": null
+  },
+  {
+    "name": "Crab Cake",
+    "category": "INT",
+    "effect": "+3 Intellect",
+    "skill": 75,
+    "id": 2683,
+    "level": null
+  },
+  {
+    "name": "Redridge Goulash",
+    "category": "INT",
+    "effect": "+3 Intellect",
+    "skill": 100,
+    "id": 1082,
+    "level": null
+  },
+  {
+    "name": "Twice-Spiced Raptor Slice",
+    "category": "INT",
+    "effect": "+3 Intellect",
+    "skill": 75,
+    "id": 250077,
+    "level": null
+  },
+  {
+    "name": "Roast Raptor",
+    "category": "INT",
+    "effect": "+5 Intellect",
+    "skill": 175,
+    "id": 12210,
+    "level": null
+  },
+  {
+    "name": "Barbecued Buzzard Wing",
+    "category": "INT",
+    "effect": "+10 Intellect",
+    "skill": 175,
+    "id": 4457,
+    "level": null
+  },
+  {
+    "name": "Spiced Chili Crab",
+    "category": "INT",
+    "effect": "+10 Intellect",
+    "skill": 225,
+    "id": 12216,
+    "level": null
+  },
+  {
+    "name": "Raging Raptor Ribs",
+    "category": "INT",
+    "effect": "+10 Intellect",
+    "skill": 275,
+    "id": 250073,
+    "level": null
+  },
+  {
+    "name": "Raptor Rouladen",
+    "category": "INT",
+    "effect": "+15 Intellect",
+    "skill": 225,
+    "id": 250076,
+    "level": null
+  },
+  {
+    "name": "Runn Tum Tuber Surprise",
+    "category": "INT",
+    "effect": "+15 Intellect",
+    "skill": 275,
+    "id": 18254,
+    "level": null
+  },
+  {
+    "name": "Soaring Pamplona",
+    "category": "INT",
+    "effect": "+20 Intellect",
+    "skill": 275,
+    "id": 250066,
+    "level": null
+  },
+  {
+    "name": "Bat Hachee",
+    "category": "INT",
+    "effect": "+20 Intellect",
+    "skill": 175,
+    "id": 250067,
+    "level": null
+  },
+  {
+    "name": "Prehistoric Pulled Raptor",
+    "category": "INT",
+    "effect": "+20 Intellect",
+    "skill": 275,
+    "id": 250075,
+    "level": null
+  },
+  {
+    "name": "Venomous Smoothie",
+    "category": "SPR",
+    "effect": "+1 Spirit",
+    "skill": 25,
+    "id": 249871,
+    "level": null
+  },
+  {
+    "name": "Slimy Smoothie",
+    "category": "SPR",
+    "effect": "+3 Spirit",
+    "skill": 100,
+    "id": 249872,
+    "level": null
+  },
+  {
+    "name": "Mrrggl Smrrthle",
+    "category": "SPR",
+    "effect": "+5 Spirit",
+    "skill": 125,
+    "id": 249873,
+    "level": 15
+  },
+  {
+    "name": "Calcified Smoothie",
+    "category": "SPR",
+    "effect": "+10 Spirit",
+    "skill": 125,
+    "id": 249874,
+    "level": 25
+  },
+  {
+    "name": "Spicy Smoothie",
+    "category": "SPR",
+    "effect": "+15 Spirit",
+    "skill": 200,
+    "id": 249875,
+    "level": 35
+  },
+  {
+    "name": "Wicked Smoothie",
+    "category": "SPR",
+    "effect": "+20 Spirit",
+    "skill": 250,
+    "id": 249876,
+    "level": null
+  },
+  {
+    "name": "Westfall Stew",
+    "category": "SPECIAL",
+    "effect": "+15% movement speed in Westfall",
+    "skill": 75,
+    "id": 733,
+    "level": 5
+  },
+  {
+    "name": "Sweetpaw Jam",
+    "category": "SPECIAL",
+    "effect": "+15% movement speed",
+    "skill": 275,
+    "id": 267341,
+    "level": null
+  },
+  {
+    "name": "Grilled Squid",
+    "category": "SPECIAL",
+    "effect": "+1% critical strike chance",
+    "skill": 240,
+    "id": 13928,
+    "level": null
+  },
+  {
+    "name": "Hot Smoked Bass",
+    "category": "SPECIAL",
+    "effect": "+1% critical strike chance",
+    "skill": 240,
+    "id": 13929,
+    "level": null
+  },
+  {
+    "name": "Plated Armorfish",
+    "category": "SPECIAL",
+    "effect": "+150 Armor",
+    "skill": 225,
+    "id": 286152,
+    "level": null
+  },
+  {
+    "name": "Loch Frenzy Delight",
+    "category": "SPECIAL",
+    "effect": "+3 Fishing skill",
+    "skill": 100,
+    "id": 6316,
+    "level": null
+  },
+  {
+    "name": "Fillet of Frenzy",
+    "category": "SPECIAL",
+    "effect": "+5 Fishing skill",
+    "skill": 50,
+    "id": 5476,
+    "level": null
+  },
+  {
+    "name": "Bristle Whisker Catfish",
+    "category": "SPECIAL",
+    "effect": "+8 Fishing skill",
+    "skill": 100,
+    "id": 4593,
+    "level": null
+  },
+  {
+    "name": "Rockscale Cod",
+    "category": "SPECIAL",
+    "effect": "+12 Fishing skill",
+    "skill": 100,
+    "id": 4594,
+    "level": null
+  },
+  {
+    "name": "Spinefin Halibut",
+    "category": "SPECIAL",
+    "effect": "+18 Fishing skill",
+    "skill": 100,
+    "id": 8957,
+    "level": null
+  },
+  {
+    "name": "Filet of Redgill",
+    "category": "SPECIAL",
+    "effect": "+18 Fishing skill",
+    "skill": 225,
+    "id": 13930,
+    "level": null
+  },
+  {
+    "name": "Goldthorn Tea",
+    "category": "SPECIAL",
+    "effect": "+15 Herbalism",
+    "skill": 175,
+    "id": 10841,
+    "level": null
+  },
+  {
+    "name": "Dragonbreath Chili",
+    "category": "SPECIAL",
+    "effect": "Chance to breathe fire on melee hits",
+    "skill": 200,
+    "id": 12217,
+    "level": 25
+  }
+];
+const originalFoods=new Map(window.FOODS.map(food=>[food.name,food]));
+for(const item of FOOD_CATALOG){
+  const previous=originalFoods.get(item.name);
+  if(previous){
+    Object.assign(previous,{category:item.category,effect:item.effect,skill:item.skill,id:item.id,
+      level:item.level??previous.level,verified:item.level!==null||previous.verified,
+      purchasable:true,food:true,idVerified:true});
+  }else{
+    const entry={...item,note:"",purchasable:true,verified:item.level!==null,
+      food:true,idVerified:true,source:"WoW Forever item database and Cooking overview"};
+    window.FOODS.push(entry);
+  }
+}
+window.FOOD_SOURCES=[
+ "https://www.wowhead.com/forever/news/all-cooking-food-that-currently-gives-xp-buffs-in-wow-forever-382928",
+ "https://www.icy-veins.com/wow-forever/cooking",
+ "https://www.wowhead.com/forever/item=250068"
+];
