@@ -44,7 +44,10 @@ check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every(n
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
-check(markup.includes('src="data-60.js?v=20261115-consumables"'),"Additional level 31-60 consumables loaded");
+check(markup.includes('src="data-60.js?v=20261116-current-tiers"'),"Current-tier data file loaded with fresh browser cache");
+check(w.WARRIOR_ITEMS.filter(x=>x.upgradeGroup).length>=60,"Upgrade families cover potions, elixirs, weapon buffs and scrolls");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Minor Agility").upgradeGroup===w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Agility").upgradeGroup,"Agility elixirs are one upgrade family");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Elemental Sharpening Stone").upgradeGroup===undefined,"Critical strike stone remains independent from weapon-damage stones");
 check(markup.includes('id="mainLevel" min="1" max="60"'),"Warrior slider reaches level 60");
 check(markup.includes('id="levelNumber" min="1" max="60"'),"Exact level input reaches level 60");
 check(markup.includes('id="linksStatus"'),"Links failure status is present");
@@ -61,7 +64,7 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261115-consumables"'),"Latest app.js uses explicit cache-busting version");
+check(markup.includes('src="app.js?v=20261116-current-tiers"'),"Current-tier renderer uses fresh browser cache");
 check(markup.includes('href="forever.css?v=20261109-cms-audit"'),"Latest tooltip CSS uses explicit cache-busting version");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
@@ -175,14 +178,34 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     await elements["#foodRows"].handlers.click(copyEvent("Goretusk Liver Pie"));
     check(copied==="Goretusk Liver Pie","Food copy icon writes only the food name");
     check(elements["#itemCopyStatus"].textContent.includes("Goretusk Liver Pie"),"Food copy confirms success");
+    const hasWarriorItem=name=>elements["#warriorCategories"].innerHTML.includes(">"+name+"</a>");
+    for(const [level,shown,hidden] of [
+      [1,["Rough Sharpening Stone","Rough Weightstone","Minor Healing Potion"],["Coarse Sharpening Stone","Lesser Healing Potion"]],
+      [2,["Elixir of Minor Agility"],["Elixir of Lesser Agility"]],
+      [17,["Elixir of Minor Agility"],["Elixir of Lesser Agility"]],
+      [18,["Elixir of Lesser Agility"],["Elixir of Minor Agility","Elixir of Agility"]],
+      [27,["Elixir of Agility"],["Elixir of Minor Agility","Elixir of Lesser Agility"]],
+      [38,["Elixir of Greater Agility"],["Elixir of Agility","Elixir of Lesser Agility"]],
+      [35,["Dense Sharpening Stone","Dense Weightstone"],["Solid Sharpening Stone","Solid Weightstone"]],
+      [45,["Major Healing Potion"],["Superior Healing Potion","Greater Healing Potion"]],
+      [46,["Mighty Rage Potion"],["Great Rage Potion","Rage Potion"]],
+      [55,["Major Frenzy Potion"],["Superior Frenzy Potion","Lesser Frenzy Potion"]],
+      [60,["Scroll of Agility IV","Elixir of Greater Fortitude"],["Scroll of Agility III","Elixir of Lesser Fortitude"]]
+    ]){
+      elements["#mainLevel"].handlers.input({target:{value:String(level)}});
+      check(shown.every(hasWarriorItem)&&hidden.every(name=>!hasWarriorItem(name)),"Level "+level+" shows only current ranks for tested upgrade families");
+    }
     elements["#mainLevel"].handlers.input({target:{value:"1"}});
-    check(elements["#warriorCategories"].innerHTML.includes("Rough Sharpening Stone") && !elements["#warriorCategories"].innerHTML.includes("Solid Sharpening Stone"),"Level 1 item availability respected");
+    check(hasWarriorItem("Rough Sharpening Stone") && !hasWarriorItem("Solid Sharpening Stone"),"Level 1 item availability respected");
     elements["#mainLevel"].handlers.input({target:{value:"30"}});
     check(elements["#warriorCategories"].innerHTML.includes("Solid Sharpening Stone")&&!elements["#warriorCategories"].innerHTML.includes("Dense Sharpening Stone"),"Level 30 item availability respected");
     elements["#mainLevel"].handlers.input({target:{value:"35"}});
     check(elements["#warriorCategories"].innerHTML.includes("Dense Sharpening Stone"),"Dense stone available at level 35");
-    check(elements["#warriorCategories"].innerHTML.includes("Thorium Grenade")&&elements["#warriorCategories"].innerHTML.includes("Eng 260"),"High engineering bombs show profession requirement");
-    check(elements["#warriorHighlights"].innerHTML.includes("ENGINEERING GRENADE"),"Grenade highlight is visible");
+    const engineeringSection=()=>elements["#warriorCategories"].innerHTML.split("<h2>Engineering")[1]?.split("</article>")[0]||"";
+    const engineering=engineeringSection();
+    check(["Rough Dynamite","Coarse Dynamite","Heavy Dynamite","Solid Dynamite","Dense Dynamite"].every(name=>engineering.includes(">"+name+"</a>")),"Engineering lists the five standard dynamites");
+    check(!/(Grenade|Bomb|Sapper|Sheep|SAF-T|EZ-Thro)/i.test(engineering),"Engineering excludes grenades, bombs, and expensive variants");
+    check(elements["#warriorHighlights"].innerHTML.includes("LATEST DYNAMITE"),"Fourth highlight recommends dynamite, not grenades");
     elements["#mainLevel"].handlers.input({target:{value:"46"}});
     check(elements["#warriorCategories"].innerHTML.includes("Mighty Rage Potion"),"Mighty Rage unlocked at level 46");
     elements["#mainLevel"].handlers.input({target:{value:"60"}});
