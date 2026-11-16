@@ -138,12 +138,12 @@ function foodFallbackIcon(category){
   return {AP:"🍖",STR:"🥩",STA:"🍲",AGI:"🍗",INT:"🍳",SPELL:"🐟",HEAL:"🍵",SPR:"🥤",SPECIAL:"🍽️"}[category]||"🍽️";
 }
 function renderFood(){
-  const items=FOODS.filter(x=>(state.foodCategory==="all"||x.category===state.foodCategory) &&
+  const items=FOODS.filter(x=>(state.foodCategory==="all"||x.category===state.foodCategory||x.categories?.includes(state.foodCategory)) &&
     (!state.foodSearch||x.name.toLowerCase().includes(state.foodSearch)) &&
     ((x.level!==null&&x.level<=state.level)||(x.level===null&&state.showUnknown)))
     .sort((a,b)=>{
       if(state.foodCategory!=="all"){
-        const bonus=item=>Number((item.effect.match(/[+-]\s*(\d+(?:\.\d+)?)/)||[])[1]||0);
+        const bonus=item=>item.statBonuses?.[state.foodCategory]??Number((item.effect.match(/[+-]\s*(\d+(?:\.\d+)?)/)||[])[1]||0);
         return bonus(b)-bonus(a)||(b.skill??0)-(a.skill??0)||a.name.localeCompare(b.name);
       }
       return (a.level??999)-(b.level??999)||a.category.localeCompare(b.category)||a.name.localeCompare(b.name);
