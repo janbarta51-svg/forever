@@ -4,7 +4,7 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 
 ## Features
 
-- **Warrior:** level 1–60 slider, consumable upgrades, profession-gated grenades, class quests, original 1–30 one-handed weapon suggestions and tanking checklist.
+- **Warrior:** level 1–60 slider, current-tier potions/elixirs/weapon stones/scrolls, standard affordable dynamites only (Engineering-skill labels), original 1–30 weapon and quest content.
 - **Auction House quick copy:** a tiny muted amber overlapping-pages icon appears beside purchasable/tradable items in Warrior cards, current-item highlights and the Food Buffs table. Clicking it copies only the exact item name for Auction House search. Quest rewards, spells and non-tradable dungeon gear have no copy icon. The icon is a clean vector reinterpretation of the provided reference rather than a watermarked bitmap.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
 - **Dungeon Group (1–30 spell data):** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
@@ -63,6 +63,36 @@ Some Forever-specific effects or item IDs are not independently verified and
 are explicitly marked as such. Such items use a Wowhead name search instead
 of a misleading fixed-ID tooltip. Ingredient availability, cooldown interactions,
 stacking and user profession skills are not guaranteed by the character slider.
+
+## Current-tier filters and dynamite-only Engineering (16 Nov 2026)
+
+The original item catalog remains intact. An explicit `UPGRADE_FAMILIES` map
+in `data-60.js` assigns tier order for items with interchangeable effects.
+For each family the page displays only the highest tier unlocked by the
+selected character level; elixir/potion families, sharpening stones,
+weightstones, and scrolls are handled this way. Unique effects such as
+Elixir of the Mongoose, Elemental Sharpening Stone and the different
+school-specific protection potions are not combined.
+
+The Engineering panel now shows only the standard craftable Rough,
+Coarse, Heavy, Solid, and Dense Dynamite. These all stay visible once
+they appear because their Engineering skill thresholds and production
+costs differ; all grenade, bomb, and experimental explosive entries
+remain in the source data but are hidden from the display. The fourth
+highlight card now shows the newest available dynamite. Engineering
+skill and character level are still distinguished.
+
+### HTTPS custom-domain setup
+
+This repository publishes to `forever.honzanacestach.cz` and includes
+the matching root `CNAME`. Browser HTTPS warnings cannot be solved in
+HTML/JS. Configure the DNS CNAME for the **forever** subdomain to
+`janbarta51-svg.github.io` (do not include `/forever`) and enable
+**Settings → Pages → Enforce HTTPS** in GitHub. If DNS is already correct,
+check certificate provisioning status in Pages settings and retry the
+custom-domain save if necessary. This account integration does not
+expose GitHub Pages domain/TLS settings or DNS editing, so this step
+requires someone with the relevant access.
 
 ## Installation and hosting
 
