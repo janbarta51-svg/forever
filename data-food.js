@@ -81,3 +81,16 @@ Dragonbreath Chili|SPECIAL|Chance to breathe fire on melee hits|200|25||Unique c
   return {name,category,effect,skill:Number(skill),level:lvl?Number(lvl):null,id:id?Number(id):null,note:note||"",
   purchasable:true,verified:!!lvl,source:"Wowhead Forever food overview; lvl: Mobalytics Protection Warrior (where available)"};
 });
+
+// Direct Forever item IDs confirmed by item database; other foods retain
+// honest Wowhead searches rather than guessed item links / fake icons.
+const VERIFIED_FOOD_ITEM_IDS={
+  "Brilliant Smallfish": 6290,
+  "Hot Wolf Ribs": 13851,
+  "Sagefish Delight": 21217,
+  "Dragonbreath Chili": 12217,
+  "Heavy Kodo Stew": 12215
+};
+window.FOODS.forEach(item=>{
+  if(VERIFIED_FOOD_ITEM_IDS[item.name])item.id=VERIFIED_FOOD_ITEM_IDS[item.name];
+});
