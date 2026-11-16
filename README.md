@@ -12,6 +12,27 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 - **Campfire:** profession objects, level scaling and stacking conflicts.
 - **Useful Links + CMS:** a simple `links.json` editor for named bookmarks.
 
+## Food Buffs audit (16 Nov 2026)
+
+Food Buffs now uses 102 distinct food items with direct Wowhead Forever item IDs,
+including higher-level Stamina/Strength/Agility/Intellect/Spirit, Attack Power,
+Spell Damage, Healing Power and special foods. The `HEAL` filter was separated
+from Spell Damage. Specific Wowhead item pages verify IDs and cooking buffs;
+exact character-use levels remain unknown where an item tooltip was not checked.
+The iconizeLinks integration is refreshed on DOMContentLoaded after the
+deferred Wowhead tooltip script loads. Small actual item icons are requested
+for all linked foods; a category icon is displayed if the CDN is unavailable.
+
+Sources: https://www.wowhead.com/forever/news/all-cooking-food-that-currently-gives-xp-buffs-in-wow-forever-382928
+and https://www.icy-veins.com/wow-forever/cooking.
+Note: the older article misfiles Sunny Tea under Spell Damage and Lobster Stew
+under Healing Power. The Forever item tooltip confirms Sunny Tea = +33 Healing
+Power and Lobster Stew = +28 Spell Damage. Each food only appears once.
+
+Paladin Blessing of Salvation / Greater Blessing of Salvation were removed from
+WoW Forever and are absent from `data-party.js`. Keep the related regression
+check so they do not return accidentally.
+
 ## Dungeon Group 1–60 class spell coverage (16 Nov 2026)
 
 All nine class spellbooks (Warrior, Paladin, Druid, Priest, Shaman, Warlock, Mage,
