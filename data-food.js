@@ -937,3 +937,190 @@ window.FOOD_SOURCES=[
  "https://www.icy-veins.com/wow-forever/cooking",
  "https://www.wowhead.com/forever/item=250068"
 ];
+
+// November high-level additions verified against Forever item IDs.
+// Recipe acquisition of the three Holy Salts dishes is not established.
+const NOVEMBER_FOOD_ADDITIONS=[
+  {
+    "name": "Prowler Steak",
+    "category": "STR",
+    "effect": "+25 Strength, +10 Stamina",
+    "skill": 250,
+    "level": 55,
+    "id": 238637,
+    "categories": [
+      "STR",
+      "STA"
+    ],
+    "statBonuses": {
+      "STR": 25,
+      "STA": 10
+    },
+    "note": "Recipe source not confirmed; check live availability."
+  },
+  {
+    "name": "Filet o' Flank",
+    "category": "AGI",
+    "effect": "+25 Agility, +10 Stamina",
+    "skill": 250,
+    "level": 55,
+    "id": 238638,
+    "categories": [
+      "AGI",
+      "STA"
+    ],
+    "statBonuses": {
+      "AGI": 25,
+      "STA": 10
+    },
+    "note": "Recipe source not confirmed; check live availability."
+  },
+  {
+    "name": "Sunrise Omelette",
+    "category": "HEAL",
+    "effect": "+25 spell damage, +55 healing power, +10 Stamina",
+    "skill": 250,
+    "level": 55,
+    "id": 238639,
+    "categories": [
+      "SPELL",
+      "HEAL",
+      "STA"
+    ],
+    "statBonuses": {
+      "SPELL": 25,
+      "HEAL": 55,
+      "STA": 10
+    },
+    "note": "Recipe source not confirmed; check live availability."
+  },
+  {
+    "name": "Grand Lobster Banquet",
+    "category": "SPECIAL",
+    "effect": "+20 AP, +23 spell damage, +44 healing power, +10 Stamina (40-player feast)",
+    "skill": 280,
+    "level": 55,
+    "id": 238642,
+    "categories": [
+      "SPECIAL",
+      "AP",
+      "SPELL",
+      "HEAL",
+      "STA"
+    ],
+    "statBonuses": {
+      "AP": 20,
+      "SPELL": 23,
+      "HEAL": 44,
+      "STA": 10
+    },
+    "note": "40-player feast, 45-minute buff."
+  },
+  {
+    "name": "Specklefin Feast",
+    "category": "SPECIAL",
+    "effect": "+20 AP, +23 spell damage, +44 healing power, +10 Stamina (40-player feast)",
+    "skill": 280,
+    "level": 55,
+    "id": 238641,
+    "categories": [
+      "SPECIAL",
+      "AP",
+      "SPELL",
+      "HEAL",
+      "STA"
+    ],
+    "statBonuses": {
+      "AP": 20,
+      "SPELL": 23,
+      "HEAL": 44,
+      "STA": 10
+    },
+    "note": "40-player feast, 45-minute buff."
+  },
+  {
+    "name": "Spotted Yellowtail",
+    "category": "SPELL",
+    "effect": "+22 spell damage",
+    "skill": 225,
+    "level": 35,
+    "id": 6887,
+    "categories": [
+      "SPELL"
+    ],
+    "statBonuses": {
+      "SPELL": 22
+    },
+    "note": "Provides the Forever kill XP bonus."
+  },
+  {
+    "name": "Roasted Kodo Meat",
+    "category": "STA",
+    "effect": "+1 Stamina",
+    "skill": 35,
+    "level": 1,
+    "id": 5474,
+    "categories": [
+      "STA"
+    ],
+    "statBonuses": {
+      "STA": 1
+    },
+    "note": "Horde/Mulgore recipe."
+  },
+  {
+    "name": "Goblin Deviled Clams",
+    "category": "STA",
+    "effect": "+6 Stamina and +6 Spirit",
+    "skill": 125,
+    "level": 15,
+    "id": 5527,
+    "categories": [
+      "STA",
+      "SPR"
+    ],
+    "statBonuses": {
+      "STA": 6,
+      "SPR": 6
+    },
+    "note": "Does not provide the usual Forever kill XP food bonus."
+  },
+  {
+    "name": "Egg Nog",
+    "category": "STA",
+    "effect": "+2 Stamina and +2 Spirit",
+    "skill": 35,
+    "level": 1,
+    "id": 17198,
+    "categories": [
+      "STA",
+      "SPR"
+    ],
+    "statBonuses": {
+      "STA": 2,
+      "SPR": 2
+    },
+    "note": "Seasonal Winter Veil recipe."
+  },
+  {
+    "name": "Gingerbread Cookie",
+    "category": "STA",
+    "effect": "+2 Stamina and +2 Spirit",
+    "skill": 1,
+    "level": 1,
+    "id": 17197,
+    "categories": [
+      "STA",
+      "SPR"
+    ],
+    "statBonuses": {
+      "STA": 2,
+      "SPR": 2
+    },
+    "note": "Seasonal Winter Veil recipe."
+  }
+];
+for(const item of NOVEMBER_FOOD_ADDITIONS){
+ if(window.FOODS.some(existing=>existing.name===item.name))throw Error("Duplicate food "+item.name);
+ window.FOODS.push({...item,verified:true,idVerified:true,purchasable:true,food:true,source:"Wowhead Forever item page / Cooking database"});
+}
