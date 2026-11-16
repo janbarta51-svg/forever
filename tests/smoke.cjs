@@ -23,14 +23,19 @@ check(Object.keys(w.CLASS_THEME).length===9,"Nine class themes");
 check(w.CLASS_THEME.Warrior.color==="#C69B6D","Warrior is brown");
 check(w.CLASS_THEME.Priest.color==="#FFFFFF","Priest is white");
 for(const role of ["tank","healer","dps"])check(read("assets/roles/"+role+".svg").includes("data:image/png;base64,"),"Blizzard role icon embedded: "+role);
-check(w.FOODS.length===102,"Food catalog contains 102 verified Forever item links");
-check(new Set(w.FOODS.map(x=>x.name)).size===102,"No duplicate food names");
-check(new Set(w.FOODS.map(x=>x.id)).size===102,"All food IDs are unique");
+check(w.FOODS.length===112,"Food catalog contains 112 verified Forever item links");
+check(new Set(w.FOODS.map(x=>x.name)).size===112,"No duplicate food names");
+check(new Set(w.FOODS.map(x=>x.id)).size===112,"All food IDs are unique");
 check(w.FOODS.every(x=>Number.isInteger(x.id)&&x.id>0&&x.food===true),"Every food has a positive verified item ID");
 check(["Poached Sunscale Salmon","Savory Turtle Stew","Swiftstrike Steak","Wicked Smoothie","Dirge's Kickin' Chimaerok Chops","Sage's Tea","Mightfish Steak"].every(name=>w.FOODS.some(x=>x.name===name)),"All missing high-level food buffs have been added");
 check(w.FOODS.find(x=>x.name==="Sunny Tea").category==="HEAL"&&w.FOODS.find(x=>x.name==="Sunny Tea").effect==="+33 healing power","Sunny Tea healing category corrected from its tooltip");
 check(w.FOODS.find(x=>x.name==="Lobster Stew").category==="SPELL"&&w.FOODS.find(x=>x.name==="Lobster Stew").effect==="+28 spell damage","Lobster Stew damage category corrected from tooltip");
 check(w.FOODS.find(x=>x.name==="Savory Turtle Stew").level===45&&w.FOODS.find(x=>x.name==="Savory Turtle Stew").id===250068,"Savory Turtle Stew verified level and ID");
+check(["Prowler Steak","Filet o' Flank","Sunrise Omelette","Grand Lobster Banquet","Specklefin Feast","Spotted Yellowtail","Roasted Kodo Meat","Goblin Deviled Clams","Egg Nog","Gingerbread Cookie"].every(name=>w.FOODS.some(x=>x.name===name)),"Additional November and Horde food items present");
+check(w.FOODS.find(x=>x.name==="Prowler Steak").id===238637&&w.FOODS.find(x=>x.name==="Filet o' Flank").id===238638,"Level 55 melee food has correct IDs");
+check(w.FOODS.find(x=>x.name==="Sunrise Omelette").statBonuses.HEAL===55&&w.FOODS.find(x=>x.name==="Sunrise Omelette").statBonuses.SPELL===25,"Sunrise Omelette multistat buff values");
+check(w.FOODS.find(x=>x.name==="Roasted Kodo Meat").id===5474,"Early Horde Tauren food included");
+
 check(w.WARRIOR_ITEMS.length>=140,"Warrior items expanded with level 31-60 consumables");
 check(w.WARRIOR_ITEMS.every(x=>x.level===null||(x.level>=1&&x.level<=60)),"Consumable character levels within 1–60");
 check(new Set(w.WARRIOR_ITEMS.map(x=>x.name)).size===w.WARRIOR_ITEMS.length,"No duplicated consumable names");
@@ -68,7 +73,7 @@ check(!w.GROUP_ABILITY_DATA.Hunter.some(a=>["Strider Kick","Counterattack"].incl
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
-check(markup.includes('src="data-food.js?v=20261116-food-full"'),"Updated foods dataset cache-busted");
+check(markup.includes('src="data-food.js?v=20261116-food-112"'),"Updated foods dataset cache-busted");
 check(markup.includes('iconSize:true'),"Wowhead icon sizing enabled");
 check(markup.includes('<option value="HEAL">Healing Power</option>'),"Healing Power has a separate food filter");
 check(read("app.js").includes('document.addEventListener("DOMContentLoaded",refreshTooltips)'),"Wowhead tooltip icons refreshed after deferred loader");
@@ -96,7 +101,7 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261116-food-full"'),"Food-aware renderer loads latest script");
+check(markup.includes('src="app.js?v=20261116-food-112"'),"Food-aware renderer loads latest script");
 check(markup.includes('href="forever.css?v=20261116-food-full"'),"Latest food icon CSS cache version loaded");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
@@ -251,6 +256,18 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
       "Requested categories are removed from Warrior page");
     check(hasWarriorItem("Mithril Shield Spike")&&!hasWarriorItem("Iron Shield Spike")&&!hasWarriorItem("Thorium Shield Spike"),
       "Only Mithril Shield Spike remains at level 50");
+    elements["#mainLevel"].handlers.input({target:{value:"60"}});
+    elements["#foodCategory"].handlers.change({target:{value:"STR"}});
+    const highStr=elements["#foodRows"].innerHTML;
+    check(highStr.includes("Prowler Steak")&&highStr.indexOf("Prowler Steak")<highStr.indexOf("Bear Bruscitti"),"Prowler Steak leads Strength foods at level 55");
+    elements["#foodCategory"].handlers.change({target:{value:"AGI"}});
+    const highAgi=elements["#foodRows"].innerHTML;
+    check(highAgi.includes("Filet o&#39; Flank")&&highAgi.indexOf("Filet o&#39; Flank")<highAgi.indexOf("Swiftstrike Steak"),"Filet o' Flank leads Agility foods at level 55");
+    elements["#foodCategory"].handlers.change({target:{value:"HEAL"}});
+    const highHeal=elements["#foodRows"].innerHTML;
+    check(highHeal.includes("Sunrise Omelette")&&highHeal.indexOf("Sunrise Omelette")<highHeal.indexOf("Sage&#39;s Tea"),"Healing food correctly sorts Sunrise Omelette by +55, not by +25 Spell Damage");
+    elements["#foodCategory"].handlers.change({target:{value:"STA"}});
+    check(elements["#foodRows"].innerHTML.includes("Grand Lobster Banquet")&&elements["#foodRows"].innerHTML.includes("Prowler Steak"),"Multistat feast and steak appear in Stamina filter");
     elements["#foodCategory"].handlers.change({target:{value:"HEAL"}});
     const healingRows=elements["#foodRows"].innerHTML;
     check(healingRows.includes("Sage&#39;s Tea")&&healingRows.includes("Sunny Tea")&&!healingRows.includes("Lobster Stew"),
