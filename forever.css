@@ -229,3 +229,12 @@
 .cms-back-link{margin-left:auto;padding:9px 12px;color:#d6b77c;text-decoration:none;white-space:nowrap;font-size:13px}
 .cms-back-link:hover{color:#fff;text-decoration:none}
 @media(max-width:480px){.cms-back-link{font-size:12px;padding:8px 4px}.cms-form .page-head h1{font-size:29px}}
+
+/* Food icons are supplied by Wowhead for every verified item ID.
+   The category glyph remains visible if the external tooltip CDN is blocked. */
+.food-item-name{display:inline-flex;align-items:center;gap:6px;max-width:100%}
+.food-fallback-icon{display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;min-width:18px;font-size:14px;line-height:1;
+  background:#20252e;border:1px solid #50586a;border-radius:3px}
+.food-item-name:has(.icon,.icontiny,.iconsmall,.iconmedium,.iconlarge,.iconsmall,.iconlarge,img) .food-fallback-icon{display:none}
+.food-item-name .tooltip-wrap a{display:inline-flex;align-items:center;gap:5px}
