@@ -58,8 +58,7 @@ const rows = [
   ["Elixirs",38,"Elixir of Greater Agility",9187,"+25 Agility","Good for critical chance and avoidance."],
   ["Elixirs",38,"Gift of Arthas",9088,"Shadow resistance and chance to inflict disease","Situational tank utility."],
   ["Elixirs",38,"Elixir of the Sages",13447,"Boosts intellect and spirit","Not normally recommended for Warrior."],
-  ["Elixirs",43,"Elixir of Greater Defense",8951,"+450 Armor","Tank mitigation."],
-  ["Elixirs",43,"Elixir of Superior Defense",13445,"+450 Armor","Alternative name / higher-tier armor elixir; check stacking."],
+  ["Elixirs",43,"Elixir of Greater Defense",13445,"+450 Armor","Tank mitigation. Forever name of the original Superior Defense elixir."],
   ["Elixirs",45,"Elixir of Brute Force",13453,"+18 Strength and +18 Stamina","Useful combined melee/tank stats."],
   ["Elixirs",45,"Elixir of Strength",null,"Strength increase","New Forever stat elixir; check client tooltip."],
   ["Elixirs",45,"Elixir of Fortitude",null,"Increases survivability","New Forever stat elixir; check exact amount."],
@@ -276,8 +275,7 @@ const UPGRADE_FAMILIES={
     "Elixir of Minor Defense",
     "Elixir of Lesser Defense",
     "Elixir of Defense",
-    "Elixir of Greater Defense",
-    "Elixir of Superior Defense"
+    "Elixir of Greater Defense"
   ],
   "elixir-fortitude": [
     "Elixir of Minor Fortitude",
