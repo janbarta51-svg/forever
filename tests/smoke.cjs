@@ -23,7 +23,14 @@ check(Object.keys(w.CLASS_THEME).length===9,"Nine class themes");
 check(w.CLASS_THEME.Warrior.color==="#C69B6D","Warrior is brown");
 check(w.CLASS_THEME.Priest.color==="#FFFFFF","Priest is white");
 for(const role of ["tank","healer","dps"])check(read("assets/roles/"+role+".svg").includes("data:image/png;base64,"),"Blizzard role icon embedded: "+role);
-check(w.FOODS.length>=70,"Food catalog contains at least 70 entries");
+check(w.FOODS.length===102,"Food catalog contains 102 verified Forever item links");
+check(new Set(w.FOODS.map(x=>x.name)).size===102,"No duplicate food names");
+check(new Set(w.FOODS.map(x=>x.id)).size===102,"All food IDs are unique");
+check(w.FOODS.every(x=>Number.isInteger(x.id)&&x.id>0&&x.food===true),"Every food has a positive verified item ID");
+check(["Poached Sunscale Salmon","Savory Turtle Stew","Swiftstrike Steak","Wicked Smoothie","Dirge's Kickin' Chimaerok Chops","Sage's Tea","Mightfish Steak"].every(name=>w.FOODS.some(x=>x.name===name)),"All missing high-level food buffs have been added");
+check(w.FOODS.find(x=>x.name==="Sunny Tea").category==="HEAL"&&w.FOODS.find(x=>x.name==="Sunny Tea").effect==="+33 healing power","Sunny Tea healing category corrected from its tooltip");
+check(w.FOODS.find(x=>x.name==="Lobster Stew").category==="SPELL"&&w.FOODS.find(x=>x.name==="Lobster Stew").effect==="+28 spell damage","Lobster Stew damage category corrected from tooltip");
+check(w.FOODS.find(x=>x.name==="Savory Turtle Stew").level===45&&w.FOODS.find(x=>x.name==="Savory Turtle Stew").id===250068,"Savory Turtle Stew verified level and ID");
 check(w.WARRIOR_ITEMS.length>=140,"Warrior items expanded with level 31-60 consumables");
 check(w.WARRIOR_ITEMS.every(x=>x.level===null||(x.level>=1&&x.level<=60)),"Consumable character levels within 1–60");
 check(new Set(w.WARRIOR_ITEMS.map(x=>x.name)).size===w.WARRIOR_ITEMS.length,"No duplicated consumable names");
@@ -56,11 +63,17 @@ check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every((
 check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].length===a[3].length)),"All spell rank descriptions match their unlock tables");
 check(Object.values(w.GROUP_ABILITY_DATA).flat().length>=130,"Comprehensive nine-class buff and CC catalogue");
 check(Object.values(w.GROUP_ABILITY_DATA).some(list=>list.some(a=>a[2].some(n=>n>30))),"Spells progress beyond level 30");
-check(!w.GROUP_ABILITY_DATA.Paladin.some(a=>a[0]==="Salvation"),"Removed Paladin Salvation is absent");
+check(!w.GROUP_ABILITY_DATA.Paladin.some(a=>/Salvation/i.test(a[0])),"Paladin has neither Blessing nor Greater Blessing of Salvation");
 check(!w.GROUP_ABILITY_DATA.Hunter.some(a=>["Strider Kick","Counterattack"].includes(a[0])),"Hunter damage/movement abilities are not listed as CC");
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
+check(markup.includes('src="data-food.js?v=20261116-food-full"'),"Updated foods dataset cache-busted");
+check(markup.includes('iconSize:true'),"Wowhead icon sizing enabled");
+check(markup.includes('<option value="HEAL">Healing Power</option>'),"Healing Power has a separate food filter");
+check(read("app.js").includes('document.addEventListener("DOMContentLoaded",refreshTooltips)'),"Wowhead tooltip icons refreshed after deferred loader");
+check(read("forever.css").includes(".food-fallback-icon"),"Food icon placeholder remains when CDN fails");
+
 check(markup.includes('src="data-party.js?v=20261116-party60"'),"New level 60 class data is cache-busted");
 check(markup.includes("all nine classes through level 60"),"Party guide advertises all-class level 60 support");
 check(markup.includes('src="data-60.js?v=20261116-tauren-armor"'),"Horde armor kit data loaded with fresh cache");
@@ -83,8 +96,8 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261116-party60"'),"Dungeon group 60 renderer loaded with fresh cache");
-check(markup.includes('href="forever.css?v=20261116-party60"'),"New selector CSS cache version loaded");
+check(markup.includes('src="app.js?v=20261116-food-full"'),"Food-aware renderer loads latest script");
+check(markup.includes('href="forever.css?v=20261116-food-full"'),"Latest food icon CSS cache version loaded");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
 
@@ -129,6 +142,9 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     check(!initialWarrior.includes('data-copy-name="Wingblade"'),"Horde quest sword has no AH copy icon");
     check(!initialWarrior.includes('data-copy-name="Revenge"'),"Warrior spell has no copy icon");
     check(initialFood.includes('data-copy-name="Goretusk Liver Pie"'),"Purchasable food has a copy icon");
+    check(initialFood.includes('data-wh-icon-size="small"'),"Verified food links request actual Wowhead item icons");
+    check(initialFood.includes('food-fallback-icon'),"Food rows have a visible category-icon fallback");
+    check(!initialFood.includes('class="item-lookup"'),"Food rows no longer show unverified item search indicators");
     check(!elements["#partyResults"].innerHTML.includes('data-copy-name='),"Party spell list has no item copy icons");
     const slotMarkup=elements["#groupSlots"].innerHTML;
     check(slotMarkup.includes("assets/roles/tank.svg"),"Transparent tank role icon");
@@ -235,6 +251,15 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
       "Requested categories are removed from Warrior page");
     check(hasWarriorItem("Mithril Shield Spike")&&!hasWarriorItem("Iron Shield Spike")&&!hasWarriorItem("Thorium Shield Spike"),
       "Only Mithril Shield Spike remains at level 50");
+    elements["#foodCategory"].handlers.change({target:{value:"HEAL"}});
+    const healingRows=elements["#foodRows"].innerHTML;
+    check(healingRows.includes("Sage&#39;s Tea")&&healingRows.includes("Sunny Tea")&&!healingRows.includes("Lobster Stew"),
+      "Healing Power filter includes new healing drinks but not spell damage");
+    check(healingRows.indexOf("Sage&#39;s Tea")<healingRows.indexOf("Sunny Tea"),"Healing food is sorted strongest first");
+    elements["#foodCategory"].handlers.change({target:{value:"SPELL"}});
+    const spellRows=elements["#foodRows"].innerHTML;
+    check(spellRows.includes("Lobster Stew")&&spellRows.includes("Baked Salmon")&&!spellRows.includes("Sunny Tea"),
+      "Spell Damage filter includes Lobster Stew and excludes healing tea");
     elements["#foodCategory"].handlers.change({target:{value:"AGI"}});
     const agilityRows=elements["#foodRows"].innerHTML;
     check(agilityRows.indexOf("Jungle Stew")<agilityRows.indexOf("Hot Wolf Ribs")&&
