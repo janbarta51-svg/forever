@@ -108,7 +108,7 @@ function renderWarrior(){
   const stone=latest(WARRIOR_ITEMS.filter(x=>/Sharpening Stone/.test(x.name)));
   const heal=latest(WARRIOR_ITEMS.filter(x=>/Healing Potion/.test(x.name)));
   const food=latest(FOODS.filter(x=>x.category==="STR"));
-  const dynamite=latest(catalogItems("Engineering"));
+  const dynamite=catalogItems("Engineering").sort((a,b)=>(b.professionSkill??0)-(a.professionSkill??0))[0]||null;
   $("#warriorHighlights").innerHTML=[
     ["BEST SHARPENING STONE",stone,stone?.effect||"No upgrade yet"],
     ["HEALING POTION",heal,heal?.effect||"Not yet available"],
