@@ -690,7 +690,7 @@ window.WARRIOR_WEAPONS=[
     "purchasable": true
   },
   {
-    "level": 19,
+    "level": 22,
     "name": "Wingblade",
     "id": 6504,
     "effect": "Wailing Caverns – Horde quest Leaders of the Fang",
@@ -746,7 +746,7 @@ window.WARRIOR_WEAPONS=[
     "purchasable": false
   },
   {
-    "level": 44,
+    "level": 45,
     "name": "Sang'thraze the Deflector",
     "id": 9379,
     "effect": "Zul'Farrak – Antu'sul",
