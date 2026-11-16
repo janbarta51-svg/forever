@@ -3,7 +3,7 @@
 const $ = s => document.querySelector(s);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const MAX_LEVEL=60;
-const PARTY_RANK_CAP=30; // Buff/CC data has only been verified through level 30.
+const PARTY_RANK_CAP=60; // All nine class spell tables now cover level 1–60.
 const clamp = v => Math.max(1,Math.min(MAX_LEVEL,Math.round(Number(v)||1)));
 const clampParty = v => Math.min(PARTY_RANK_CAP,clamp(v));
 const classOrder = ["Warrior","Paladin","Priest","Druid","Shaman","Mage","Warlock","Hunter","Rogue"];
@@ -157,8 +157,7 @@ function renderGroupSlots(){
       '<div class="role-heading-copy"><strong class="role-heading-title">'+esc(roleLabel)+'</strong>'+
       '<small class="class-colored">'+esc(cl)+'</small></div></div>';
     const selection=classIcon(cl,"role-picker-class-icon")+
-      '<span class="selected-class class-colored">'+esc(cl)+'</span>'+
-      '<span class="picker-arrow" aria-hidden="true">'+(locked?'◆':'⌄')+'</span>';
+      '<span class="selected-class class-colored">'+esc(cl)+'</span>';
     const picker=locked?
       '<div class="role-class-selector fixed" aria-label="Fixed class: Warrior">'+
       '<div class="role-class-trigger role-class-static">'+selection+'</div></div>':
@@ -178,7 +177,7 @@ function renderGroupSlots(){
       header+'<div class="member-controls">'+picker+
       '<label class="level-control" for="partyLevel'+index+'"><span>Level</span>'+
       '<input id="partyLevel'+index+'" class="member-level" data-party-level="'+index+
-      '" type="number" min="1" max="30" value="'+member.level+'" '+
+      '" type="number" min="1" max="60" value="'+member.level+'" '+
       (locked?'title="Synced with Warrior level slider"':'')+'></label></div></div>';
   }).join("");
 }
@@ -186,7 +185,7 @@ function resolveAbility(ability,level){
   const ranks=ability[2].filter(x=>x<=level);
   if(!ranks.length)return null;
   const rankIndex=ranks.length-1;
-  return {a:ability,rank:rankIndex+1,level:ranks[rankIndex],effect:ability[3][rankIndex]||ability[3][0]||""};
+  return {a:ability,rank:ability[2].length>1?rankIndex+1:null,level:ranks[rankIndex],effect:ability[3][rankIndex]||ability[3][0]||""};
 }
 function memberAbilities(member){
   return (GROUP_ABILITY_DATA[member.className]||[]).map(a=>resolveAbility(a,member.level)).filter(Boolean);
@@ -199,19 +198,19 @@ function renderGroup(){
   const ccCount=all.reduce((n,entries)=>n+entries.filter(x=>x.a[1]==="cc").length,0);
   const markup=state.party.map((member,index)=>{
     const cl=member.className,abilities=all[index];
-    const types=[["buff","Buffs"],["cc","Crowd Control"]];
+    const types=[["buff","Buffs & Support"],["cc","Crowd Control & Utility"]];
     const columns=types.map(([type,title])=>{
       const list=abilities.filter(x=>x.a[1]===type);
       const entries=list.map(x=>{
         const requirement=x.a[6]?'<span class="small-flag requirement-flag">'+esc(x.a[6])+'</span>':"";
-        return '<div class="group-ability"><div class="group-ability-line">'+abilityLink(x.a,x)+' <span class="rank">Rank '+x.rank+'</span><span class="level-badge" title="Level the current rank becomes available">Lv '+x.level+'</span>'+requirement+'</div><p class="group-effect">'+esc(x.effect)+'</p><p class="group-note">'+esc(x.a[5])+'</p></div>';
+        return '<div class="group-ability"><div class="group-ability-line">'+abilityLink(x.a,x)+(x.rank?' <span class="rank">Rank '+x.rank+'</span>':'')+'<span class="level-badge" title="Level the current rank becomes available">Lv '+x.level+'</span>'+requirement+'</div><p class="group-effect">'+esc(x.effect)+'</p><p class="group-note">'+esc(x.a[5])+'</p></div>';
       }).join("");
       return '<div class="group-type"><h3><span class="cat-dot '+type+'"></span>'+title+' <span class="muted">('+list.length+')</span></h3>'+(entries||'<p class="empty-state">None available yet.</p>')+'</div>';
     }).join("");
     return '<article class="panel member-result" '+themeStyle(cl)+'><div class="member-result-header">'+classIcon(cl)+'<div><h2 class="class-colored">'+esc(cl)+' <small>Lv '+member.level+'</small></h2><span>Party slot '+(index+1)+(index===0?" · Tank":"")+'</span></div></div><div class="group-columns">'+columns+'</div></article>';
   }).join("");
   $("#partyResults").innerHTML='<div class="matrix-summary"><strong>'+buffCount+' buffs · '+ccCount+' crowd-control abilities</strong><span>Each member level and highest available rank</span></div><div class="party-class-results">'+markup+'</div>'+
-  '<div class="notice party-note"><strong>Scope:</strong> Dungeon Group buff/CC ranks are validated only through level 30, and the group calculator caps levels at 30 even when the main Warrior consumables selector is higher. <strong>Important:</strong> Paladin auras are mutually exclusive; a Shaman can have only one totem of each element; pet and talent abilities are conditional. Do not apply Salvation to your tank. Some buff categories do not stack.</div>';
+  '<div class="notice party-note"><strong>Level 1–60:</strong> All nine classes have spell unlocks and rank progression through 60. Some entries are support or pull utility rather than hard crowd control. <strong>Important:</strong> A Paladin uses only one aura at a time; a Shaman may maintain only one totem of each element; pet and talent abilities are conditional. Greater Blessings share effects with their normal versions. Not all buffs stack; unlock levels assume skills have been trained.</div>';
   renderExport();
   refreshTooltips();
 }
@@ -220,7 +219,8 @@ const CHAT_LIMIT=235;
 function abilityText(ability){
   // resolveAbility() chooses the highest available rank for this member's
   // individual level. The index is the rank, not the unlock level itself.
-  return ability.a[0]+" (Rank"+ability.rank+")"+(ability.a[6]?"*":"");
+  const conditional=new Set(["talent","imp","wolf","succubus/incubus","felhunter","poison"]);
+  return ability.a[0]+(ability.rank?" (Rank"+ability.rank+")":"")+(conditional.has(ability.a[6])?"*":"");
 }
 function exportLines(){
   const lines=[];
