@@ -34,7 +34,15 @@ check(w.WARRIOR_ITEMS.find(x=>x.name==="Mighty Rage Potion").level===46,"Mighty 
 check(w.WARRIOR_ITEMS.every(x=>x.purchasable===true),"All listed consumables are explicitly tradable");
 check(w.FOODS.every(x=>x.purchasable===true),"All listed cooked foods are marked as tradable");
 const copyWeapons=w.WARRIOR_WEAPONS.filter(x=>x.purchasable===true).map(x=>x.name);
-check(copyWeapons.length===2&&copyWeapons.includes("Copper Shortsword")&&copyWeapons.includes("Blackwater Cutlass"),"Only known BoE weapons have name-copy actions");
+check(copyWeapons.length===4&&["Copper Axe","Hatchet","Flurry Axe","Mass of McGowan"].every(name=>copyWeapons.includes(name)),"Only vendor, crafted and BoE Horde weapon options have name-copy actions");
+check(w.WARRIOR_WEAPONS.length>=17&&w.WARRIOR_WEAPONS.some(x=>x.level===60&&x.name==="Quel'Serrar"),"Tauren Horde one-hand weapon progression reaches level 60");
+check(w.WARRIOR_WEAPONS.every(x=>Number.isInteger(x.id)&&x.id>0),"All recommended one-hand weapons have direct Forever item IDs");
+check(!w.WARRIOR_WEAPONS.some(x=>["Haggard's Axe","Hamhock's Cleaver","Cookie's Tenderizer"].includes(x.name)),"Alliance-only old weapons removed");
+check(!w.WARRIOR_ITEMS.some(x=>["Iron Shield Spike","Thorium Shield Spike"].includes(x.name))&&w.WARRIOR_ITEMS.some(x=>x.name==="Mithril Shield Spike"),"Only Mithril Shield Spike is offered");
+check(w.WARRIOR_ITEMS.filter(x=>x.upgradeGroup==="armor-stamina").length===5,"Five stamina armor kit ranks");
+check(w.WARRIOR_ITEMS.filter(x=>x.upgradeGroup==="armor-attack").length===4,"Four attack-power armor kit ranks");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Forceful Rugged Armor Kit").id===252488,"Highest Forever AP armor kit uses verified item ID");
+check(w.FOODS.find(x=>x.name==="Dragonbreath Chili").id===12217,"Food item links include verified Dragonbreath Chili ID");
 check(w.WARRIOR_QUESTS.every(x=>!x.purchasable),"Class quests never get name-copy actions");
 check(read("forever.css").includes('.copy-item-glyph')&&read("forever.css").includes('mask:url("assets/icons/copy.svg")'),"Amber 1em copy glyph references local SVG");
 
@@ -44,7 +52,7 @@ check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every(n
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
-check(markup.includes('src="data-60.js?v=20261116-current-tiers"'),"Current-tier data file loaded with fresh browser cache");
+check(markup.includes('src="data-60.js?v=20261116-tauren-armor"'),"Horde armor kit data loaded with fresh cache");
 check(w.WARRIOR_ITEMS.filter(x=>x.upgradeGroup).length>=60,"Upgrade families cover potions, elixirs, weapon buffs and scrolls");
 check(w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Minor Agility").upgradeGroup===w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Agility").upgradeGroup,"Agility elixirs are one upgrade family");
 check(w.WARRIOR_ITEMS.find(x=>x.name==="Elemental Sharpening Stone").upgradeGroup===undefined,"Critical strike stone remains independent from weapon-damage stones");
@@ -64,7 +72,7 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261116-current-tiers"'),"Current-tier renderer uses fresh browser cache");
+check(markup.includes('src="app.js?v=20261116-tauren-weapons"'),"Tauren weapons and food sort renderer loaded with fresh cache");
 check(markup.includes('href="forever.css?v=20261109-cms-audit"'),"Latest tooltip CSS uses explicit cache-busting version");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
@@ -105,9 +113,9 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     const initialWarrior=elements["#warriorCategories"].innerHTML;
     const initialFood=elements["#foodRows"].innerHTML;
     check(initialWarrior.includes('data-copy-name="Heavy Sharpening Stone"')&&!initialWarrior.includes('data-copy-name="Rough Sharpening Stone"'),"Only latest available sharpening stone has a copy icon at level 20");
-    check(initialWarrior.includes('data-copy-name="Copper Shortsword"'),"Crafted BoE weapon has a copy icon");
-    check(initialWarrior.includes('data-copy-name="Blackwater Cutlass"'),"BoE world-drop weapon has a copy icon");
-    check(!initialWarrior.includes('data-copy-name="Haggard'),"Class quest weapon has no copy icon");
+    check(initialWarrior.includes('data-copy-name="Copper Axe"'),"Crafted Horde weapon has an AH copy icon");
+    check(initialWarrior.includes('data-copy-name="Hatchet"'),"Vendor one-hand axe has a copy icon");
+    check(!initialWarrior.includes('data-copy-name="Wingblade"'),"Horde quest sword has no AH copy icon");
     check(!initialWarrior.includes('data-copy-name="Revenge"'),"Warrior spell has no copy icon");
     check(initialFood.includes('data-copy-name="Goretusk Liver Pie"'),"Purchasable food has a copy icon");
     check(!elements["#partyResults"].innerHTML.includes('data-copy-name='),"Party spell list has no item copy icons");
@@ -178,7 +186,8 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     await elements["#foodRows"].handlers.click(copyEvent("Goretusk Liver Pie"));
     check(copied==="Goretusk Liver Pie","Food copy icon writes only the food name");
     check(elements["#itemCopyStatus"].textContent.includes("Goretusk Liver Pie"),"Food copy confirms success");
-    const hasWarriorItem=name=>elements["#warriorCategories"].innerHTML.includes(">"+name+"</a>");
+    const hasWarriorItem=name=>elements["#warriorCategories"].innerHTML.includes(">"+name+"</a>")||
+      elements["#warriorCategories"].innerHTML.includes(">"+name+" <span");
     for(const [level,shown,hidden] of [
       [1,["Rough Sharpening Stone","Rough Weightstone","Minor Healing Potion"],["Coarse Sharpening Stone","Lesser Healing Potion"]],
       [2,["Elixir of Minor Agility"],["Elixir of Lesser Agility"]],
@@ -195,6 +204,33 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
       elements["#mainLevel"].handlers.input({target:{value:String(level)}});
       check(shown.every(hasWarriorItem)&&hidden.every(name=>!hasWarriorItem(name)),"Level "+level+" shows only current ranks for tested upgrade families");
     }
+    for(const [level,staminaKit,apKit,hidden] of [
+      [1,"Light Armor Kit",null,"Medium Armor Kit"],
+      [15,"Medium Armor Kit","Forceful Medium Armor Kit","Heavy Armor Kit"],
+      [20,"Heavy Armor Kit","Forceful Medium Armor Kit","Thick Armor Kit"],
+      [30,"Thick Armor Kit","Forceful Heavy Armor Kit","Rugged Armor Kit"],
+      [40,"Rugged Armor Kit","Forceful Thick Armor Kit","Forceful Rugged Armor Kit"],
+      [50,"Rugged Armor Kit","Forceful Rugged Armor Kit","Forceful Thick Armor Kit"]
+    ]){
+      elements["#mainLevel"].handlers.input({target:{value:String(level)}});
+      check(hasWarriorItem(staminaKit)&&(!apKit||hasWarriorItem(apKit))&&!hasWarriorItem(hidden),
+        "Level "+level+" shows only strongest stamina and AP armor kits");
+    }
+    check(!["Tank Checklist","Class Quests & Milestones","First Aid","Flasks"].some(name=>
+      elements["#warriorCategories"].innerHTML.includes("<h2>"+name)),
+      "Requested categories are removed from Warrior page");
+    check(hasWarriorItem("Mithril Shield Spike")&&!hasWarriorItem("Iron Shield Spike")&&!hasWarriorItem("Thorium Shield Spike"),
+      "Only Mithril Shield Spike remains at level 50");
+    elements["#foodCategory"].handlers.change({target:{value:"AGI"}});
+    const agilityRows=elements["#foodRows"].innerHTML;
+    check(agilityRows.indexOf("Jungle Stew")<agilityRows.indexOf("Hot Wolf Ribs")&&
+      agilityRows.indexOf("Hot Wolf Ribs")<agilityRows.indexOf("Spiced Wolf Meat"),
+      "Food Agility filter sorts numeric buffs descending");
+    elements["#foodCategory"].handlers.change({target:{value:"STR"}});
+    const strengthRows=elements["#foodRows"].innerHTML;
+    check(strengthRows.indexOf("Bear Brisket")<strengthRows.indexOf("Big Bear Steak"),
+      "Food Strength filter sorts strongest first");
+    elements["#foodCategory"].handlers.change({target:{value:"all"}});
     elements["#mainLevel"].handlers.input({target:{value:"1"}});
     check(hasWarriorItem("Rough Sharpening Stone") && !hasWarriorItem("Solid Sharpening Stone"),"Level 1 item availability respected");
     elements["#mainLevel"].handlers.input({target:{value:"30"}});
@@ -210,7 +246,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     elements["#mainLevel"].handlers.input({target:{value:"46"}});
     check(elements["#warriorCategories"].innerHTML.includes("Mighty Rage Potion"),"Mighty Rage unlocked at level 46");
     elements["#mainLevel"].handlers.input({target:{value:"60"}});
-    check(elements["#levelNum"].textContent===60&&elements["#warriorCategories"].innerHTML.includes("Flask of the Titans"),"Level 60 cap and endgame flask work");
+    check(elements["#levelNum"].textContent===60&&hasWarriorItem("Quel'Serrar")&&!elements["#warriorCategories"].innerHTML.includes("<h2>Flasks"),"Level 60 Horde weapons and removed Flasks category");
     check(elements["#groupSlots"].innerHTML.includes('id="partyLevel0" class="member-level" data-party-level="0" type="number" min="1" max="30" value="30"'),"Party buff calculator remains transparently capped at 30");
     check(!elements["#partyResults"].innerHTML.includes("Warrior <small>Lv 60"),"No unverified level 60 party spell ranks advertised");
   }catch(error){check(false,"Runtime UI smoke test: "+error.stack)}
