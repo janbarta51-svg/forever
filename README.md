@@ -1,16 +1,35 @@
 # WoW Forever — Warrior Field Guide
 
-A responsive, **English-only** WoW Forever companion for a Human Protection Warrior with consumables through level 60. Dungeon Group spell ranks remain limited to 1–30. The layout is based on the original `janbarta51-svg/wow.field.guide` design, including Wowhead mouseover tooltips.
+A responsive, **English-only** WoW Forever companion for a Human Protection Warrior with consumables through level 60. Dungeon Group spell ranks now cover all nine classes through level 60. The layout is based on the original `janbarta51-svg/wow.field.guide` design, including Wowhead mouseover tooltips.
 
 ## Features
 
 - **Warrior:** level 1–60 slider, current-tier potions/elixirs/weapon stones/scrolls, standard affordable dynamites only (Engineering-skill labels), original 1–30 weapon and quest content.
 - **Auction House quick copy:** a tiny muted amber overlapping-pages icon appears beside purchasable/tradable items in Warrior cards, current-item highlights and the Food Buffs table. Clicking it copies only the exact item name for Auction House search. Quest rewards, spells and non-tradable dungeon gear have no copy icon. The icon is a clean vector reinterpretation of the provided reference rather than a watermarked bitmap.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
-- **Dungeon Group (1–30 spell data):** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–30, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
+- **Dungeon Group (1–60 spell data):** a fixed Warrior **Tank**, one **Healer** (Druid, Paladin, Priest or Shaman only), and **three DPS** slots (all nine classes available). Each slot has its own level from 1–60, its Blizzard role icon (shield/cross/sword), and a centered class selector showing WoW class colors and Wowhead class icons. Buff and Crowd Control results remain grouped by class and respect the individual player's level.
 - **WoW Chat Export:** class-labeled plain text with the highest available Rank per member level, one line per class/category and a Copy all button. Individual row copy is available for standard game chat.
 - **Campfire:** profession objects, level scaling and stacking conflicts.
 - **Useful Links + CMS:** a simple `links.json` editor for named bookmarks.
+
+## Dungeon Group 1–60 class spell coverage (16 Nov 2026)
+
+All nine class spellbooks (Warrior, Paladin, Druid, Priest, Shaman, Warlock, Mage,
+Hunter and Rogue) now contain buff, crowd-control and relevant support/pull
+utility unlocks and ranks through level 60 in `data-party.js`.
+The Warrior level selector and each group member now accept levels 1–60.
+Normal single-rank spells appear without a fictional Rank1 label;
+ranked spells display the highest unlocked rank, and Export / Copy all respects
+the individual level. Talents and pet-specific abilities are explicitly flagged.
+Paladin Salvation is absent from Forever and is not shown. Hunter Strider Kick
+and Counterattack are not listed as hard CC, as their current client descriptions
+are offensive/mobility abilities. Visual arrows/diamonds have been removed from
+the class selectors while preserving the clickable dropdown.
+
+Data cross-check: https://senseos.gg/wiki/wow-forever/talents/abilities/
+and https://sixtyforever.com/abilities/ (some beta references may differ from
+live hotfixes). Talent builds, pets, trainers and reagents are not inferred
+from the class/level selector.
 
 ## WoW chat export and spell ranks
 
@@ -33,8 +52,8 @@ The rank derives from the member's **own** selected level and the spell's ordere
 `data-warrior.js`, including healing/rage/defensive/utility potions, Forever-specific
 potions, elixirs, scrolls, flasks, weightstones, sharpening stones, engineering
 grenades/bombs, armor pieces and tank consumables. The main character slider reaches
-60; Dungeon Group spell-rank tables, 1H weapon stages, and class quest/checklist
-guidance retain their explicitly labeled 1–30 scope rather than inventing later ranks.
+60. Dungeon Group spell-rank tables are expanded through 60; class quest and checklist
+guidance are no longer displayed.
 
 Character required level and Engineering skill **are not the same field**.
 For items whose sole hard gate is Engineering, the UI shows `Eng N`.
