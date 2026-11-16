@@ -117,6 +117,11 @@ function bytesBase64(value) {
   return btoa(binary);
 }
 async function publish() {
+  if (window.location?.protocol === "http:") {
+    $("#githubToken").value = "";
+    status("For security, token publishing is blocked over HTTP. Configure HTTPS in GitHub Pages, or download links.json and commit it manually.", true);
+    return;
+  }
   const token = $("#githubToken").value.trim();
   if (!token) {
     status("Enter a fine-grained GitHub token or download links.json and commit it manually.", true);
@@ -194,5 +199,13 @@ $("#downloadJson").addEventListener("click", () => {
 });
 $("#publishLinks").addEventListener("click", publish);
 $("#reloadLinks").addEventListener("click", () => load("github"));
-load();
+if (window.location?.protocol === "http:") {
+  $("#githubToken").disabled = true;
+  $("#publishLinks").disabled = true;
+}
+load().then(() => {
+  if (window.location?.protocol === "http:") {
+    status("Unsafe HTTP: token publishing is disabled. Use Download links.json until HTTPS is enabled.", true);
+  }
+});
 })();
