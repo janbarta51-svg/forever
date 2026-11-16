@@ -246,7 +246,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     elements["#mainLevel"].handlers.input({target:{value:"46"}});
     check(elements["#warriorCategories"].innerHTML.includes("Mighty Rage Potion"),"Mighty Rage unlocked at level 46");
     elements["#mainLevel"].handlers.input({target:{value:"60"}});
-    check(elements["#levelNum"].textContent===60&&hasWarriorItem("Quel'Serrar")&&!elements["#warriorCategories"].innerHTML.includes("<h2>Flasks"),"Level 60 Horde weapons and removed Flasks category");
+    check(elements["#levelNum"].textContent===60&&elements["#warriorCategories"].innerHTML.includes("Quel&#39;Serrar")&&!elements["#warriorCategories"].innerHTML.includes("<h2>Flasks"),"Level 60 Horde weapons and removed Flasks category");
     check(elements["#groupSlots"].innerHTML.includes('id="partyLevel0" class="member-level" data-party-level="0" type="number" min="1" max="30" value="30"'),"Party buff calculator remains transparently capped at 30");
     check(!elements["#partyResults"].innerHTML.includes("Warrior <small>Lv 60"),"No unverified level 60 party spell ranks advertised");
   }catch(error){check(false,"Runtime UI smoke test: "+error.stack)}
