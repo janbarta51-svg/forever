@@ -52,10 +52,17 @@ check(read("forever.css").includes('.copy-item-glyph')&&read("forever.css").incl
 
 check(w.CAMP_FEATURES.length===12,"All 12 camp objects");
 check(Object.keys(w.GROUP_ABILITY_DATA).length===9,"All nine classes covered");
-check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every(n=>n>=1&&n<=30))),"All class unlock levels <= 30");
+check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].every((n,i)=>n>=1&&n<=60&&(i===0||n>a[2][i-1])))),"All class ranks strictly rise and stay within level 60");
+check(Object.values(w.GROUP_ABILITY_DATA).every(list=>list.every(a=>a[2].length===a[3].length)),"All spell rank descriptions match their unlock tables");
+check(Object.values(w.GROUP_ABILITY_DATA).flat().length>=130,"Comprehensive nine-class buff and CC catalogue");
+check(Object.values(w.GROUP_ABILITY_DATA).some(list=>list.some(a=>a[2].some(n=>n>30))),"Spells progress beyond level 30");
+check(!w.GROUP_ABILITY_DATA.Paladin.some(a=>a[0]==="Salvation"),"Removed Paladin Salvation is absent");
+check(!w.GROUP_ABILITY_DATA.Hunter.some(a=>["Strider Kick","Counterattack"].includes(a[0])),"Hunter damage/movement abilities are not listed as CC");
 const markup=read("index.html");
 for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
+check(markup.includes('src="data-party.js?v=20261116-party60"'),"New level 60 class data is cache-busted");
+check(markup.includes("all nine classes through level 60"),"Party guide advertises all-class level 60 support");
 check(markup.includes('src="data-60.js?v=20261116-tauren-armor"'),"Horde armor kit data loaded with fresh cache");
 check(w.WARRIOR_ITEMS.filter(x=>x.upgradeGroup).length>=60,"Upgrade families cover potions, elixirs, weapon buffs and scrolls");
 check(w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Minor Agility").upgradeGroup===w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Agility").upgradeGroup,"Agility elixirs are one upgrade family");
@@ -76,8 +83,8 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261116-tauren-weapons"'),"Tauren weapons and food sort renderer loaded with fresh cache");
-check(markup.includes('href="forever.css?v=20261109-cms-audit"'),"Latest tooltip CSS uses explicit cache-busting version");
+check(markup.includes('src="app.js?v=20261116-party60"'),"Dungeon group 60 renderer loaded with fresh cache");
+check(markup.includes('href="forever.css?v=20261116-party60"'),"New selector CSS cache version loaded");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
 
@@ -129,6 +136,9 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     check(slotMarkup.split("assets/roles/dps.svg").length-1===3,"Exactly three DPS role icons");
     check(slotMarkup.includes(">Tank</strong>") && slotMarkup.includes(">Healer</strong>"),"Tank and Healer role headers");
     check(slotMarkup.includes("selected-class class-colored"),"Centered class label elements");
+    check(!slotMarkup.includes("picker-arrow")&&!slotMarkup.includes("◆")&&!slotMarkup.includes("⌄"),"All five class selectors are free of arrow and diamond glyphs");
+    check(slotMarkup.includes('<summary class="role-class-trigger"'),"Healer and DPS class dropdowns are still clickable");
+    check(read("forever.css").includes("grid-template-columns:28px minmax(0,1fr);"),"Class selector grid has no third arrow column");
     const choicesFor=slot=>[...slotMarkup.matchAll(new RegExp('data-class-choice="'+slot+'" data-choice-class="([^"]+)"','g'))].map(m=>m[1]);
     check(choicesFor(1).length===4 && ["Druid","Paladin","Priest","Shaman"].every(c=>choicesFor(1).includes(c)),"Healer selector limited to four eligible classes");
     check(choicesFor(2).length===9 && choicesFor(2).includes("Warlock"),"DPS selector offers all nine classes");
@@ -151,7 +161,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     elements["#groupSlots"].handlers.change({target:{matches:s=>s==="[data-party-level]",dataset:{partyLevel:"1"},value:"12"}});
     check(elements["#partyResults"].innerHTML.includes("Priest <small>Lv 12"),"Priest level independent");
     elements["#mainLevel"].handlers.input({target:{value:"25"}});
-    check(elements["#groupSlots"].innerHTML.includes('id="partyLevel1"') && elements["#groupSlots"].innerHTML.includes('id="partyLevel1" class="member-level" data-party-level="1" type="number" min="1" max="30" value="12"'),"Warrior slider preserves teammate level");
+    check(elements["#groupSlots"].innerHTML.includes('id="partyLevel1"') && elements["#groupSlots"].innerHTML.includes('id="partyLevel1" class="member-level" data-party-level="1" type="number" min="1" max="60" value="12"'),"Warrior slider preserves teammate level");
     elements["#mainLevel"].handlers.input({target:{value:"1"}});
     check(elements["#exportRows"].innerHTML.includes("Battle Shout (Rank1)"),"Warrior at level 1 exports Battle Shout Rank1");
     elements["#mainLevel"].handlers.input({target:{value:"11"}});
@@ -251,8 +261,35 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
     check(elements["#warriorCategories"].innerHTML.includes("Mighty Rage Potion"),"Mighty Rage unlocked at level 46");
     elements["#mainLevel"].handlers.input({target:{value:"60"}});
     check(elements["#levelNum"].textContent===60&&elements["#warriorCategories"].innerHTML.includes("Quel&#39;Serrar")&&!elements["#warriorCategories"].innerHTML.includes("<h2>Flasks"),"Level 60 Horde weapons and removed Flasks category");
-    check(elements["#groupSlots"].innerHTML.includes('id="partyLevel0" class="member-level" data-party-level="0" type="number" min="1" max="30" value="30"'),"Party buff calculator remains transparently capped at 30");
-    check(!elements["#partyResults"].innerHTML.includes("Warrior <small>Lv 60"),"No unverified level 60 party spell ranks advertised");
+    check(elements["#groupSlots"].innerHTML.includes('id="partyLevel0" class="member-level" data-party-level="0" type="number" min="1" max="60" value="60"'),"Warrior party selector updates to level 60");
+    check(elements["#partyResults"].innerHTML.includes("Warrior <small>Lv 60"),"Warrior at level 60 has rank-aware party results");
+    check(elements["#partyResults"].innerHTML.includes("Battle Shout")&&elements["#partyResults"].innerHTML.includes("Rank 7"),"Battle Shout Rank 7 displays at level 60");
+    await elements["#copyAll"].handlers.click();
+    let endGameLines=copied.split("\n").filter(Boolean);
+    check(endGameLines.some(x=>x.startsWith("Warrior - Buffs: Battle Shout (Rank7)")),"Copy all includes Warrior Rank7 at 60");
+    check(endGameLines.every(x=>x.length<=235),"Expanded group export respects 235-character per-line limit");
+    elements["#groupSlots"].handlers.change({target:{matches:s=>s==="[data-party-level]",dataset:{partyLevel:"1"},value:"60"}});
+    await elements["#copyAll"].handlers.click();
+    endGameLines=copied.split("\n").filter(Boolean);
+    check(endGameLines.some(x=>x.startsWith("Shaman - Buffs:")&&x.includes("Stoneskin Totem (Rank6)")),"Shaman rank 6 at level 60 independent of Warrior");
+    check(endGameLines.every(x=>x.length<=235),"Party level 60 remains chat-safe");
+    check(!endGameLines.some(x=>x.includes("Salvation")),"Removed Salvation never enters chat export");
+    for(const [candidate,expected] of [
+      ["Priest","Power Word: Fortitude (Rank6)"],
+      ["Paladin","Blessing of Might (Rank7)"],
+      ["Druid","Mark of the Wild (Rank7)"],
+      ["Mage","Arcane Intellect (Rank5)"],
+      ["Warlock","Blood Pact (Rank5)"],
+      ["Hunter","Freezing Trap (Rank3)"],
+      ["Rogue","Gouge (Rank5)"],
+      ["Shaman","Strength of Earth Totem (Rank5)"]
+    ]){
+      elements["#groupSlots"].handlers.click({target:{closest:s=>s==="[data-class-choice]"?{dataset:{classChoice:"2",choiceClass:candidate}}:null}});
+      elements["#groupSlots"].handlers.change({target:{matches:s=>s==="[data-party-level]",dataset:{partyLevel:"2"},value:"60"}});
+      await elements["#copyAll"].handlers.click();
+      check(copied.includes(expected),"Level 60 "+candidate+" exports "+expected);
+    }
+    check(!elements["#exportRows"].innerHTML.includes("Intimidating Shout (Rank1)"),"Single-rank CC does not claim a fabricated Rank1");
   }catch(error){check(false,"Runtime UI smoke test: "+error.stack)}
   finish();
 })().catch(error=>{check(false,error.stack);finish()});
