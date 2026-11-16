@@ -55,7 +55,7 @@ function whLink(item,type) {
   const verified = Number.isInteger(id) && id > 0;
   const kind = type || item.tooltipType || "item";
   const href = verified ? "https://www.wowhead.com/forever/"+kind+"="+id : queryLink(item.name);
-  const attr = verified ? ' data-wowhead="'+esc(kind+"="+id)+'"' : "";
+  const attr = verified ? ' data-wowhead="'+esc(kind+"="+id)+'"'+(item.food?' data-wh-icon-size="small"':"") : "";
   // Real IDs are linked to their WoW Forever item pages with native Wowhead tooltips.
   // Unconfirmed IDs get a working search link with a distinct lookup symbol,
   // never a fabricated item tooltip or misleading item ID.
@@ -134,6 +134,9 @@ function renderWarrior(){
   }).join("");
   refreshTooltips();
 }
+function foodFallbackIcon(category){
+  return {AP:"🍖",STR:"🥩",STA:"🍲",AGI:"🍗",INT:"🍳",SPELL:"🐟",HEAL:"🍵",SPR:"🥤",SPECIAL:"🍽️"}[category]||"🍽️";
+}
 function renderFood(){
   const items=FOODS.filter(x=>(state.foodCategory==="all"||x.category===state.foodCategory) &&
     (!state.foodSearch||x.name.toLowerCase().includes(state.foodSearch)) &&
@@ -146,7 +149,7 @@ function renderFood(){
       return (a.level??999)-(b.level??999)||a.category.localeCompare(b.category)||a.name.localeCompare(b.name);
     });
   $("#foodCount").textContent="Showing "+items.length+" of "+FOODS.length+" recipes. A '?' means the minimum character level is not verified (Cooking skill is tracked separately).";
-  $("#foodRows").innerHTML=items.map(x=>'<tr><td><span class="level-badge">'+esc(x.level??"?")+'</span></td><td>'+itemLink(x,"item")+'</td><td>'+esc(x.effect)+'</td><td>'+esc(x.skill)+'</td><td class="'+(x.verified?"status-verified":"status-estimated")+'">'+(x.verified?"Verified level":"Level unverified")+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">No food matches these filters.</td></tr>';
+  $("#foodRows").innerHTML=items.map(x=>'<tr><td><span class="level-badge">'+esc(x.level??"?")+'</span></td><td><span class="food-item-name"><span class="food-fallback-icon" aria-hidden="true">'+foodFallbackIcon(x.category)+'</span>'+itemLink(x,"item")+'</span></td><td>'+esc(x.effect)+'</td><td>'+esc(x.skill)+'</td><td class="'+(x.verified?"status-verified":"status-estimated")+'">'+(x.verified?"Verified level":"Level unverified")+'</td></tr>').join("")||'<tr><td colspan="5" class="empty">No food matches these filters.</td></tr>';
   refreshTooltips();
 }
 function renderGroupSlots(){
@@ -383,5 +386,8 @@ $("#copyAll").addEventListener("click",async()=>{
 $(".nav-toggle").addEventListener("click",()=>{const nav=$(".nav");const expanded=nav.classList.toggle("open");$(".nav-toggle").setAttribute("aria-expanded",String(expanded))});
 window.addEventListener("hashchange",()=>selectTab(location.hash.replace("#","")));
 document.querySelectorAll("[data-tab]").forEach(node=>node.addEventListener("click",()=>selectTab(node.dataset.tab)));
+// Deferred Wowhead script loads after the synchronous app init.
+// Refresh again once DOMContentLoaded fires so real item icons attach reliably.
+document.addEventListener("DOMContentLoaded",refreshTooltips);
 renderCamp();setLevel(startLevel);selectTab(location.hash.replace("#","")||"warrior");
 })();
