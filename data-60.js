@@ -171,4 +171,135 @@ for(const [name,skill] of Object.entries(knownSkills)){
 }
 WARRIOR_ITEMS.sort((a,b)=>(a.level??a.showFromLevel??0)-(b.level??b.showFromLevel??0)||a.name.localeCompare(b.name));
 window.WARRIOR_ITEMS=WARRIOR_ITEMS;
+// Explicit upgrade families: only interchangeable higher ranks share a family.
+// Distinct effects (e.g., Mongoose vs Agility; Elemental vs Dense Stone)
+// intentionally remain separate. Ranks are based on required character level,
+// not alphabetic naming, so only one available tier is rendered at a time.
+const UPGRADE_FAMILIES={
+  "elixir-agility": [
+    "Elixir of Minor Agility",
+    "Elixir of Lesser Agility",
+    "Elixir of Agility",
+    "Elixir of Greater Agility"
+  ],
+  "elixir-strength": [
+    "Elixir of Minor Strength",
+    "Elixir of Giant Growth",
+    "Elixir of Ogre Strength",
+    "Elixir of Strength",
+    "Elixir of Greater Strength"
+  ],
+  "elixir-defense": [
+    "Elixir of Minor Defense",
+    "Elixir of Lesser Defense",
+    "Elixir of Defense",
+    "Elixir of Greater Defense",
+    "Elixir of Superior Defense"
+  ],
+  "elixir-fortitude": [
+    "Elixir of Minor Fortitude",
+    "Elixir of Lesser Fortitude",
+    "Elixir of Fortitude",
+    "Elixir of Greater Fortitude"
+  ],
+  "elixir-troll-blood": [
+    "Lesser Troll's Blood Elixir",
+    "Troll's Blood Elixir",
+    "Major Troll's Blood Elixir"
+  ],
+  "potion-healing": [
+    "Minor Healing Potion",
+    "Lesser Healing Potion",
+    "Healing Potion",
+    "Greater Healing Potion",
+    "Superior Healing Potion",
+    "Major Healing Potion"
+  ],
+  "potion-rage": [
+    "Rage Potion",
+    "Great Rage Potion",
+    "Mighty Rage Potion"
+  ],
+  "potion-frenzy": [
+    "Minor Frenzy Potion",
+    "Lesser Frenzy Potion",
+    "Frenzy Potion",
+    "Greater Frenzy Potion",
+    "Superior Frenzy Potion",
+    "Major Frenzy Potion"
+  ],
+  "potion-stoneshield": [
+    "Lesser Stoneshield Potion",
+    "Greater Stoneshield Potion"
+  ],
+  "potion-invisibility": [
+    "Lesser Invisibility Potion",
+    "Invisibility Potion"
+  ],
+  "potion-dreamless": [
+    "Dreamless Sleep Potion",
+    "Greater Dreamless Sleep Potion"
+  ],
+  "potion-mender": [
+    "Greater Mender's Potion",
+    "Superior Mender's Potion",
+    "Major Mender's Potion"
+  ],
+  "potion-spellblasting": [
+    "Greater Spellblasting Potion",
+    "Superior Spellblasting Potion",
+    "Major Spellblasting Potion"
+  ],
+  "potion-healing-draught": [
+    "Superior Healing Draught",
+    "Major Healing Draught"
+  ],
+  "stone-sharpening": [
+    "Rough Sharpening Stone",
+    "Coarse Sharpening Stone",
+    "Heavy Sharpening Stone",
+    "Solid Sharpening Stone",
+    "Dense Sharpening Stone"
+  ],
+  "stone-weight": [
+    "Rough Weightstone",
+    "Coarse Weightstone",
+    "Heavy Weightstone",
+    "Solid Weightstone",
+    "Dense Weightstone"
+  ],
+  "scroll-stamina": [
+    "Scroll of Stamina",
+    "Scroll of Stamina II",
+    "Scroll of Stamina III",
+    "Scroll of Stamina IV"
+  ],
+  "scroll-strength": [
+    "Scroll of Strength",
+    "Scroll of Strength II",
+    "Scroll of Strength III",
+    "Scroll of Strength IV"
+  ],
+  "scroll-agility": [
+    "Scroll of Agility",
+    "Scroll of Agility II",
+    "Scroll of Agility III",
+    "Scroll of Agility IV"
+  ],
+  "scroll-protection": [
+    "Scroll of Protection",
+    "Scroll of Protection II",
+    "Scroll of Protection III",
+    "Scroll of Protection IV"
+  ]
+};
+const byName=new Map(WARRIOR_ITEMS.map(item=>[item.name,item]));
+for(const [family,names] of Object.entries(UPGRADE_FAMILIES)){
+  names.forEach((name,index)=>{
+    const item=byName.get(name);
+    if(!item)throw Error("Missing upgrade family item: "+name);
+    item.upgradeGroup=family;
+    item.upgradeRank=index;
+  });
+}
 })();
