@@ -31,6 +31,10 @@ check(["Dense Sharpening Stone","Dense Weightstone","Elemental Sharpening Stone"
 check(w.WARRIOR_ITEMS.find(x=>x.name==="Iron Grenade").professionSkill===175,"Iron Grenade gated by Engineering 175, not item level");
 check(w.WARRIOR_ITEMS.find(x=>x.name==="Dense Sharpening Stone").level===35,"Dense stone unlocks at level 35");
 check(w.WARRIOR_ITEMS.find(x=>x.name==="Mighty Rage Potion").level===46,"Mighty Rage unlocks at 46");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Greater Defense").id===13445,"Forever-renamed Greater Defense elixir has correct ID");
+check(w.WARRIOR_ITEMS.find(x=>x.name==="Elixir of Defense").id===8951,"Lower-rank Defense elixir has distinct ID");
+const assignedIds=w.WARRIOR_ITEMS.filter(x=>Number.isInteger(x.id)&&x.id>0).map(x=>x.id);
+check(new Set(assignedIds).size===assignedIds.length,"Catalog has no conflicting item IDs");
 check(w.WARRIOR_ITEMS.every(x=>x.purchasable===true),"All listed consumables are explicitly tradable");
 check(w.FOODS.every(x=>x.purchasable===true),"All listed cooked foods are marked as tradable");
 const copyWeapons=w.WARRIOR_WEAPONS.filter(x=>x.purchasable===true).map(x=>x.name);
