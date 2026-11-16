@@ -14,6 +14,9 @@ const allowedClasses = index => index===1 ? healerClasses : index===0 ? ["Warrio
 const roleIcon = role => '<img class="party-role-icon" src="assets/roles/'+role+'.svg" width="38" height="38" alt="" loading="lazy">';
 
 const categoryOrder = ["Weapon buff","Elixirs","Flasks","Scrolls","Potions","Armor / Shield","Engineering","First Aid"];
+// Engineering deliberately lists only ordinary crafted dynamites. They remain
+// side by side because each requires a different Engineering skill and cost.
+const CHEAP_DYNAMITES = new Set(["Rough Dynamite","Coarse Dynamite","Heavy Dynamite","Solid Dynamite","Dense Dynamite"]);
 const startLevel = clamp((() => { try { return sessionStorage.getItem("forever-level"); } catch { return null; } })() || 20);
 const state = {
   level:startLevel,
@@ -69,7 +72,24 @@ function refreshTooltips(){
   } catch(error){console.warn("Wowhead tooltip refresh failed",error)}
 }
 function available(item){return (item.level===null?(item.showFromLevel??1):item.level)<=state.level}
-function latest(items){return items.filter(available).sort((a,b)=>(b.level??b.showFromLevel??0)-(a.level??a.showFromLevel??0))[0]||null}
+function unlockLevel(item){return item.level??item.showFromLevel??1}
+function latest(items){return items.filter(available).sort((a,b)=>unlockLevel(b)-unlockLevel(a))[0]||null}
+function currentTiers(items){
+  const best=new Map();
+  for(const item of items){
+    if(!available(item)||!item.upgradeGroup)continue;
+    const previous=best.get(item.upgradeGroup);
+    if(!previous||unlockLevel(item)>unlockLevel(previous)||
+       (unlockLevel(item)===unlockLevel(previous)&&item.upgradeRank>previous.upgradeRank))
+      best.set(item.upgradeGroup,item);
+  }
+  return items.filter(item=>available(item)&&(!item.upgradeGroup||best.get(item.upgradeGroup)===item));
+}
+function catalogItems(category){
+  const items=WARRIOR_ITEMS.filter(item=>item.category===category&&
+    (category!=="Engineering"||CHEAP_DYNAMITES.has(item.name)));
+  return currentTiers(items);
+}
 function setLevel(value) {
   state.level=clamp(value);
   state.party[0].level=clampParty(state.level);
@@ -80,7 +100,7 @@ function setLevel(value) {
   renderSummary(); renderWarrior(); renderFood(); renderGroupSlots(); renderGroup();
 }
 function renderSummary(){
-  const count=WARRIOR_ITEMS.filter(available).length;
+  const count=categoryOrder.reduce((total,cat)=>total+catalogItems(cat).length,0);
   const food=FOODS.filter(x=>x.level!==null&&x.level<=state.level).length;
   $("#levelSummary").innerHTML="<strong>"+count+"</strong> available items · <strong>"+food+"</strong> verified food choices";
 }
@@ -88,13 +108,12 @@ function renderWarrior(){
   const stone=latest(WARRIOR_ITEMS.filter(x=>/Sharpening Stone/.test(x.name)));
   const heal=latest(WARRIOR_ITEMS.filter(x=>/Healing Potion/.test(x.name)));
   const food=latest(FOODS.filter(x=>x.category==="STR"));
-  const recommendedGrenades=["Thorium Grenade","Mithril Frag Bomb","Iron Grenade","Big Bronze Bomb","Small Bronze Bomb"];
-  const grenade=recommendedGrenades.map(name=>WARRIOR_ITEMS.find(item=>item.name===name)).find(item=>item&&available(item));
+  const dynamite=latest(catalogItems("Engineering"));
   $("#warriorHighlights").innerHTML=[
     ["BEST SHARPENING STONE",stone,stone?.effect||"No upgrade yet"],
     ["HEALING POTION",heal,heal?.effect||"Not yet available"],
     ["STRENGTH FOOD",food,food?food.effect+" · +5% kill XP":"Not yet available"],
-    ["ENGINEERING GRENADE",grenade,grenade?grenade.effect+" · Eng "+grenade.professionSkill:"Not yet in the profession progression"]
+    ["LATEST DYNAMITE",dynamite,dynamite?dynamite.effect+" · Eng "+dynamite.professionSkill:"No dynamite available yet"]
   ].map(([label,item,detail])=>'<div class="highlight panel"><small>'+esc(label)+'</small><strong>'+
     (item?itemLink(item,"item"):"—")+'</strong><p>'+esc(detail)+'</p></div>').join("");
   const categories=[...categoryOrder,"1H Weapon Progression","Tank Checklist","Class Quests & Milestones"];
@@ -102,14 +121,14 @@ function renderWarrior(){
     const quests=cat==="Class Quests & Milestones";
     const weapons=cat==="1H Weapon Progression";
     const tips=cat==="Tank Checklist";
-    const list=(quests?WARRIOR_QUESTS:weapons?WARRIOR_WEAPONS:tips?WARRIOR_TIPS:WARRIOR_ITEMS.filter(x=>x.category===cat))
+    const list=(quests?WARRIOR_QUESTS:weapons?WARRIOR_WEAPONS:tips?WARRIOR_TIPS:catalogItems(cat))
       .filter(available).sort((a,b)=>(b.level??b.showFromLevel??0)-(a.level??a.showFromLevel??0));
     const rows=list.map(x=>{
       const tag=x.professionSkill!=null?'<span class="level-badge" title="Requires Engineering skill '+x.professionSkill+'; this is NOT a character level">Eng '+x.professionSkill+'</span>':x.level===null?'<span class="small-flag uncertain">Skill</span>':'<span class="level-badge" title="Required character level">'+x.level+'</span>';
       const name=itemLink(x,quests?(x.kind==="spell"?"spell":"quest"):tips?"spell":"item");
       return '<div class="entry"><span>'+tag+'</span><div><span class="entry-title">'+name+'</span><div class="entry-desc">'+esc(x.effect)+'</div>'+(x.note?'<div class="flag-note">'+esc(x.note)+'</div>':"")+'</div>'+(x.flag?'<span class="small-flag">'+esc(x.flag)+'</span>':"")+'</div>';
     }).join("");
-    const subtitle=quests?"Class quests and spell unlocks (1–30 data)":weapons?"Weapon suggestions only verified through level 30":tips?"Tanking reminders (1–30 data)":list.length+" level-eligible / profession-gated items";
+    const subtitle=quests?"Class quests and spell unlocks (1–30 data)":weapons?"Weapon suggestions only verified through level 30":tips?"Tanking reminders (1–30 data)":cat==="Engineering"?list.length+" crafted dynamite options by Engineering skill":list.length+" current upgrades / distinct effects";
     return '<article class="mini-panel panel"><h2>'+esc(cat)+'<span class="subtitle">'+subtitle+'</span></h2><div class="entry-list">'+(rows||'<div class="empty-state">Nothing available at this level.</div>')+'</div></article>';
   }).join("");
   refreshTooltips();
