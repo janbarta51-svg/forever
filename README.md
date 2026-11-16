@@ -14,7 +14,7 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 
 ## Food Buffs audit (16 Nov 2026)
 
-Food Buffs now uses 102 distinct food items with direct Wowhead Forever item IDs,
+Food Buffs now uses 112 distinct food items with direct Wowhead Forever item IDs,
 including higher-level Stamina/Strength/Agility/Intellect/Spirit, Attack Power,
 Spell Damage, Healing Power and special foods. The `HEAL` filter was separated
 from Spell Damage. Specific Wowhead item pages verify IDs and cooking buffs;
@@ -22,6 +22,13 @@ exact character-use levels remain unknown where an item tooltip was not checked.
 The iconizeLinks integration is refreshed on DOMContentLoaded after the
 deferred Wowhead tooltip script loads. Small actual item icons are requested
 for all linked foods; a category icon is displayed if the CDN is unavailable.
+
+Additional November items include Prowler Steak, Filet o' Flank, Sunrise Omelette,
+Specklefin Feast and Grand Lobster Banquet, plus early Horde foods and seasonal
+Stamina/Spirit recipes. Some level-55 recipes have no confirmed obtainable
+recipe source yet; item existence is not proof of live recipe availability.
+Multi-stat foods appear in each relevant buff filter; the selected stat,
+not the effect's first numeric bonus, controls descending sorting.
 
 Sources: https://www.wowhead.com/forever/news/all-cooking-food-that-currently-gives-xp-buffs-in-wow-forever-382928
 and https://www.icy-veins.com/wow-forever/cooking.
