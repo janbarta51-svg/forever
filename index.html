@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="WoW Forever Protection Warrior companion: level 1–60 consumables, food, campfire buffs and individual-level dungeon party planning.">
-<title>Forever · Warrior Field Guide</title><link rel="stylesheet" href="styles.css?v=20261102-tooltip-fix"><link rel="stylesheet" href="forever.css?v=20261116-food-full"></head>
+<title>Forever · Warrior Field Guide</title><link rel="stylesheet" href="styles.css?v=20261102-tooltip-fix"><link rel="stylesheet" href="forever.css?v=20261120-talents"></head>
 <body data-page="forever">
 <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">W</span><span>Warrior Field Guide <small class="brand-forever">FOREVER</small></span></a>
 <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-<nav class="nav" id="mainNav"><a class="active" href="#warrior" data-tab="warrior">Warrior</a><a href="#food" data-tab="food">Food Buffs</a><a href="#group" data-tab="group">Dungeon Group</a><a href="#camp" data-tab="camp">Campfire</a><a href="#links" data-tab="links">Useful Links</a></nav></header>
+<nav class="nav" id="mainNav"><a class="active" href="#warrior" data-tab="warrior">Warrior</a><a href="#food" data-tab="food">Food Buffs</a><a href="#group" data-tab="group">Dungeon Group</a><a href="#talents" data-tab="talents">Talent Calculator</a><a href="#camp" data-tab="camp">Campfire</a><a href="#links" data-tab="links">Useful Links</a></nav></header>
 <main class="shell">
 <section class="hero panel forever-hero"><div><div class="eyebrow">WORLD OF WARCRAFT · FOREVER · LEVELS 1–60</div><h1>Protection Warrior<br><span class="gold">Field Guide</span></h1><p>A compact leveling companion for consumables, weapon upgrades and five-player dungeon support. Set your level to see what is available.</p><div class="hero-pills"><span>🛡 Tauren Horde Tank</span><span>⚔ Threat & Survival</span><span>🔥 5-player Dungeons</span></div></div><div class="warrior-emblem" aria-hidden="true">⚔</div></section>
 <section class="panel levelbar" aria-label="Warrior level"><div><label for="mainLevel">YOUR WARRIOR LEVEL <strong id="levelNum">20</strong></label><input type="range" id="mainLevel" min="1" max="60" value="20"><div class="level-hints"><span>1</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div></div><label class="level-number-label" for="levelNumber">Exact level<input type="number" id="levelNumber" min="1" max="60" value="20"></label><div class="level-summary" id="levelSummary"></div></section>
@@ -22,10 +22,43 @@
 <section class="panel chat-export-panel" aria-labelledby="exportHeading"><div class="export-heading"><div><div class="eyebrow">SHARE WITH YOUR PARTY</div><h2 id="exportHeading">WoW Chat Export</h2><p>Each player gets their highest available spell rank for their own level. Class names start every line; unlock levels are not displayed.</p></div><div class="export-actions"><button id="copyAll" type="button" class="button primary">Copy all</button></div></div><div id="exportRows" class="export-rows"></div><div class="chat-warning"><strong>Sending to WoW:</strong> Copy all preserves separate lines, useful for a multi-line paste addon or sharing in Discord. Standard WoW chat removes newlines and limits message length, so use each row's <strong>Copy</strong> button to send one message at a time. <strong>*</strong> means an ability also requires a talent, pet or special unlock; having the level alone is not enough.</div><p id="copyStatus" role="status" aria-live="polite" class="source-note"></p></section>
 </section>
 
+<section id="view-talents" class="tab-view" hidden>
+  <div class="page-head">
+    <div class="eyebrow">BUILD PLANNER · LEVELS 10–60</div>
+    <h1>Talent Calculator</h1>
+    <p>Plan talents for every WoW Forever class right here. The interactive trees use a maintained community calculator embedded into this page; the original Wowhead calculator is available for comparison.</p>
+  </div>
+  <div class="panel talent-toolbar">
+    <label for="talentClass">Class
+      <select id="talentClass">
+        <option value="warrior" selected>Warrior</option>
+        <option value="paladin">Paladin</option>
+        <option value="hunter">Hunter</option>
+        <option value="rogue">Rogue</option>
+        <option value="priest">Priest</option>
+        <option value="shaman">Shaman</option>
+        <option value="mage">Mage</option>
+        <option value="warlock">Warlock</option>
+        <option value="druid">Druid</option>
+      </select>
+    </label>
+    <label for="talentLevel">Plan for level
+      <input id="talentLevel" type="number" min="10" max="60" value="60">
+    </label>
+    <div class="talent-point-label">Points available <strong id="talentPoints">51</strong></div>
+    <button id="talentCopyLink" class="button" type="button" disabled>Copy build link</button>
+    <a id="talentWowhead" class="button" href="https://www.wowhead.com/forever/talent-calc/warrior" target="_blank" rel="noopener noreferrer">Original on Wowhead</a>
+  </div>
+  <p id="talentStatus" class="talent-status" role="status" aria-live="polite">Open this tab to load the calculator.</p>
+  <button id="talentRetry" type="button" class="button" hidden>Retry loading calculator</button>
+  <div id="talentCanvas" class="panel talent-canvas"></div>
+  <p class="source-note talent-credit">Interactive calculator provided through the <a href="https://warcraftforever.com/developers/quickstart/" target="_blank" rel="noopener noreferrer">Warcraft Forever embed library</a>. It is independent of Wowhead. Talent data can change after game updates.</p>
+</section>
+
 <section id="view-camp" class="tab-view" hidden><div class="page-head"><div class="eyebrow">PROFESSION UTILITY</div><h1>Campfire Buffs</h1><p>Once you have unlocked camping through The Great Outdoors, you can benefit from other players' profession objects. Buff strength usually scales with character level.</p></div><div class="notice">Placing a campfire object requires the relevant profession skill. Nearby players can receive its benefit after spending about a minute by the fire. Some profession buffs conflict with class buffs.</div><div id="campCards" class="category-grid"></div></section>
 
 <section id="view-links" class="tab-view" hidden><div class="page-head"><div class="eyebrow">BOOKMARKS & REFERENCES</div><h1>Useful Links</h1><p>Guides, resources and your own bookmarks. Add or edit entries in the simple CMS.</p></div><p id="linksStatus" class="source-note" role="status" hidden></p><div id="linksCards" class="link-grid"></div><p class="source-note"><a class="button" href="cms.html">⚙ Manage Links (CMS)</a></p></section>
 </main><div id="itemCopyStatus" class="copy-name-status" role="status" aria-live="polite"></div><footer>Unofficial fan-made guide · <a href="https://warcraft.wiki.gg/wiki/Class_colors" target="_blank" rel="noopener">Official class colors</a> · Icons by <a href="https://www.wowhead.com/classic/icons/name:class" target="_blank" rel="noopener">Wowhead</a> · <a href="https://github.com/janbarta51-svg/forever" target="_blank" rel="noopener">GitHub</a> · Consumables 1–60; Dungeon Group ranks 1–60; game data may change.</footer>
 <script>var whTooltips={colorLinks:true,iconizeLinks:true,iconSize:true,renameLinks:false};</script><script defer src="https://wow.zamimg.com/js/tooltips.js"></script>
-<script src="data-food.js?v=20261116-food-112"></script><script src="data-warrior.js"></script><script src="data-60.js?v=20261116-tauren-armor"></script><script src="data-party.js?v=20261116-party60"></script><script src="class-ui.js"></script><script src="app.js?v=20261116-food-112"></script>
+<script src="data-food.js?v=20261116-food-112"></script><script src="data-warrior.js"></script><script src="data-60.js?v=20261116-tauren-armor"></script><script src="data-party.js?v=20261116-party60"></script><script src="class-ui.js"></script><script src="talents.js?v=20261120"></script><script src="app.js?v=20261120-talents"></script>
 </body></html>
