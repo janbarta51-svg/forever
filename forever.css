@@ -238,3 +238,34 @@
   background:#20252e;border:1px solid #50586a;border-radius:3px}
 .food-item-name:has(.icon,.icontiny,.iconsmall,.iconmedium,.iconlarge,.iconsmall,.iconlarge,img) .food-fallback-icon{display:none}
 .food-item-name .tooltip-wrap a{display:inline-flex;align-items:center;gap:5px}
+
+
+/* Embedded WoW Forever talent planner. Provider maintains its own Shadow DOM.
+   The calculator mounts only when its tab is selected, not behind a hidden tab. */
+.talent-toolbar{display:flex;align-items:flex-end;flex-wrap:wrap;gap:14px;padding:16px 18px;margin-bottom:12px}
+.talent-toolbar label{display:flex;flex-direction:column;gap:5px;min-width:120px;color:#aeb8c2;font-size:12px;font-weight:700}
+.talent-toolbar select,.talent-toolbar input[type=number]{
+  border:1px solid #4d5968;border-radius:4px;background:#0d1218;color:#f4e2bc;
+  min-height:40px;padding:7px 10px;font:600 14px Arial,sans-serif
+}
+.talent-toolbar input[type=number]{width:100px}
+.talent-point-label{font-size:12px;color:#aab4c0;display:flex;align-items:center;gap:8px;padding-bottom:10px}
+.talent-point-label strong{color:#f3bb60;font-size:18px}
+.talent-toolbar .button{min-height:40px;white-space:nowrap}
+.talent-toolbar button:disabled{opacity:.55;cursor:default}
+.talent-status{min-height:30px;color:#a8b5bf;padding:7px 2px;margin:4px 0}
+.talent-status[data-state=error]{color:#ffc0a8}
+.talent-canvas{min-height:560px;padding:16px;overflow:visible}
+.talent-credit{margin:15px 0 26px}
+@media(max-width:1050px){
+  .topbar .nav-toggle{display:block}
+  .topbar .nav{display:none;position:absolute;top:58px;left:0;right:0;height:auto;background:#15191f;border-bottom:1px solid #343b45;flex-direction:column}
+  .topbar .nav.open{display:flex}
+  .topbar .nav a{padding:14px 20px;border-top:1px solid #252a31}
+}
+@media(max-width:760px){
+  .talent-toolbar{align-items:stretch}
+  .talent-toolbar label{flex:1 1 120px}
+  .talent-toolbar .button{flex:1 1 190px;text-align:center}
+  .talent-canvas{padding:7px;min-height:480px}
+}
