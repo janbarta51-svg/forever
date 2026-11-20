@@ -4,13 +4,13 @@ const path=require("node:path");
 const vm=require("node:vm");
 const root=path.resolve(__dirname,"..");
 const read=f=>fs.readFileSync(path.join(root,f),"utf8");
-const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-60.js","data-party.js","class-ui.js","links.json","assets/roles/tank.svg","assets/roles/healer.svg","assets/roles/dps.svg","assets/icons/copy.svg","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
+const assets=["index.html","cms.html","styles.css","forever.css","app.js","cms.js","data-food.js","data-warrior.js","data-60.js","data-party.js","class-ui.js","talents.js","links.json","assets/roles/tank.svg","assets/roles/healer.svg","assets/roles/dps.svg","assets/icons/copy.svg","addon/ForeverBuffLinks/ForeverBuffLinks.toc","addon/ForeverBuffLinks/ForeverBuffLinks.lua"];
 let failures=0;
 function check(condition,message){console.log((condition?"PASS ":"FAIL ")+message);if(!condition)failures++}
 function finish(){console.log("\n"+(failures?"FAILED: "+failures:"ALL TESTS PASSED"));process.exitCode=failures?1:0}
 for(const file of assets)check(fs.existsSync(path.join(root,file)),"Asset: "+file);
 for(const file of assets.filter(x=>x.endsWith(".js")))try{new vm.Script(read(file),{filename:file});check(true,"JavaScript syntax: "+file)}catch(e){check(false,file+": "+e.message)}
-for(const file of ["index.html","cms.html","app.js","cms.js","data-warrior.js","data-60.js","data-party.js","data-food.js","class-ui.js","README.md"]){
+for(const file of ["index.html","cms.html","app.js","cms.js","data-warrior.js","data-60.js","data-party.js","data-food.js","class-ui.js","talents.js","README.md"]){
   check(!/[áčďéěíňóřšťúůýž]/i.test(read(file)),"English-only content: "+file);
 }
 const w={addEventListener(){}};
@@ -71,7 +71,12 @@ check(Object.values(w.GROUP_ABILITY_DATA).some(list=>list.some(a=>a[2].some(n=>n
 check(!w.GROUP_ABILITY_DATA.Paladin.some(a=>/Salvation/i.test(a[0])),"Paladin has neither Blessing nor Greater Blessing of Salvation");
 check(!w.GROUP_ABILITY_DATA.Hunter.some(a=>["Strider Kick","Counterattack"].includes(a[0])),"Hunter damage/movement abilities are not listed as CC");
 const markup=read("index.html");
-for(const tab of ["warrior","food","group","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
+for(const tab of ["warrior","food","group","talents","camp","links"])check(markup.includes('id="view-'+tab+'"'),"Tab: "+tab);
+check(markup.includes('href="#talents" data-tab="talents"'),"Talent Calculator added to main navigation");
+check(markup.includes('src="talents.js?v=20261120"'),"Lazy talent embed library integration script included");
+check(markup.includes('id="talentClass"')&&markup.includes('id="talentLevel"'),"Talent class and level controls are available");
+check(read("talents.js").includes("WarcraftForever.Talents")&&read("talents.js").includes("latest.js?alias=0"),"Supported live talent library API is used, not an unverified Wowhead iframe");
+check(read("forever.css").includes(".talent-canvas")&&read("forever.css").includes("max-width:1050px"),"Talent layout and responsive menu styles are present");
 check(markup.includes('src="class-ui.js"'),"Class themes loaded before app script");
 check(markup.includes('src="data-food.js?v=20261116-food-112"'),"Updated foods dataset cache-busted");
 check(markup.includes('iconSize:true'),"Wowhead icon sizing enabled");
@@ -101,8 +106,8 @@ check(baseCSS.includes(".table-scroll > table th") && baseCSS.includes(".table-s
 check(!read("app.js").includes('class="local-tooltip"'),"Current app.js generates no local tooltip markup");
 check(read("app.js").includes("data-wowhead"),"Original Wowhead tooltip bindings preserved");
 check(foreverCSS.includes(".tooltip-wrap .local-tooltip") && foreverCSS.includes("display:none !important"),"Cached local tooltip is force-hidden, including after link click/focus");
-check(markup.includes('src="app.js?v=20261116-food-112"'),"Food-aware renderer loads latest script");
-check(markup.includes('href="forever.css?v=20261116-food-full"'),"Latest food icon CSS cache version loaded");
+check(markup.includes('src="app.js?v=20261120-talents"'),"Talent-aware main app cache version is current");
+check(markup.includes('href="forever.css?v=20261120-talents"'),"Talent layout CSS cache version loaded");
 check(markup.includes('href="styles.css?v=20261102-tooltip-fix"'),"Latest table CSS uses explicit cache-busting version");
 check(foreverCSS.includes(".wowhead-tooltip,") && foreverCSS.includes("max-width:min(420px, calc(100vw - 24px))"),"Wowhead tooltip has responsive width cap, not fixed width");
 
@@ -122,7 +127,7 @@ check(saved.every(x=>x.title&&/^https?:\/\//.test(x.url)),"Useful URLs are valid
   }
   elements[".nav"]={classList:{remove(){},toggle(){return true}}};
   elements[".nav-toggle"]={addEventListener(){},setAttribute(){}};
-  const tabs=["warrior","food","group","camp","links"].map(id=>({
+  const tabs=["warrior","food","group","talents","camp","links"].map(id=>({
     id:"view-"+id,hidden:false,dataset:{tab:id},classList:{toggle(){}},setAttribute(){},addEventListener(){}
   }));
   const doc={
