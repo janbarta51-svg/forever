@@ -302,12 +302,13 @@ async function renderLinks(){
   }
 }
 function selectTab(tab){
-  const selected=["warrior","food","group","camp","links"].includes(tab)?tab:"warrior";
+  const selected=["warrior","food","group","talents","camp","links"].includes(tab)?tab:"warrior";
   state.tab=selected;
   document.querySelectorAll(".tab-view").forEach(el=>el.hidden=el.id!=="view-"+selected);
   document.querySelectorAll("[data-tab]").forEach(el=>{el.classList.toggle("active",el.dataset.tab===selected);el.setAttribute("aria-current",el.dataset.tab===selected?"page":"false")});
   $(".nav").classList.remove("open");$(".nav-toggle").setAttribute("aria-expanded","false");
   if(selected==="links")renderLinks();
+  if(selected==="talents")window.ForeverTalentCalculator?.show();
   refreshTooltips();
 }
 $("#mainLevel").addEventListener("input",event=>setLevel(event.target.value));
