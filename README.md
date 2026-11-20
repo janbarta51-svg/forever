@@ -4,6 +4,8 @@ A responsive, **English-only** WoW Forever companion for a Human Protection Warr
 
 ## Features
 
+- **Talent Calculator:** in-page interactive talent trees for all nine WoW Forever classes, levels 10–60 (up to 51 points). Uses the supported Warcraft Forever Shadow DOM embed library loaded on demand, not a copy of Wowhead’s code. Supports share links and provides a direct original Wowhead link for each class.
+
 - **Warrior:** level 1–60 slider, current-tier potions/elixirs/weapon stones/scrolls, standard affordable dynamites only (Engineering-skill labels), original 1–30 weapon and quest content.
 - **Auction House quick copy:** a tiny muted amber overlapping-pages icon appears beside purchasable/tradable items in Warrior cards, current-item highlights and the Food Buffs table. Clicking it copies only the exact item name for Auction House search. Quest rewards, spells and non-tradable dungeon gear have no copy icon. The icon is a clean vector reinterpretation of the provided reference rather than a watermarked bitmap.
 - **Food Buffs:** 71 food recipes with stat categories, filters and clear distinction between character level and Cooking skill.
@@ -164,6 +166,26 @@ check certificate provisioning status in Pages settings and retry the
 custom-domain save if necessary. This account integration does not
 expose GitHub Pages domain/TLS settings or DNS editing, so this step
 requires someone with the relevant access.
+
+## Embedded Talent Calculator (20 Nov 2026)
+
+The **Talent Calculator** nav tab mounts `https://warcraftforever.com/talents/latest.js?alias=0`
+on demand, using the provider's documented `WarcraftForever.Talents.mount()`
+API. Class and independent level (10–60) selectors are provided within Forever.
+Point cap equals level minus 9. The talent UI remains inside the Forever page,
+supports real interactive allocation, and exposes a share URL. The separate
+**Original on Wowhead** button opens the requested
+`https://www.wowhead.com/forever/talent-calc` calculator for comparison.
+
+Wowhead's own Forever interactive embed is not publicly documented/verified
+in the same way as its old Classic embed. We therefore do not copy Wowhead's
+proprietary code or falsely claim that its calculator is running natively.
+The third-party integration may require network access to warcraftforever.com.
+If that request is blocked, the tab shows an explanation, a Retry button and
+the Wowhead link. Test with `node tests/talents.cjs`.
+
+Source: https://warcraftforever.com/developers/quickstart/ and
+https://warcraftforever.com/developers/talents/options/
 
 ## Installation and hosting
 
